@@ -1,5 +1,6 @@
 package io.opentracing;
 
-public class MarshaledPairBinary {
-
+public interface MarshaledPairBinary {
+    byte[] getTraceContextId();
+    byte[] getTraceTags();
 }
