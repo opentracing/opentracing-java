@@ -1,2 +1,13 @@
+*~
+#*
+*#
+.#*
+.factorypath
+.classpath
+.project
+.settings/
+target/
+_site/
 .idea
-api-java.iml
+*.iml
+*.swp

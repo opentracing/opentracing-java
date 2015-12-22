@@ -20,3 +20,6 @@ What's not here:
 - A small working example (like `dapperish` from `api-golang`)
 - Modern Java coding style :)
 
+## Building
+
+This is a maven project, execute `./mvnw clean install` to build, run tests, and create jars.
