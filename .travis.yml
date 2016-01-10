@@ -1,0 +1,15 @@
+# Run `travis lint` when changing this file to avoid breaking the build.
+sudo: false
+
+cache:
+  directories:
+  - $HOME/.m2
+
+language: java
+
+jdk:
+  - oraclejdk8
+
+script:
+  # use the maven wrapper as opposed to whatever version travis has
+  - ./mvnw install -nsu
