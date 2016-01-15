@@ -21,13 +21,13 @@
 
     <parent>
         <groupId>io.opentracing</groupId>
-        <artifactId>api-java</artifactId>
+        <artifactId>parent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>opentracing-core</artifactId>
-    <name>OpenTracing Java Core</name>
-    <description>OpenTracing Java Core</description>
+    <artifactId>opentracing</artifactId>
+    <name>OpenTracing</name>
+    <description>OpenTracing Java API</description>
 
     <properties>
         <main.basedir>${project.basedir}/..</main.basedir>

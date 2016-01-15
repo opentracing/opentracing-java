@@ -1,6 +1,6 @@
 # OpenTracing API for Java
 
-This library is a Java implementation of Open Tracing API.
+This library is a Java implementation of OpenTracing API.
 
 ## Objectives
 
@@ -17,12 +17,10 @@ switching tracing implementations becomes an O(1) code change.
 
 ## Status
 
-This project is currently skeletal, and unreleased.
+This project has a working design of interfaces for the OpenTracing API. It does
+not have a test harness or any implementation, yet.
 
-This project will be released once it provides an API and standard
-implementation that can be used by instrumentation libraries to collect and
-propagate distributed tracing context. Finally, it will include a
-[Zipkin](http://openzipkin.github.io)-compatible Tracer.
+Packages are not yet deployed to Maven Central, but work is in progress.
 
 # Development
 

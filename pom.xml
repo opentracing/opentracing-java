@@ -20,12 +20,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.opentracing</groupId>
-    <artifactId>api-java</artifactId>
+    <artifactId>parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>opentracing-core</module>
+        <module>opentracing</module>
     </modules>
 
     <properties>
@@ -49,7 +49,7 @@
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
     </properties>
 
-    <name>OpenTracing API for Java</name>
+    <name>OpenTracing (Parent)</name>
     <description>OpenTracing API for Java</description>
     <url>https://github.com/opentracing/api-java</url>
     <inceptionYear>2016</inceptionYear>
