@@ -51,7 +51,7 @@
 
     <name>OpenTracing (Parent)</name>
     <description>OpenTracing API for Java</description>
-    <url>https://github.com/opentracing/api-java</url>
+    <url>https://github.com/opentracing/opentracing-java</url>
     <inceptionYear>2016</inceptionYear>
 
     <organization>
@@ -68,9 +68,9 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/opentracing/api-java</url>
-        <connection>scm:git:https://github.com/opentracing/api-java.git</connection>
-        <developerConnection>scm:git:https://github.com/opentracing/api-java.git
+        <url>https://github.com/opentracing/opentracing-java</url>
+        <connection>scm:git:https://github.com/opentracing/opentracing-java.git</connection>
+        <developerConnection>scm:git:https://github.com/opentracing/opentracing-java.git
         </developerConnection>
         <tag>HEAD</tag>
     </scm>
@@ -90,14 +90,14 @@
 
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/opentracing/api-java/issues</url>
+        <url>https://github.com/opentracing/opentracing-java/issues</url>
     </issueManagement>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>api-java-core</artifactId>
+                <artifactId>opentracing</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

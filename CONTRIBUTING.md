@@ -7,7 +7,7 @@ When submitting code, please apply [Square Code Style](https://github.com/square
 
 ## License
 
-By contributing your code, you agree to license your contribution under the terms of the APLv2: https://github.com/opentracing/api-java/blob/master/LICENSE
+By contributing your code, you agree to license your contribution under the terms of the APLv2: https://github.com/opentracing/opentracing-java/blob/master/LICENSE
 
 All files are released with the Apache 2.0 license.
 
