@@ -1,19 +1,12 @@
 # OpenTracing API for Java
 
-This library is a Java implementation of OpenTracing API.
+This library is a Java platform API for OpenTracing.
 
-## Objectives
+## Required Reading
 
-Distributed tracing and context propagation have become important analysis
-tools for today's multi-layer distributed systems comprised of numerous
-micro-services implemented in different languages.  The success of these
-tools is dependent on pervasive instrumentation of applications and
-libraries with trace context propagation support.
-
-The OpenTracing project (http://opentracing.io) provides a multi-lingual
-standard for application-level instrumentation that's loosely coupled to any
-particular downstream tracing or monitoring system. In this way, adding or
-switching tracing implementations becomes an O(1) code change.
+In order to understand the Java platform API, one must first be familiar with
+the [OpenTracing project](http://opentracing.io) and
+[terminology](http://opentracing.io/spec/) more generally.
 
 ## Status
 
