@@ -13,8 +13,6 @@
  */
 package opentracing;
 
-import java.util.Formatter;
-
 /**
  * Span represents an active, un-finished span in the opentracing system.
  *
@@ -61,30 +59,24 @@ public interface Span {
 
   Span setTraceAttribute(String key, String value);
 
+  /**   *
+   * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
+   * If specified, the payload argument may be of any type and arbitrary size,
+   * though implementations are not required to retain all payload arguments
+   * (or even all parts of all payload arguments).
+   *
+   * The timestamp of this log event is the current time.
+   **/
+  Span log(String eventName, /* @Nullable */ Object payload);
+
   /**
-   * {@code message} is a format string and can refer to fields in the payload by path, like so:
+   * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
+   * If specified, the payload argument may be of any type and arbitrary size,
+   * though implementations are not required to retain all payload arguments
+   * (or even all parts of all payload arguments).
    *
-   * <pre>{@code
-   *
-   * span.info("first transaction is worth ${transactions[0].amount} ${transactions[0].currency}",
-   *     ImmutableMap.of(
-   *       "transactions", asList(
-   *         Transaction.builder().amount(10).currency("USD").build(),
-   *         Transaction.builder().amount(11).currency("USD").build(),
-   *       )
-   *     )
-   * );
-   * }</pre>
-   *
-   * @param message {@link Formatter format string} that can refer to fields in the args payload.
-   * @param args arbitrary payload
-   */
-  // See https://github.com/opentracing/opentracing.github.io/issues/30 about parameterization
-  Span info(String message, Object... args);
-
-  /** Same as {@link #info}, but for warnings. */
-  Span warning(String message, Object... args);
-
-  /** Same as {@link #info}, but for errors. */
-  Span error(String message, Object... args);
+   * The timestamp is specified manually here to represent a past log event.
+   * The timestamp in microseconds in UTC time.
+   **/
+  Span log(long instantMicroseconds, String eventName, /* @Nullable */ Object payload);
 }
