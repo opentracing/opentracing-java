@@ -25,7 +25,7 @@ public interface Span {
   /**
    * Suitable for serializing over the wire, etc.
    */
-  TraceContext traceContext();
+  SpanContext childContext();
 
   /**
    * Denotes the beginning of a subordinate unit of work.

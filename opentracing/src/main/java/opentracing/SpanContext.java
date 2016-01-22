@@ -14,23 +14,23 @@
 package opentracing;
 
 /**
- * TraceContext encpasulates the smallest amount of state needed to describe a Span's identity
- * within a larger [potentially distributed] trace. The TraceContext is not intended to encode the
+ * SpanContext encpasulates the smallest amount of state needed to describe a Span's identity
+ * within a larger [potentially distributed] trace. The SpanContext is not intended to encode the
  * span's operation name, timing, or log data, but merely any unique identifiers (etc) needed to
  * contextualize it within a larger trace tree.
  *
- * <p>TraceContexts are sufficient to propagate the, well, *context* of a particular trace between
+ * <p>SpanContexts are sufficient to propagate the, well, *context* of a particular trace between
  * processes.
  *
- * <p>TraceContext also support a simple string map of "trace attributes". These trace attributes
+ * <p>SpanContext also support a simple string map of "trace attributes". These trace attributes
  * are special in that they are propagated *in-band*, presumably alongside application data. See the
  * documentation for {@link #setAttribute(String, String)} for more details and some important
  * caveats.
  */
-public interface TraceContext {
+public interface SpanContext {
 
   /**
-   * Sets a tag on this TraceContext that also propagates to future children per {@link
+   * Sets a tag on this SpanContext that also propagates to future children per {@link
    * TraceContextSource#newChild(TraceContext)}.
    *
    * <p>Trace attributes enables powerful functionality given a full-stack opentracing integration
@@ -54,7 +54,7 @@ public interface TraceContext {
    * must be letters, numbers, or hyphens. undefined behavior results if the `restrictedKey` does
    * not meet these criteria.
    */
-  TraceContext setAttribute(String restrictedKey, String value);
+  SpanContext setAttribute(String restrictedKey, String value);
 
   /**
    * Gets the value for a trace tag given its key. Returns Null if the value isn't found in this

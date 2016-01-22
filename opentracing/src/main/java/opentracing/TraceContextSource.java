@@ -16,32 +16,32 @@ package opentracing;
 import java.util.Map;
 
 /**
- * Long-lived interface that knows how to create a root {@linkplain TraceContext} and encode/decode
+ * Long-lived interface that knows how to create a root {@link SpanContext} and encode/decode
  * any other.
  */
 public interface TraceContextSource {
 
   /**
-   * Encodes or Decodes a {@linkplain TraceContext trace context} in binary or text formats.
+   * Encodes or Decodes a {@link SpanContext trace context} in binary or text formats.
    */
   TraceContextCodec codec();
 
   /**
-   * Create a TraceContext which has no parent (and thus begins its own trace).
+   * Create a SpanContext which has no parent (and thus begins its own trace).
    *
    * <p>A TraceContextSource must always return the same type in successive calls to
    * NewRootTraceContext().
    */
-  TraceContext newRoot();
+  SpanContext newRoot();
 
   /**
    * Creates a child context for {@code parent}, and returns both that child's own
    * TraceContext as well as any Tags that should be added to the child's Span.
    */
-  ChildTraceContext newChild(TraceContext parent);
+  ChildTraceContext newChild(SpanContext parent);
 
   interface ChildTraceContext {
-    TraceContext child();
+    SpanContext child();
 
     Map<String, Object> tags();
   }
