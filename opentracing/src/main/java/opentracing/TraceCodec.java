@@ -16,7 +16,7 @@ package opentracing;
 import java.util.Map;
 
 /**
- * Encodes or Decodes a {@linkplain TraceContext trace context} in binary or text formats.
+ * Encodes or Decodes a {@link SpanContext context} in binary or text formats.
  *
  * <p>The toXXX methods are expected to serialize trace contexts into a pair of values representing
  * separately the trace context / span identity, and the trace attributes. This is done specifically
@@ -24,16 +24,16 @@ import java.util.Map;
  * binary message format, so that it can be inspected efficiently by the middleware / routing layers
  * without parsing the whole message.
  */
-public interface TraceContextCodec {
+public interface TraceCodec {
 
   /**
-   * Implementation-specific format of a span's identity along with any trace attributes.
+   * Implementation-specific format of a span's identity along with any span attributes.
    *
    * @param <E> encoding, for example {@code byte[]} for binary, or {@code Map<String, String>} for
    * text.
    */
-  // Can instead explicitly create BinaryEncodedTraceContext, TextEncodedTraceContext, just.. cluttery
-  interface EncodedTraceContext<E> {
+  // Can instead explicitly create BinaryEncodedSpanContext, TextEncodedSpanContext, just.. cluttery
+  interface EncodedSpanContext<E> {
     /** Encoded span identifier. */
     E spanIdentity();
 
@@ -42,30 +42,30 @@ public interface TraceContextCodec {
   }
 
   /**
-   * Encodes the trace context into a binary representation of the span's identity and trace
+   * Encodes the span context into a binary representation of the span's identity and trace
    * attributes.
    */
-  EncodedTraceContext<byte[]> toBinary(TraceContext tc);
+  EncodedSpanContext<byte[]> toBinary(SpanContext tc);
 
   /**
-   * Decodes a trace context from a binary representation of the span's identity and trace
+   * Decodes a span context from a binary representation of the span's identity and trace
    * attributes.
    *
    * @throws IllegalArgumentException if the encoded data is malformed.
    */
-  TraceContext fromBinary(EncodedTraceContext<byte[]> encoded);
+  SpanContext fromBinary(EncodedSpanContext<byte[]> encoded);
 
   /**
-   * Encodes the trace context into a text representation of the span's identity and trace
+   * Encodes the span context into a text representation of the span's identity and trace
    * attributes.
    */
-  EncodedTraceContext<Map<String, String>> toText(TraceContext tc);
+  EncodedSpanContext<Map<String, String>> toText(SpanContext tc);
 
   /**
-   * Decodes a trace context from a text representation of the span's identity and trace
+   * Decodes a span context from a text representation of the span's identity and trace
    * attributes.
    *
    * @throws IllegalArgumentException if the encoded data is malformed.
    */
-  TraceContext fromText(EncodedTraceContext<Map<String, String>> encoded);
+  SpanContext fromText(EncodedSpanContext<Map<String, String>> encoded);
 }

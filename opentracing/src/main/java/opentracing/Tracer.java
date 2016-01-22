@@ -36,7 +36,7 @@ public interface Tracer {
   /**
    * Like {@link #startTrace(String)}, but the returned span is made a child of {@code parent}.
    */
-  Span joinTrace(String operationName, TraceContext parent);
+  Span joinTrace(String operationName, SpanContext parent);
 
   /**
    * StartSpanWithContext returns a span with the given {@code operationName} and an association
@@ -50,5 +50,5 @@ public interface Tracer {
    * Span feed = tracer.startTrace("GetFeed");
    * }</pre>
    */
-  Span startSpanWithContext(String operationName, TraceContext context);
+  Span startSpanWithContext(String operationName, SpanContext context);
 }

@@ -13,7 +13,7 @@
  */
 package opentracing;
 
-import java.util.Formatter;
+import java.util.Map;
 
 /**
  * Span represents an active, un-finished span in the opentracing system.
@@ -25,16 +25,7 @@ public interface Span {
   /**
    * Suitable for serializing over the wire, etc.
    */
-  TraceContext traceContext();
-
-  /**
-   * Denotes the beginning of a subordinate unit of work.
-   *
-   * @param operationName name of the operation represened by the new span from the perspective of
-   * the current service.
-   * @return a new child Span in "started" state.
-   */
-  Span startChild(String operationName);
+  SpanContext childContext();
 
   /**
    * Sets the end timestamp and records the span.
@@ -65,29 +56,7 @@ public interface Span {
   Span setTag(String key, Number value);
 
   /**
-   * {@code message} is a format string and can refer to fields in the payload by path, like so:
-   *
-   * <pre>{@code
-   *
-   * span.info("first transaction is worth ${transactions[0].amount} ${transactions[0].currency}",
-   *     ImmutableMap.of(
-   *       "transactions", asList(
-   *         Transaction.builder().amount(10).currency("USD").build(),
-   *         Transaction.builder().amount(11).currency("USD").build(),
-   *       )
-   *     )
-   * );
-   * }</pre>
-   *
-   * @param message {@link Formatter format string} that can refer to fields in the args payload.
-   * @param args arbitrary payload
-   */
-  // See https://github.com/opentracing/opentracing.github.io/issues/30 about parameterization
-  Span info(String message, Object... args);
-
-  /** Same as {@link #info}, but for warnings. */
-  Span warning(String message, Object... args);
-
-  /** Same as {@link #info}, but for errors. */
-  Span error(String message, Object... args);
+   * @todo
+   **/
+  Span event(String message, Map<String,String> payload);
 }
