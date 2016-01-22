@@ -19,7 +19,7 @@ import java.util.Map;
  * Long-lived interface that knows how to create a root {@link SpanContext} and encode/decode
  * any other.
  */
-public interface TraceContextSource {
+public interface TraceContext {
 
   /**
    * Encodes or Decodes a {@link SpanContext trace context} in binary or text formats.
