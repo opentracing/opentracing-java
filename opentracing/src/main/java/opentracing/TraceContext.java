@@ -14,53 +14,22 @@
 package opentracing;
 
 /**
- * TraceContext encpasulates the smallest amount of state needed to describe a Span's identity
- * within a larger [potentially distributed] trace. The TraceContext is not intended to encode the
- * span's operation name, timing, or log data, but merely any unique identifiers (etc) needed to
- * contextualize it within a larger trace tree.
- *
- * <p>TraceContexts are sufficient to propagate the, well, *context* of a particular trace between
- * processes.
- *
- * <p>TraceContext also support a simple string map of "trace attributes". These trace attributes
- * are special in that they are propagated *in-band*, presumably alongside application data. See the
- * documentation for {@link #setAttribute(String, String)} for more details and some important
- * caveats.
+ * Long-lived interface that knows how to create a root {@link SpanContext} and encode/decode
+ * any other.
  */
 public interface TraceContext {
 
   /**
-   * Sets a tag on this TraceContext that also propagates to future children per {@link
-   * TraceContextSource#newChild(TraceContext)}.
-   *
-   * <p>Trace attributes enables powerful functionality given a full-stack opentracing integration
-   * (e.g., arbitrary application data from a mobile app can make it, transparently, all the way
-   * into the depths of a storage system), and with it some powerful costs: use this feature with
-   * care.
-   *
-   * <p>IMPORTANT NOTE #1: This will only propagate trace attributes to *future* children of the
-   * TraceContextSource#newChild(TraceContext)} and/or the Span that references it.
-   *
-   * <p>IMPORTANT NOTE #2: Use this thoughtfully and with care. Every key and value is copied into
-   * every local *and remote* child of this TraceContext, and that can add up to a lot of network
-   * and cpu overhead.
-   *
-   * <p>IMPORTANT NOTE #3: Trace attributes keys have a restricted format: implementations may wish
-   * to use them as HTTP header keys (or key suffixes), and of course HTTP headers are case
-   * insensitive.
-   *
-   * @param restrictedKey MUST match the regular expression `(?i:[a-z0-9][-a-z0-9]*)` and is
-   * case-insensitive. That is, it must start with a letter or number, and the remaining characters
-   * must be letters, numbers, or hyphens. undefined behavior results if the `restrictedKey` does
-   * not meet these criteria.
+   * Encodes or Decodes a {@link SpanContext trace context} in binary or text formats.
    */
-  TraceContext setAttribute(String restrictedKey, String value);
+  TraceCodec codec();
 
   /**
-   * Gets the value for a trace tag given its key. Returns Null if the value isn't found in this
-   * TraceContext.
+   * Create a SpanContext which has no parent (and thus begins its own trace).
    *
-   * @param restrictedKey see {@link #setAttribute(String, String)} notes.
+   * <p>A TraceContextSource must always return the same type in successive calls to
+   * NewRootTraceContext().
    */
-  String getAttribute(String restrictedKey);
+  SpanContext newRoot();
+
 }
