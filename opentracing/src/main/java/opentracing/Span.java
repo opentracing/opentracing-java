@@ -28,15 +28,6 @@ public interface Span {
   SpanContext childContext();
 
   /**
-   * Denotes the beginning of a subordinate unit of work.
-   *
-   * @param operationName name of the operation represened by the new span from the perspective of
-   * the current service.
-   * @return a new child Span in "started" state.
-   */
-  Span startChild(String operationName);
-
-  /**
    * Sets the end timestamp and records the span.
    *
    * <p>This should be the last call made to any span instance, and to do otherwise leads to
