@@ -24,7 +24,7 @@ public interface TraceContext {
   /**
    * Encodes or Decodes a {@link SpanContext trace context} in binary or text formats.
    */
-  TraceContextCodec codec();
+  TraceCodec codec();
 
   /**
    * Create a SpanContext which has no parent (and thus begins its own trace).

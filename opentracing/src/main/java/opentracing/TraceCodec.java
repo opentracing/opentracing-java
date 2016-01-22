@@ -16,7 +16,7 @@ package opentracing;
 import java.util.Map;
 
 /**
- * Encodes or Decodes a {@link SpanContext trace context} in binary or text formats.
+ * Encodes or Decodes a {@link SpanContext context} in binary or text formats.
  *
  * <p>The toXXX methods are expected to serialize trace contexts into a pair of values representing
  * separately the trace context / span identity, and the trace attributes. This is done specifically
@@ -24,7 +24,7 @@ import java.util.Map;
  * binary message format, so that it can be inspected efficiently by the middleware / routing layers
  * without parsing the whole message.
  */
-public interface TraceContextCodec {
+public interface TraceCodec {
 
   /**
    * Implementation-specific format of a span's identity along with any span attributes.
