@@ -13,8 +13,6 @@
  */
 package opentracing;
 
-import java.util.Map;
-
 /**
  * Long-lived interface that knows how to create a root {@link SpanContext} and encode/decode
  * any other.
@@ -34,15 +32,4 @@ public interface TraceContext {
    */
   SpanContext newRoot();
 
-  /**
-   * Creates a child context for {@code parent}, and returns both that child's own
-   * TraceContext as well as any Tags that should be added to the child's Span.
-   */
-  ChildTraceContext newChild(SpanContext parent);
-
-  interface ChildTraceContext {
-    SpanContext child();
-
-    Map<String, Object> tags();
-  }
 }
