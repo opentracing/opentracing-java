@@ -23,11 +23,6 @@ import java.util.Formatter;
 public interface Span {
 
   /**
-   * Suitable for serializing over the wire, etc.
-   */
-  TraceContext traceContext();
-
-  /**
    * Denotes the beginning of a subordinate unit of work.
    *
    * @param operationName name of the operation represened by the new span from the perspective of
@@ -63,6 +58,8 @@ public interface Span {
   /** Same as {@link #setTag(String, String)}, but for numeric values. */
   // numbers kindof suck.. we've no idea if this is a float, how many bits, etc.
   Span setTag(String key, Number value);
+
+  Span setTraceAttribute(String key, String value);
 
   /**
    * {@code message} is a format string and can refer to fields in the payload by path, like so:
