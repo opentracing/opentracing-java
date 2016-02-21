@@ -16,18 +16,9 @@ package opentracing;
 /**
  * Span represents an active, un-finished span in the opentracing system.
  *
- * <p>Spans are created by the {@link Tracer} interface and {@link #startChild(String)}.
+ * <p>Spans are created by the {@link Tracer} interface.
  */
 public interface Span {
-
-  /**
-   * Denotes the beginning of a subordinate unit of work.
-   *
-   * @param operationName name of the operation represened by the new span from the perspective of
-   * the current service.
-   * @return a new child Span in "started" state.
-   */
-  Span startChild(String operationName);
 
   /**
    * Sets the end timestamp and records the span.
@@ -38,7 +29,7 @@ public interface Span {
   void finish();
 
   /**
-   * Adds a tag to the span.
+   * Set a key:value tag on the Span.
    *
    * <p>Tag values can be of arbitrary types, however the treatment of complex types is dependent on
    * the underlying tracing system implementation. It is expected that most tracing systems will
@@ -54,10 +45,17 @@ public interface Span {
   Span setTag(String key, boolean value);
 
   /** Same as {@link #setTag(String, String)}, but for numeric values. */
-  // numbers kindof suck.. we've no idea if this is a float, how many bits, etc.
   Span setTag(String key, Number value);
 
-  Span setTraceAttribute(String key, String value);
+  /**
+   * Set a Baggage item, represented as a simple string:string pair.
+   *
+   * Note that newly-set Baggage items are only guaranteed to propagate to future children of the given Span.
+   */
+  Span setBaggageItem(String key, String value);
+
+  /** Get a Baggage item by key. */
+  String getBaggageItem(String key);
 
   /**   *
    * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.

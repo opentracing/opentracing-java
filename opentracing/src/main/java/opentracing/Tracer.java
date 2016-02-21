@@ -13,25 +13,47 @@
  */
 package opentracing;
 
+
 /**
- * Tracer is a simple, thin interface for Span creation.
+ * Tracer is a simple, thin interface for Span creation, and Span propagation into different transport formats.
  */
 public interface Tracer {
 
   /**
-   * Create, start, and return a new Span with the given `operationName`, all without specifying a
-   * parent Span that can be used to incorporate the newly-returned Span into an existing trace.
+   * Create, start, and return a new Span with the given `operationName`.
+   * An optional parent Span can be specified used to incorporate the newly-returned Span into an existing trace.
    *
    * <p>Example:
    * <pre>{@code
    * Tracer tracer = ...
-   * Span feed = tracer.startTrace("GetFeed");
-   * Span http = tracer.startTrace("HandleHTTPRequest")
+   * Span feed = tracer.startTrace("GetFeed", null);
+   * Span http = tracer.startTrace("HandleHTTPRequest", feed)
    *                   .setTag("user_agent", req.UserAgent)
    *                   .setTag("lucky_number", 42);
    * }</pre>
    */
-  Span startTrace(String operationName);
+  Span startSpan(String operationName, /* @Nullable */ Span parent);
 
-  SpanPropagator getSpanPropagator();
+  /**
+   * Same as {@link #startSpan(String, Span)},
+   * but allows to specify a past timestamp in microseconds when the Span was created.
+   */
+  Span startSpan(String operationName, long microseconds, /* @Nullable */ Span parent);
+
+  /** Takes two arguments:
+   *    a Span instance, and
+   *    a “carrier” object in which to inject that Span for cross-process propagation.
+   *
+   */
+  <T> void inject(Span span, T carrier);
+
+  /**  Takes two arguments:
+   *    the operation name for the Span it’s about to create, and
+   *    a “carrier” object from which to extract identifying information needed by the new Span instance.
+   *
+   * Unless there’s an error, it returns a freshly-started Span which can be used in the host process like any other.
+   * (Note that some OpenTracing implementations consider the Spans on either side of an RPC to have the same identity,
+   * and others consider the caller to be the parent and the receiver to be the child)
+   */
+  <T> Span join(String operationName, T carrier);
 }
