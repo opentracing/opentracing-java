@@ -11,53 +11,45 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.noop;
+package io.opentracing;
 
-import io.opentracing.Span;
+final class NoopSpanBuilder implements Tracer.SpanBuilder {
+    static final Tracer.SpanBuilder INSTANCE = new NoopSpanBuilder();
 
-final class NoopSpan implements Span {
-
-    static final NoopSpan Instance = new NoopSpan();
-
-    private NoopSpan() {}
+    private NoopSpanBuilder() {}
 
     @Override
-    public void finish() {
-
-    }
-
-    @Override
-    public Span setTag(String key, String value) {
+    public Tracer.SpanBuilder withOperationName(String operationName) {
         return this;
     }
 
     @Override
-    public Span setTag(String key, boolean value) {
+    public Tracer.SpanBuilder withParent(Span parent) {
         return this;
     }
 
     @Override
-    public Span setTag(String key, Number value) {
+    public Tracer.SpanBuilder withTag(String key, String value) {
         return this;
     }
 
     @Override
-    public Span setBaggageItem(String key, String value) {
+    public Tracer.SpanBuilder withTag(String key, boolean value) {
         return this;
     }
 
     @Override
-    public String getBaggageItem(String key) {
-        return null;
-    }
-
-    @Override
-    public Span log(String eventName, Object payload) {
+    public Tracer.SpanBuilder withTag(String key, Number value) {
         return this;
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) {
+    public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
         return this;
+    }
+
+    @Override
+    public Span start() {
+        return NoopSpan.INSTANCE;
     }
 }

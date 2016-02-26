@@ -47,6 +47,8 @@ public interface Tracer {
    *
    * Attempting to inject to a carrier that has been registered/configured to this Tracer will result in a
    * IllegalStateException.
+   *
+   * All implementations support at minimum the required carriers BinaryWriter and TextMapWriter.
    */
   <T> void inject(Span span, T carrier);
 
@@ -66,6 +68,8 @@ public interface Tracer {
    *
    * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in a
    * IllegalArgumentException.
+   *
+   * All implementations support at minimum the required carriers BinaryReader and TextMapReader.
    */
   <T> SpanBuilder join(T carrier);
 
@@ -99,7 +103,5 @@ public interface Tracer {
       /** Returns the started Span. */
       Span start();
 
-      /** Returns the Span, with a started timestamp (represented in microseconds) as specified. */
-      Span start(long microseconds);
   }
 }
