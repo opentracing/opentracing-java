@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PlaygroundTest {
+public final class PlaygroundTest {
 
   @Test
   public void playground() {

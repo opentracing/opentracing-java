@@ -11,16 +11,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.noop;
+package io.opentracing;
 
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-
-public class NoopTracer implements Tracer {
+public final class NoopTracer implements Tracer {
 
     @Override
     public SpanBuilder buildSpan(String operationName) {
-        return NoopSpanBuilder.Instance;
+        return NoopSpanBuilder.INSTANCE;
     }
 
     @Override
@@ -28,6 +25,7 @@ public class NoopTracer implements Tracer {
 
     @Override
     public <T> SpanBuilder join(T carrier) {
-        return NoopSpanBuilder.Instance;
+        return NoopSpanBuilder.INSTANCE;
     }
+
 }
