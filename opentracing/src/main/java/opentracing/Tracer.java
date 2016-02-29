@@ -25,20 +25,19 @@ public interface Tracer {
    *
    * <p>Example:
    * <pre>{@code
-   * Tracer tracer = ...
-   * Span feed = tracer.startTrace("GetFeed", null);
-   * Span http = tracer.startTrace("HandleHTTPRequest", feed)
-   *                   .setTag("user_agent", req.UserAgent)
-   *                   .setTag("lucky_number", 42);
-   * }</pre>
-   */
-  Span startSpan(String operationName, /* @Nullable */ Span parent);
+    Tracer tracer = ...
 
-  /**
-   * Same as {@link #startSpan(String, Span)},
-   * but allows to specify a past timestamp in microseconds when the Span was created.
+    Span feed = tracer.buildSpan("GetFeed")
+                      .start();
+
+    Span http = tracer.buildSpan("HandleHTTPRequest")
+                      .withParent(feed)
+                      .withTag("user_agent", req.UserAgent)
+                      .withTag("lucky_number", 42)
+                      .start();
+    }</pre>
    */
-  Span startSpan(String operationName, long microseconds, /* @Nullable */ Span parent);
+  SpanBuilder buildSpan(String operationName);
 
   /** Takes two arguments:
    *    a Span instance, and
@@ -47,13 +46,49 @@ public interface Tracer {
    */
   <T> void inject(Span span, T carrier);
 
-  /**  Takes two arguments:
-   *    the operation name for the Span it’s about to create, and
+  /**  Returns a SpanBuilder provided
    *    a “carrier” object from which to extract identifying information needed by the new Span instance.
    *
-   * Unless there’s an error, it returns a freshly-started Span which can be used in the host process like any other.
+   * If the carrier object has no such span stored within it, a new Span is created.
+   *
+   * Unless there’s an error, it returns a SpanBuilder.
+   * The Span generated from the builder can be used in the host process like any other.
+   *
    * (Note that some OpenTracing implementations consider the Spans on either side of an RPC to have the same identity,
    * and others consider the caller to be the parent and the receiver to be the child)
    */
-  <T> Span join(String operationName, T carrier);
+  <T> SpanBuilder join(T carrier);
+
+  interface SpanBuilder {
+
+      /** Specify the operationName.
+       *
+       * If the operationName has already been set (implicitly or explicitly) an IllegalStateException will be thrown.
+       */
+      SpanBuilder withOperationName(String operationName);
+
+      /** Specify the parent span
+       *
+       * If the parent has already been set an IllegalStateException will be thrown.
+       */
+      SpanBuilder withParent(Span parent);
+
+      /** Specify a timestamp the Span actually started from.
+       *
+       * If the timestamp has already been set an IllegalStateException will be thrown.
+       */
+      SpanBuilder withTimestamp(long microseconds);
+
+      /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+      SpanBuilder withTag(String key, String value);
+
+      /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+      SpanBuilder withTag(String key, boolean value);
+
+      /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+      SpanBuilder withTag(String key, Number value);
+
+      /** Returns the started Span. */
+      Span start();
+  }
 }
