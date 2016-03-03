@@ -43,6 +43,13 @@ public interface Tracer {
    *    a Span instance, and
    *    a “carrier” object in which to inject that Span for cross-process propagation.
    *
+   * A “carrier” object is some sort of http or rpc envelope, for example HeaderGroup (from Apache HttpComponents).
+   *
+   * The low-level format carriers Map&lt;String,String&gt; and ByteBuffer are guaranteed to be supported,
+   * otherwise only carriers that have been registered are supported.
+   *
+   * Attempting to inject to a carrier that has been registered/configured to this Tracer will result in a
+   * IllegalStateException.
    */
   <T> void inject(Span span, T carrier);
 
@@ -56,9 +63,16 @@ public interface Tracer {
    *
    * (Note that some OpenTracing implementations consider the Spans on either side of an RPC to have the same identity,
    * and others consider the caller to be the parent and the receiver to be the child)
+   *
+   * Attempting to join from a carrier that has been registered/configured to this Tracer will result in a
+   * IllegalStateException.
+   *
+   * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in a
+   * IllegalArgumentException.
    */
   <T> SpanBuilder join(T carrier);
 
+  
   interface SpanBuilder {
 
       /** Specify the operationName.
@@ -73,12 +87,6 @@ public interface Tracer {
        */
       SpanBuilder withParent(Span parent);
 
-      /** Specify a timestamp the Span actually started from.
-       *
-       * If the timestamp has already been set an IllegalStateException will be thrown.
-       */
-      SpanBuilder withTimestamp(long microseconds);
-
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
       SpanBuilder withTag(String key, String value);
 
@@ -88,7 +96,13 @@ public interface Tracer {
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
       SpanBuilder withTag(String key, Number value);
 
+      /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
+      SpanBuilder withStartTimestamp(long microseconds);
+
       /** Returns the started Span. */
       Span start();
+
+      /** Returns the Span, with a started timestamp (represented in microseconds) as specified. */
+      Span start(long microseconds);
   }
 }

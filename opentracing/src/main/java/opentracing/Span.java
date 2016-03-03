@@ -14,9 +14,9 @@
 package opentracing;
 
 /**
- * Span represents an active, un-finished span in the opentracing system.
+ * Represents an in-flight span in the opentracing system.
  *
- * <p>Spans are created by the {@link Tracer} interface.
+ * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
 public interface Span {
 
@@ -30,13 +30,6 @@ public interface Span {
 
   /**
    * Set a key:value tag on the Span.
-   *
-   * <p>Tag values can be of arbitrary types, however the treatment of complex types is dependent on
-   * the underlying tracing system implementation. It is expected that most tracing systems will
-   * handle primitive types like strings and numbers. If a tracing system cannot understand how to
-   * handle a particular value type, it may ignore the tag, but shall not panic.
-   *
-   * <p>If there is a pre-existing tag set for {@code key}, it is overwritten.
    */
   // overloaded 3x to support the BasicType concern
   Span setTag(String key, String value);
@@ -54,10 +47,13 @@ public interface Span {
    */
   Span setBaggageItem(String key, String value);
 
-  /** Get a Baggage item by key. */
+  /** Get a Baggage item by key.
+   *
+   * Returns null if no entry found, or baggage is not supported in the current implementation.
+   */
   String getBaggageItem(String key);
 
-  /**   *
+  /**
    * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
    * If specified, the payload argument may be of any type and arbitrary size,
    * though implementations are not required to retain all payload arguments
@@ -76,5 +72,5 @@ public interface Span {
    * The timestamp is specified manually here to represent a past log event.
    * The timestamp in microseconds in UTC time.
    **/
-  Span log(long instantMicroseconds, String eventName, /* @Nullable */ Object payload);
+  Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }
