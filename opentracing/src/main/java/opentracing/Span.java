@@ -54,23 +54,39 @@ public interface Span {
   String getBaggageItem(String key);
 
   /**
-   * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
-   * If specified, the payload argument may be of any type and arbitrary size,
-   * though implementations are not required to retain all payload arguments
-   * (or even all parts of all payload arguments).
+   * Create an event builder.
    *
-   * The timestamp of this log event is the current time.
+   * The timestamp of this log event is by default the time the EventBuilder is constructed.
    **/
-  Span log(String eventName, /* @Nullable */ Object payload);
+  EventBuilder buildEvent();
 
-  /**
-   * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
-   * If specified, the payload argument may be of any type and arbitrary size,
-   * though implementations are not required to retain all payload arguments
-   * (or even all parts of all payload arguments).
-   *
-   * The timestamp is specified manually here to represent a past log event.
-   * The timestamp in microseconds in UTC time.
-   **/
-  Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
+  interface EventBuilder {
+
+    /**
+     * The event name should be the stable identifier for some notable moment in the lifetime of a Span.
+     * For instance,
+     *      a Span representing a browser page load might add an event for each of the Performance.timing moments.
+     *
+     * While it is not a formal requirement,
+     *  specific event names should apply to many Span instances:
+     *      tracing systems can use these event names (and timestamps) to analyze Spans in the aggregate.
+     */
+    EventBuilder withName(String name);
+
+    /**
+      * Add the optional structured payload argument.
+      * If specified, the payload argument may be of any type and arbitrary size,
+      * though implementations are not required to retain all payload arguments
+      * (or even all parts of all payload arguments).
+      **/
+    EventBuilder withPayload(Object payload);
+
+    /**
+     * Add a specific timestamp, in microseconds since epoch.
+     **/
+     EventBuilder withTimestamp(long microseconds);
+
+     /** Build the log event, adding it to the Span, then return the Span. */
+     Span log();
+  }
 }
