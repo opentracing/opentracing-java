@@ -15,10 +15,11 @@ package io.opentracing.noop;
 
 import io.opentracing.Span;
 
-public class NoopSpan implements Span {
+final class NoopSpan implements Span {
 
-    private NoopSpan defaultSpan = new NoopSpan();
-    private String emptyString = "";
+    static final NoopSpan Instance = new NoopSpan();
+
+    private NoopSpan() {}
 
     @Override
     public void finish() {
@@ -27,36 +28,36 @@ public class NoopSpan implements Span {
 
     @Override
     public Span setTag(String key, String value) {
-        return defaultSpan;
+        return this;
     }
 
     @Override
     public Span setTag(String key, boolean value) {
-        return defaultSpan;
+        return this;
     }
 
     @Override
     public Span setTag(String key, Number value) {
-        return defaultSpan;
+        return this;
     }
 
     @Override
     public Span setBaggageItem(String key, String value) {
-        return defaultSpan;
+        return this;
     }
 
     @Override
     public String getBaggageItem(String key) {
-        return emptyString;
+        return null;
     }
 
     @Override
     public Span log(String eventName, Object payload) {
-        return defaultSpan;
+        return this;
     }
 
     @Override
     public Span log(long timestampMicroseconds, String eventName, Object payload) {
-        return defaultSpan;
+        return this;
     }
 }

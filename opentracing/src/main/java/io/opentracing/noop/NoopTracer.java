@@ -18,11 +18,9 @@ import io.opentracing.Tracer;
 
 public class NoopTracer implements Tracer {
 
-    private SpanBuilder defaultSpanBuilder = new NoopSpanBuilder();
-
     @Override
     public SpanBuilder buildSpan(String operationName) {
-        return defaultSpanBuilder;
+        return NoopSpanBuilder.Instance;
     }
 
     @Override
@@ -30,6 +28,6 @@ public class NoopTracer implements Tracer {
 
     @Override
     public <T> SpanBuilder join(T carrier) {
-        return defaultSpanBuilder;
+        return NoopSpanBuilder.Instance;
     }
 }
