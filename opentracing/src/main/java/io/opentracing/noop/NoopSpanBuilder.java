@@ -17,47 +17,48 @@ package io.opentracing.noop;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 
-public class NoopSpanBuilder implements Tracer.SpanBuilder {
-    private Tracer.SpanBuilder defaultSpanBuilder = new NoopSpanBuilder();
-    private Span defaultSpan = new NoopSpan();
+final class NoopSpanBuilder implements Tracer.SpanBuilder {
+    static final Tracer.SpanBuilder Instance = new NoopSpanBuilder();
+
+    private NoopSpanBuilder() {}
 
     @Override
     public Tracer.SpanBuilder withOperationName(String operationName) {
-        return defaultSpanBuilder;
+        return this;
     }
 
     @Override
     public Tracer.SpanBuilder withParent(Span parent) {
-        return defaultSpanBuilder;
+        return this;
     }
 
     @Override
     public Tracer.SpanBuilder withTag(String key, String value) {
-        return defaultSpanBuilder;
+        return this;
     }
 
     @Override
     public Tracer.SpanBuilder withTag(String key, boolean value) {
-        return defaultSpanBuilder;
+        return this;
     }
 
     @Override
     public Tracer.SpanBuilder withTag(String key, Number value) {
-        return defaultSpanBuilder;
+        return this;
     }
 
     @Override
     public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
-        return defaultSpanBuilder;
+        return this;
     }
 
     @Override
     public Span start() {
-        return defaultSpan;
+        return NoopSpan.Instance;
     }
 
     @Override
     public Span start(long microseconds) {
-        return defaultSpan;
+        return NoopSpan.Instance;
     }
 }
