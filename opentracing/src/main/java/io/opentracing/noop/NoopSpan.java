@@ -14,6 +14,7 @@
 package io.opentracing.noop;
 
 import io.opentracing.Span;
+import io.opentracing.Tracer;
 
 final class NoopSpan implements Span {
 
@@ -59,5 +60,10 @@ final class NoopSpan implements Span {
     @Override
     public Span log(long timestampMicroseconds, String eventName, Object payload) {
         return this;
+    }
+
+    @Override
+    public Tracer tracer() {
+        return NoopTracer.Instance;
     }
 }

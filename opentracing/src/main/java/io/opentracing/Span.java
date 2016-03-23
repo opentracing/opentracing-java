@@ -73,4 +73,9 @@ public interface Span {
    * The timestamp in microseconds in UTC time.
    **/
   Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
+
+  /**
+   *  A method to get a reference to a tracer stored inside a span.
+   **/
+  Tracer tracer();
 }
