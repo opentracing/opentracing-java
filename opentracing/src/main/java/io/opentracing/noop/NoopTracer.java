@@ -18,6 +18,10 @@ import io.opentracing.Tracer;
 
 public class NoopTracer implements Tracer {
 
+    static final Tracer Instance = new NoopTracer();
+
+    private NoopTracer() {}
+    
     @Override
     public SpanBuilder buildSpan(String operationName) {
         return NoopSpanBuilder.Instance;
