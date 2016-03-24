@@ -25,7 +25,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>opentracing</module>
+        <module>opentracing-api</module>
+        <module>opentracing-impl</module>
+        <module>opentracing-impl-java8</module>
     </modules>
 
     <properties>
