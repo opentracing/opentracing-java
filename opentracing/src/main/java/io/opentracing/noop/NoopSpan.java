@@ -22,7 +22,7 @@ final class NoopSpan implements Span {
     private NoopSpan() {}
 
     @Override
-    public void finish() {
+    public void close() {
 
     }
 
