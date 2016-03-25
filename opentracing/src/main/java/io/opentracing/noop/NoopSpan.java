@@ -29,6 +29,11 @@ final class NoopSpan implements Span {
 
     }
 
+	@Override
+	public void finish() {
+		
+	}
+	
     @Override
     public Span setTag(String key, String value) {
         return this;

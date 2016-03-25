@@ -28,6 +28,8 @@ public interface Span extends AutoCloseable {
    * <p>This should be the last call made to any span instance, and to do otherwise leads to
    * undefined behavior.
    */
+  void finish();
+  
   @Override
   void close();
 
