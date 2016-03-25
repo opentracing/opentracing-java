@@ -93,10 +93,10 @@ public interface Tracer {
       /** Same as {@link Span#setTag(String, Number)}, but for the span being built. */
       SpanBuilder withTag(String key, Number value);
 
-      /** Same as {@link Span#setBaggageItem(String, String)}, but for the span being built. */
+      /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
       SpanBuilder withStartTimestamp(long microseconds);
 
-      /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
+      /** Same as {@link Span#setBaggageItem(String, String)}, but for the span being built. */
       SpanBuilder withBaggage(String key, String value);
 
       /** Returns the started Span. */
