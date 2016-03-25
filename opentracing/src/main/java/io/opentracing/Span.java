@@ -13,12 +13,14 @@
  */
 package io.opentracing;
 
+import java.util.Set;
+
 /**
  * Represents an in-flight span in the opentracing system.
  *
  * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
-public interface Span {
+public interface Span extends AutoCloseable {
 
   /**
    * Sets the end timestamp and records the span.
@@ -27,6 +29,9 @@ public interface Span {
    * undefined behavior.
    */
   void finish();
+  
+  @Override
+  void close();
 
   /**
    * Set a key:value tag on the Span.
@@ -52,6 +57,14 @@ public interface Span {
    * Returns null if no entry found, or baggage is not supported in the current implementation.
    */
   String getBaggageItem(String key);
+  
+  /**
+   * Useful for acquiring the set of baggage keys so that clients of the Span have the ability
+   * to access the corresponding baggage value.
+   * 
+   * @return {@link Set} of baggage keys
+   */
+  Set<String> getBaggageKeys();
 
   /**
    * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.

@@ -87,14 +87,17 @@ public interface Tracer {
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
       SpanBuilder withTag(String key, String value);
 
-      /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+      /** Same as {@link Span#setTag(String, boolean)}, but for the span being built. */
       SpanBuilder withTag(String key, boolean value);
 
-      /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+      /** Same as {@link Span#setTag(String, Number)}, but for the span being built. */
       SpanBuilder withTag(String key, Number value);
 
       /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
       SpanBuilder withStartTimestamp(long microseconds);
+
+      /** Same as {@link Span#setBaggageItem(String, String)}, but for the span being built. */
+      SpanBuilder withBaggage(String key, String value);
 
       /** Returns the started Span. */
       Span start();

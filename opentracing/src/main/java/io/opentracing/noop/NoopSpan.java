@@ -13,6 +13,9 @@
  */
 package io.opentracing.noop;
 
+import java.util.Collections;
+import java.util.Set;
+
 import io.opentracing.Span;
 
 final class NoopSpan implements Span {
@@ -22,10 +25,15 @@ final class NoopSpan implements Span {
     private NoopSpan() {}
 
     @Override
-    public void finish() {
+    public void close() {
 
     }
 
+	@Override
+	public void finish() {
+		
+	}
+	
     @Override
     public Span setTag(String key, String value) {
         return this;
@@ -60,4 +68,9 @@ final class NoopSpan implements Span {
     public Span log(long timestampMicroseconds, String eventName, Object payload) {
         return this;
     }
+
+	@Override
+	public Set<String> getBaggageKeys() {
+		return Collections.emptySet();
+	}
 }

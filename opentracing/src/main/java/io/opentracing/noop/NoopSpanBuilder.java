@@ -16,6 +16,7 @@ package io.opentracing.noop;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.Tracer.SpanBuilder;
 
 final class NoopSpanBuilder implements Tracer.SpanBuilder {
     static final Tracer.SpanBuilder Instance = new NoopSpanBuilder();
@@ -51,6 +52,11 @@ final class NoopSpanBuilder implements Tracer.SpanBuilder {
     public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
         return this;
     }
+
+	@Override
+	public Tracer.SpanBuilder withBaggage(String key, String value) {
+		return this;
+	}
 
     @Override
     public Span start() {
