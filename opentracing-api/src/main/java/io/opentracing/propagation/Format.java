@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
  * @see Tracer#extract(Format, Object)
  */
 public interface Format<C> {
-    class Builtin<C> implements Format<C> {
+    final class Builtin<C> implements Format<C> {
         /**
          * The TEXT_MAP format allows for arbitrary String->String map encoding of SpanContext state for Tracer.inject
          * and Tracer.extract.

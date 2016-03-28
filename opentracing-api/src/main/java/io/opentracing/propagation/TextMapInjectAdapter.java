@@ -15,8 +15,8 @@ package io.opentracing.propagation;
 
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-
 import java.util.Iterator;
+
 import java.util.Map;
 
 /**
@@ -27,7 +27,7 @@ import java.util.Map;
  *
  * @see Tracer#inject(SpanContext, Format, Object)
  */
-public class TextMapInjectAdapter implements TextMap {
+public final class TextMapInjectAdapter implements TextMap {
     private final Map<String,String> map;
 
     public TextMapInjectAdapter(final Map<String,String> map) {
@@ -36,8 +36,7 @@ public class TextMapInjectAdapter implements TextMap {
 
     @Override
     public Iterator<Map.Entry<String, String>> iterator() {
-        throw new UnsupportedOperationException(
-                "TextMapInjectAdapter should only be used with Tracer.inject()");
+        throw new UnsupportedOperationException("TextMapInjectAdapter should only be used with Tracer.inject()");
     }
 
     @Override

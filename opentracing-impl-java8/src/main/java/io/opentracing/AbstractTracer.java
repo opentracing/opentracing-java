@@ -17,14 +17,20 @@ import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.Injector;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 abstract class AbstractTracer implements Tracer {
 
+    static final boolean BAGGAGE_ENABLED = !Boolean.getBoolean("opentracing.propagation.dropBaggage");
+
     private final PropagationRegistry registry = new PropagationRegistry();
 
-    protected AbstractTracer() {}
+    protected AbstractTracer() {
+        registry.register(Format.Builtin.TEXT_MAP, new TextMapInjectorImpl(this));
+        registry.register(Format.Builtin.TEXT_MAP, new TextMapExtractorImpl(this));
+    }
 
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
 
@@ -35,69 +41,50 @@ abstract class AbstractTracer implements Tracer {
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
-        registry.getInjector((Class<C>)carrier.getClass()).inject(spanContext, carrier);
+        registry.getInjector(format).inject(spanContext, carrier);
     }
 
-    @Override
-    public <C> SpanContext extract(Format<C> format, C carrier) {
-        return registry.getExtractor((Class<C>)carrier.getClass()).extract(carrier);
+     @Override
+    public <C> SpanBuilder extract(Format<C> format, C carrier) {
+        return registry.getExtractor(format).extract(carrier);
     }
 
-    public <C> Injector<C> register(Class<C> carrierType, Injector<C> injector) {
-        return registry.register(carrierType, injector);
+    public <C> Injector<C> register(Format<C> format, Injector<C> injector) {
+        return registry.register(format, injector);
     }
 
-    public <C> Extractor<C> register(Class<C> carrierType, Extractor<C> extractor) {
-        return registry.register(carrierType, extractor);
+    public <C> Extractor<C> register(Format<C> format, Extractor<C> extractor) {
+        return registry.register(format, extractor);
     }
+
+    /** @return the minimal set of properties required to propagate this span */
+    abstract Map<String,Object> getTraceState(SpanContext spanContext);
 
     private static class PropagationRegistry {
 
-        private final ConcurrentMap<Class, Injector> injectors = new ConcurrentHashMap<>();
-        private final ConcurrentMap<Class, Extractor> extractors = new ConcurrentHashMap<>();
+        private final ConcurrentMap<Format, Injector> injectors = new ConcurrentHashMap<>();
+        private final ConcurrentMap<Format, Extractor> extractors = new ConcurrentHashMap<>();
 
-        public <C> Injector<C> getInjector(Class<C> carrierType) {
-            Class<?> c = carrierType;
-            // match first on concrete classes
-            do {
-                if (injectors.containsKey(c)) {
-                    return injectors.get(c);
-                }
-                c = c.getSuperclass();
-            } while (c != null);
-            // match second on interfaces
-            for (Class<?> iface : carrierType.getInterfaces()) {
-                if (injectors.containsKey(iface)) {
-                    return injectors.get(iface);
-                }
+        public <C> Injector<C> getInjector(Format<C> format) {
+            if (injectors.containsKey(format)) {
+                return injectors.get(format);
             }
-            throw new AssertionError("no registered injector for " + carrierType.getName());
+            throw new AssertionError("no registered injector for " + format);
         }
 
-        public <C> Extractor<C> getExtractor(Class<C> carrierType) {
-            Class<?> c = carrierType;
-            // match first on concrete classes
-            do {
-                if (extractors.containsKey(c)) {
-                    return extractors.get(c);
-                }
-                c = c.getSuperclass();
-            } while (c != null);
-            // match second on interfaces
-            for (Class<?> iface : carrierType.getInterfaces()) {
-                if (extractors.containsKey(iface)) {
-                    return extractors.get(iface);
-                }
+        public <C> Extractor<C> getExtractor(Format<C> format) {
+            if (extractors.containsKey(format)) {
+                return extractors.get(format);
             }
-            throw new AssertionError("no registered extractor for " + carrierType.getName());
+            throw new AssertionError("no registered extractor for " + format);
         }
 
-        public <C> Injector<C> register(Class<C> carrierType, Injector<C> injector) {
-            return injectors.putIfAbsent(carrierType, injector);
+        public <C> Injector<C> register(Format<C> format, Injector<C> injector) {
+            return injectors.put(format, injector);
         }
 
-        public <C> Extractor<C> register(Class<C> carrierType, Extractor<C> extractor) {
-            return extractors.putIfAbsent(carrierType, extractor);
+        public <C> Extractor<C> register(Format<C> format, Extractor<C> extractor) {
+            return extractors.put(format, extractor);
         }
     }
 

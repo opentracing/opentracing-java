@@ -78,7 +78,8 @@ public interface Tracer {
    * @param format the Format of the carrier
    * @param carrier the carrier for the SpanContext state. All Tracer.extract() implementations must support
    *                io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
-   * @returns the SpanContext instance extracted from the carrier
+   *
+   * @return the SpanContext instance holding context to create a Span.
    *
    * @see io.opentracing.propagation.Format
    * @see io.opentracing.propagation.Format.Builtin
@@ -86,7 +87,7 @@ public interface Tracer {
   <C> SpanContext extract(Format<C> format, C carrier);
 
 
-  interface SpanBuilder {
+  interface SpanBuilder extends SpanContext {
 
       /**
        * A shorthand for addReference(References.CHILD_OF, parent).

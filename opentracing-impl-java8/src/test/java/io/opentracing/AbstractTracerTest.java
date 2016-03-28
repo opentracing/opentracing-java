@@ -13,6 +13,7 @@
  */
 package io.opentracing;
 
+import io.opentracing.Tracer.SpanBuilder;
 import io.opentracing.propagation.*;
 import org.junit.Test;
 
@@ -46,7 +47,7 @@ public final class AbstractTracerTest {
     public void testInject() {
         System.out.println("inject");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(TextMap.class, new TestTextMapInjectorImpl());
+        instance.register(Format.Builtin.TEXT_MAP, new TestTextMapInjectorImpl());
 
         Span span = new TestSpanImpl("test-inject-span");
         Map<String,String> map = new HashMap<>();
@@ -55,7 +56,7 @@ public final class AbstractTracerTest {
 
         assertEquals(
                 "marker should have been injected into map",
-                "whatever", map.get("test-marker"));
+                "test-inject-span", map.get("test-marker"));
     }
 
     /**
@@ -65,12 +66,12 @@ public final class AbstractTracerTest {
     public void testEmptyExtract() {
         System.out.println("empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(TextMap.class, new TestTextMapExtractorImpl());
+        instance.register(Format.Builtin.TEXT_MAP, new TestTextMapExtractorImpl());
 
         Map<String,String> map = Collections.singletonMap("garbageEntry", "garbageVal");
         TextMap carrier = new TextMapExtractAdapter(map);
-        SpanContext emptyResult = instance.extract(Format.Builtin.TEXT_MAP, carrier);
-        assertNull("Should be nothing to extract", emptyResult);
+        SpanBuilder emptyResult = instance.extract(Format.Builtin.TEXT_MAP, carrier);
+        assertEquals("Should be nothing to extract", NoopSpanBuilder.INSTANCE, emptyResult);
     }
 
     /**
@@ -80,13 +81,12 @@ public final class AbstractTracerTest {
     public void testNonEmptyExtract() {
         System.out.println("non-empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(TextMap.class, new TestTextMapExtractorImpl());
+        instance.register(Format.Builtin.TEXT_MAP, new TestTextMapExtractorImpl());
 
         Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
         TextMap carrier = new TextMapExtractAdapter(map);
-        SpanContext result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
-        assertNotNull("Should be something to extract", result);
-        assertEquals("Should find the marker", "whatever", ((TestSpanContextImpl)result).getMarker());
+        SpanBuilder result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
+        assertEquals("Should find the marker", "whatever", ((TestSpanBuilder)result).operationName);
     }
 
     final class TestTracerImpl extends AbstractTracer {
@@ -100,7 +100,21 @@ public final class AbstractTracerTest {
                 protected AbstractSpan createSpan() {
                     return new TestSpanImpl(this.operationName);
                 }
+                @Override
+                boolean isTraceState(String key, Object value) {
+                    return false;
+                }
+
+                @Override
+                AbstractSpanBuilder withStateItem(String key, Object value) {
+                    throw new AssertionError("no trace state is possible");
+                }
             };
+        }
+
+        @Override
+        Map<String, Object> getTraceState(SpanContext spanContext) {
+            return new HashMap<>(((AbstractSpan)spanContext).baggage);
         }
     }
 

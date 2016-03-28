@@ -13,14 +13,31 @@
  */
 package io.opentracing;
 
-import java.util.HashMap;
-import java.util.Map;
 
-public class NoopSpanContext implements SpanContext {
-    private static Map<String, String> EMPTY_MAP = new HashMap<>();
+final class TestSpanBuilder extends AbstractSpanBuilder {
+
+    public TestSpanBuilder(String operationName) {
+        super(operationName);
+    }
 
     @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return EMPTY_MAP.entrySet();
+    protected AbstractSpan createSpan() {
+        return new AbstractSpan(operationName) {
+            @Override
+            public AbstractSpan setBaggageItem(String key, String value) {
+                return this;
+            }
+        };
     }
+
+    @Override
+    boolean isTraceState(String key, Object value) {
+        return false;
+    }
+
+    @Override
+    AbstractSpanBuilder withStateItem(String key, Object value) {
+        throw new AssertionError("no trace state is possible");
+    }
+
 }

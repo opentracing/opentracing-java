@@ -11,24 +11,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.propagation;
+package io.opentracing;
 
-import io.opentracing.SpanContext;
-import io.opentracing.TestSpanContextImpl;
+import io.opentracing.propagation.Injector;
+import io.opentracing.propagation.TextMap;
 
-import java.util.Map;
-
-public class TestTextMapExtractorImpl implements Extractor<TextMap> {
-    public SpanContext extract(TextMap carrier) {
-        String marker = null;
-        for (Map.Entry<String,String> entry : carrier) {
-            if (entry.getKey().equals("test-marker")) {
-                marker = entry.getValue();
-            }
-        }
-        if (marker == null) {
-            return null;
-        }
-        return new TestSpanContextImpl(marker);
+final class TestTextMapInjectorImpl implements Injector<TextMap> {
+    @Override
+    public void inject(SpanContext spanContext, TextMap carrier) {
+        carrier.put("test-marker", ((AbstractSpan)spanContext).operationName);
     }
 }

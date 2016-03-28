@@ -14,25 +14,8 @@
 package io.opentracing;
 
 public class TestSpanImpl extends AbstractSpan {
-    TestSpanContextImpl spanContext = new TestSpanContextImpl("whatever");
 
     TestSpanImpl(String operationName) {
         super(operationName);
-    }
-
-    @Override
-    public SpanContext context() {
-        return spanContext;
-    }
-
-    @Override
-    public synchronized Span setBaggageItem(String key, String value) {
-        spanContext = spanContext.withBaggageItem(key, value);
-        return this;
-    }
-
-    @Override
-    public synchronized String getBaggageItem(String key) {
-        return spanContext.getBaggageItem(key);
     }
 }

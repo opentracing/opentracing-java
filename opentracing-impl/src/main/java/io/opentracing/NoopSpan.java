@@ -13,15 +13,24 @@
  */
 package io.opentracing;
 
+import java.util.Collections;
+import java.util.Map;
+
 final class NoopSpan implements Span {
 
     static final NoopSpan INSTANCE = new NoopSpan();
-    static final NoopSpanContext CONTEXT_INSTANCE = new NoopSpanContext();
+
+    static final SpanContext CONTEXT = new SpanContext() {
+        @Override
+        public Iterable<Map.Entry<String, String>> baggageItems() {
+            return Collections.EMPTY_MAP.entrySet();
+        }
+    };
 
     private NoopSpan() {}
 
     @Override
-    public SpanContext context() { return CONTEXT_INSTANCE; }
+    public SpanContext context() { return CONTEXT; }
 
     @Override
     public void finish() {}

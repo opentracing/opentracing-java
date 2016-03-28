@@ -28,6 +28,6 @@ public final class NoopTracer implements Tracer {
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}
 
     @Override
-    public <C> SpanContext extract(Format<C> format, C carrier) { return null; }
+    public <C> SpanBuilder extract(Format<C> format, C carrier) { return NoopSpanBuilder.INSTANCE; }
 
 }

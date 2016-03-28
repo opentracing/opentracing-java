@@ -21,9 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-abstract class AbstractSpan implements Span {
+abstract class AbstractSpan implements Span, SpanContext {
 
     final String operationName;
+
+    protected final Map<String,String> baggage = new HashMap<>();
+
     private final Instant start;
     private Duration duration;
     private final Map<String,Object> tags = new HashMap<>();
@@ -36,6 +39,11 @@ abstract class AbstractSpan implements Span {
     AbstractSpan(String operationName, Instant start) {
         this.operationName = operationName;
         this.start = start;
+    }
+
+    @Override
+    public final SpanContext context() {
+        return this;
     }
 
     @Override
@@ -52,7 +60,7 @@ abstract class AbstractSpan implements Span {
     }
 
     @Override
-    public void close() {
+    public final void close() {
         finish();
     }
 
@@ -72,6 +80,22 @@ abstract class AbstractSpan implements Span {
     public final Span setTag(String key, Number value) {
         tags.put(key, value);
         return this;
+    }
+
+    @Override
+    public AbstractSpan setBaggageItem(String key, String value) {
+        baggage.put(key, value);
+        return this;
+    }
+
+    @Override
+    public String getBaggageItem(String key) {
+        return baggage.get(key);
+    }
+
+    @Override
+    public final Iterable<Map.Entry<String,String>> baggageItems() {
+        return baggage.entrySet();
     }
 
     @Override

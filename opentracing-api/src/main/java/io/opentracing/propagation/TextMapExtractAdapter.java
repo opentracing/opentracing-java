@@ -14,8 +14,8 @@
 package io.opentracing.propagation;
 
 import io.opentracing.Tracer;
-
 import java.util.Iterator;
+
 import java.util.Map;
 
 /**
@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * @see Tracer#extract(Format, Object)
  */
-public class TextMapExtractAdapter implements TextMap {
+public final class TextMapExtractAdapter implements TextMap {
     private final Map<String,String> map;
 
     public TextMapExtractAdapter(final Map<String,String> map) {
@@ -40,7 +40,6 @@ public class TextMapExtractAdapter implements TextMap {
 
     @Override
     public void put(String key, String value) {
-        throw new UnsupportedOperationException(
-                "TextMapInjectAdapter should only be used with Tracer.extract()");
+        throw new UnsupportedOperationException("TextMapInjectAdapter should only be used with Tracer.extract()");
     }
 }

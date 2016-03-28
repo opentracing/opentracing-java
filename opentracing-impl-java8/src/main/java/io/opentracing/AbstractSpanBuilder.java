@@ -21,9 +21,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
+
     protected String operationName = null;
-    protected List<Reference> references = new ArrayList<Reference>();
+    protected final List<Reference> references = new ArrayList<>();
     protected Instant start = Instant.now();
+
     private final Map<String, String> stringTags = new HashMap<>();
     private final Map<String, Boolean> booleanTags = new HashMap<>();
     private final Map<String, Number> numberTags = new HashMap<>();
@@ -36,46 +38,63 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     /** Create a Span, using the builder fields. */
     protected abstract AbstractSpan createSpan();
 
+    /** Adds an entry of the minimal set of properties required to propagate this span */
+    abstract AbstractSpanBuilder withStateItem(String key, Object value);
+
+    /** Returns true if this key+value belongs in a Span's required propagation set, otherwise it is baggage. */
+    abstract boolean isTraceState(String key, Object value);
+
     @Override
-    public final Tracer.SpanBuilder addReference(String referenceType, SpanContext referredTo) {
+    public final AbstractSpanBuilder addReference(String referenceType, SpanContext referredTo) {
         this.references.add(new Reference(referenceType, referredTo));
         return this;
     }
 
     @Override
-    public final Tracer.SpanBuilder asChildOf(SpanContext parent) {
+    public final AbstractSpanBuilder asChildOf(SpanContext parent) {
         return this.addReference(References.CHILD_OF, parent);
     }
 
     @Override
-    public final Tracer.SpanBuilder asChildOf(Span parent) {
+    public final AbstractSpanBuilder asChildOf(Span parent) {
         return this.addReference(References.CHILD_OF, parent.context());
     }
 
     @Override
-    public final Tracer.SpanBuilder withTag(String key, String value) {
+    public final AbstractSpanBuilder withTag(String key, String value) {
         stringTags.put(key, value);
         return this;
     }
 
     @Override
-    public final Tracer.SpanBuilder withTag(String key, boolean value) {
+    public final AbstractSpanBuilder withTag(String key, boolean value) {
         booleanTags.put(key, value);
         return this;
     }
 
     @Override
-    public final Tracer.SpanBuilder withTag(String key, Number value) {
+    public final AbstractSpanBuilder withTag(String key, Number value) {
         numberTags.put(key, value);
         return this;
     }
 
     @Override
-    public final Tracer.SpanBuilder withStartTimestamp(long microseconds) {
+    public final AbstractSpanBuilder withStartTimestamp(long microseconds) {
         long epochSeconds = TimeUnit.MICROSECONDS.toSeconds(microseconds);
         long nanos = TimeUnit.MICROSECONDS.toNanos(microseconds) - TimeUnit.SECONDS.toNanos(epochSeconds);
         this.start = Instant.ofEpochSecond(epochSeconds, nanos);
         return this;
+    }
+
+    public final AbstractSpanBuilder withBaggageItem(String key, String value) {
+        assert !isTraceState(key, value);
+        baggage.put(key, value);
+        return this;
+    }
+
+    @Override
+    public final Iterable<Map.Entry<String, String>> baggageItems() {
+        return baggage.entrySet();
     }
 
     @Override
@@ -89,8 +108,8 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     public static final class Reference {
-        private String referenceType;
-        private SpanContext referredTo;
+        private final String referenceType;
+        private final SpanContext referredTo;
 
         Reference(String type, SpanContext referredTo) {
             this.referenceType = type;
