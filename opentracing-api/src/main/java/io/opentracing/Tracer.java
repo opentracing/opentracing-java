@@ -99,7 +99,5 @@ public interface Tracer {
       /** Returns the started Span. */
       Span start();
 
-      /** Returns the Span, with a started timestamp (represented in microseconds) as specified. */
-      Span start(long microseconds);
   }
 }
