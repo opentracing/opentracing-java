@@ -18,7 +18,7 @@ package io.opentracing;
  *
  * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
-public interface Span {
+public interface Span extends AutoCloseable {
 
   /**
    * Sets the end timestamp and records the span.
@@ -27,6 +27,8 @@ public interface Span {
    * undefined behavior.
    */
   void finish();
+
+  void close();
 
   /**
    * Set a key:value tag on the Span.

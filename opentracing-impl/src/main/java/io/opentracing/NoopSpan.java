@@ -13,8 +13,6 @@
  */
 package io.opentracing;
 
-import io.opentracing.Span;
-
 final class NoopSpan implements Span {
 
     static final NoopSpan INSTANCE = new NoopSpan();
@@ -23,7 +21,11 @@ final class NoopSpan implements Span {
 
     @Override
     public void finish() {
+    }
 
+    @Override
+    public void close() {
+        finish();
     }
 
     @Override
@@ -60,4 +62,5 @@ final class NoopSpan implements Span {
     public Span log(long timestampMicroseconds, String eventName, Object payload) {
         return this;
     }
+
 }
