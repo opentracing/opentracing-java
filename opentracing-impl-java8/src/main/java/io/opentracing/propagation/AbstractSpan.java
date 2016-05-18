@@ -26,9 +26,9 @@ import io.opentracing.Span;
 
 abstract class AbstractSpan implements Span {
 
-    final Map<String,String> baggage = new HashMap<>();
+    private final Map<String,String> baggage = new HashMap<>();
 
-    final String operationName;
+    protected final String operationName;
     private final Optional<Span> parent;
     private final Instant start;
     private Duration duration;

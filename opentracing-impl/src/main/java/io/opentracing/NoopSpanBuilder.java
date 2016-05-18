@@ -14,7 +14,7 @@
 package io.opentracing;
 
 final class NoopSpanBuilder implements Tracer.SpanBuilder {
-    static final Tracer.SpanBuilder INSTANCE = new NoopSpanBuilder();
+    protected static final Tracer.SpanBuilder INSTANCE = new NoopSpanBuilder();
 
     private NoopSpanBuilder() {}
 

@@ -23,7 +23,7 @@ import io.opentracing.Tracer.SpanBuilder;
 
 abstract class AbstractTracer implements Tracer {
 
-    static final boolean BAGGAGE_ENABLED = !Boolean.getBoolean("opentracing.propagation.dropBaggage");
+    protected static final boolean BAGGAGE_ENABLED = !Boolean.getBoolean("opentracing.propagation.dropBaggage");
 
     private final PropagationRegistry registry = new PropagationRegistry();
 
