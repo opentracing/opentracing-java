@@ -15,7 +15,7 @@ package io.opentracing;
 
 final class NoopSpan implements Span {
 
-    static final NoopSpan INSTANCE = new NoopSpan();
+    protected static final NoopSpan INSTANCE = new NoopSpan();
 
     private NoopSpan() {}
 
