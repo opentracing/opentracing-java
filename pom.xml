@@ -34,7 +34,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
 
-        <!-- The default language level is 1.8 even if some core classes may be 1.7 -->
+        <!-- default bytecode version for src/main -->
+        <main.java.version>1.7</main.java.version>
+        <main.signature.artifact>java17</main.signature.artifact>
+
+        <!-- default bytecode version for src/test -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
@@ -43,12 +47,16 @@
         <junit.version>4.12</junit.version>
         <assertj.version>3.2.0</assertj.version>
 
+        <animal-sniffer-maven-plugin.version>1.15</animal-sniffer-maven-plugin.version>
         <maven-plugin.version>0.3.3</maven-plugin.version>
+        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <maven-source-plugin.version>2.4</maven-source-plugin.version>
+        <maven-source-plugin.version>3.0.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
-        <maven-license-plugin.version>2.11</maven-license-plugin.version>
+        <license-maven-plugin.version>2.11</license-maven-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <centralsync-maven-plugin.version>0.1.0</centralsync-maven-plugin.version>
     </properties>
 
     <name>OpenTracing (Parent)</name>
@@ -72,8 +80,7 @@
     <scm>
         <url>https://github.com/opentracing/opentracing-java</url>
         <connection>scm:git:https://github.com/opentracing/opentracing-java.git</connection>
-        <developerConnection>scm:git:https://github.com/opentracing/opentracing-java.git
-        </developerConnection>
+        <developerConnection>scm:git:https://github.com/opentracing/opentracing-java.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -90,6 +97,17 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <repository>
+            <id>bintray</id>
+            <url>https://api.bintray.com/maven/opentracing/maven/opentracing-java/;publish=1</url>
+        </repository>
+        <snapshotRepository>
+            <id>jfrog-snapshots</id>
+            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <issueManagement>
         <system>Github</system>
         <url>https://github.com/opentracing/opentracing-java/issues</url>
@@ -99,7 +117,19 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>opentracing</artifactId>
+                <artifactId>opentracing-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>opentracing-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>opentracing-impl-java8</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -142,6 +172,11 @@
                 </plugin>
 
                 <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+
+                <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
                 </plugin>
@@ -149,6 +184,44 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <inherited>true</inherited>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <!-- Ensure main source tree compiles to Java ${main.java.version} bytecode. -->
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <source>${main.java.version}</source>
+                            <target>${main.java.version}</target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>${animal-sniffer-maven-plugin.version}</version>
+                <configuration>
+                    <signature>
+                        <groupId>org.codehaus.mojo.signature</groupId>
+                        <artifactId>${main.signature.artifact}</artifactId>
+                        <version>1.0</version>
+                    </signature>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <!-- Ensures checksums are added to published jars -->
             <plugin>
@@ -162,7 +235,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>${maven-license-plugin.version}</version>
+                <version>${license-maven-plugin.version}</version>
                 <configuration>
                     <header>${main.basedir}/src/etc/header.txt</header>
                     <excludes>
@@ -183,7 +256,7 @@
                     <dependency>
                         <groupId>com.mycila</groupId>
                         <artifactId>license-maven-plugin-git</artifactId>
-                        <version>${maven-license-plugin.version}</version>
+                        <version>${license-maven-plugin.version}</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -194,6 +267,28 @@
                         <phase>compile</phase>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven-release-plugin.version}</version>
+                <configuration>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.zipkin.centralsync-maven-plugin</groupId>
+                <artifactId>centralsync-maven-plugin</artifactId>
+                <version>${centralsync-maven-plugin.version}</version>
+                <configuration>
+                    <subject>opentracing</subject>
+                    <repo>maven</repo>
+                    <packageName>opentracing-java</packageName>
+                </configuration>
             </plugin>
         </plugins>
     </build>

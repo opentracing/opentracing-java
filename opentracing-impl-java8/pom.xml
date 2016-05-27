@@ -31,63 +31,14 @@
 
     <properties>
         <main.basedir>${project.basedir}/..</main.basedir>
-        <animal-sniffer-maven-plugin.version>1.14</animal-sniffer-maven-plugin.version>
+        <main.java.version>1.8</main.java.version>
+        <main.signature.artifact>java18</main.signature.artifact>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>io.opentracing</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>opentracing-impl</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <!-- Ensure main source tree compiles to Java 7 bytecode. This allows higher
-                 reuse, including android, which doesn't support Java 8 features. -->
-            <plugin>
-                <inherited>true</inherited>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <!-- Default is still 1.8, specifically for use in tests. -->
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <source>1.8</source>
-                            <target>1.8</target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Language-level aside, make sure Java 8 types and methods aren't used -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>${animal-sniffer-maven-plugin.version}</version>
-                <configuration>
-                    <signature>
-                        <groupId>org.codehaus.mojo.signature</groupId>
-                        <artifactId>java18</artifactId>
-                        <version>1.0</version>
-                    </signature>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
