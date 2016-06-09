@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.ext;
+package io.opentracing.tag;
 
 /**
  * The following span tags are recommended for instrumentors who are trying to capture more

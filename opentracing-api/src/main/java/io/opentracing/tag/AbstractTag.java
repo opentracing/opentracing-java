@@ -11,15 +11,18 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.ext;
+package io.opentracing.tag;
 
-public class IntTag extends AbstractTag<Integer> {
-    IntTag(String key) {
-        super(key);
+public abstract class AbstractTag<T> {
+    protected final String key;
+
+    protected AbstractTag(String tagKey) {
+        this.key = tagKey;
     }
 
-    @Override
-    public void set(io.opentracing.Span span, Integer tagValue) {
-        span.setTag(super.key, tagValue);
+    public String getKey() {
+        return key;
     }
+
+    abstract void set(io.opentracing.Span span, T tagValue);
 }

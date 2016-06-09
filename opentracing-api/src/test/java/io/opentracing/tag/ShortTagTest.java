@@ -11,19 +11,23 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.ext;
+package io.opentracing.tag;
 
-public class StringTag extends AbstractTag<String> {
-    StringTag(String key) {
-        super(key);
-    }
+import io.opentracing.Span;
+import org.junit.Test;
 
-    @Override
-    public void set(io.opentracing.Span span, String tagValue) {
-        span.setTag(super.key, tagValue);
-    }
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-    public void set(io.opentracing.Span span, StringTag tag) {
-        span.setTag(super.key, tag.key);
+public class ShortTagTest {
+    @Test
+    public void testSetShort() {
+        Short value = 4;
+        String key = "expected.key";
+
+        Span span = mock(Span.class);
+        ShortTag tag = new ShortTag(key);
+        tag.set(span, value);
+        verify(span).setTag(key, value);
     }
 }

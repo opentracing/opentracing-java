@@ -11,9 +11,25 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.ext;
+package io.opentracing.tag;
 
-public class Constants {
-    public static final String CLIENT = "client";
-    public static final String SERVER = "server";
+import io.opentracing.Span;
+import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+public class StringTagTest {
+
+    @Test
+    public void testSetString() {
+        String value = "expected.value";
+        String key = "expected.key";
+
+        Span span = mock(Span.class);
+        StringTag tag = new StringTag(key);
+        tag.set(span, value);
+
+        verify(span).setTag(key, value);
+    }
 }

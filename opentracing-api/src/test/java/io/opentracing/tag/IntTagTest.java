@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.ext;
+package io.opentracing.tag;
 
 import io.opentracing.Span;
 import org.junit.Test;
@@ -19,15 +19,16 @@ import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class ShortTagTest {
+public class IntTagTest {
     @Test
-    public void testSetShort() {
-        Short value = 4;
+    public void testSetInt() {
+        Integer value = 7;
         String key = "expected.key";
-
         Span span = mock(Span.class);
-        ShortTag tag = new ShortTag(key);
+
+        IntTag tag = new IntTag(key);
         tag.set(span, value);
+
         verify(span).setTag(key, value);
     }
 }
