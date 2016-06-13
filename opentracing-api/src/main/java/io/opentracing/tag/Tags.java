@@ -13,6 +13,8 @@
  */
 package io.opentracing.tag;
 
+import com.google.common.annotations.Beta;
+
 /**
  * The following span tags are recommended for instrumentors who are trying to capture more
  * semantic information about the spans. Tracers may expose additional features based on this
@@ -20,54 +22,68 @@ package io.opentracing.tag;
  *
  * @see http://opentracing.io/data-semantics/
  */
-public class Tags {
-    /**
-     *  HttpUrl records the url of the incoming request.
-     */
-    public static final StringTag HttpUrl = new StringTag("http.url");
+
+@Beta
+public final class Tags {
+    private Tags(){}
 
     /**
-     *  HttpStatus records the http status code of the response
-     */
-    public static final IntTag HttpStatus = new IntTag("http.status_code");
+    * A constant for setting the span kind to indicate that it represents a server span.
+    */
+    public static final String SPAN_KIND_SERVER = "server";
 
     /**
-     *  PeerHostIPv4 records IP v4 host address of the peer.
+     * A constant for setting the span kind to indicate that it represents a client span.
      */
-    public static final IntTag PeerHostIPv4 = new IntTag("peer.ipv4");
+    public static final String SPAN_KIND_CLIENT = "client";
 
     /**
-     *  PeerHostIPv6 records the IP v6 hostof the peer
+     *  HTTP_URL records the url of the incoming request.
      */
-    public static final StringTag PeerHostIPv6 = new StringTag("peer.ipv6");
+    public static final StringTag HTTP_URL = new StringTag("http.url");
 
     /**
-     *  PeerService records the service name of the peer
+     *  HTTP_STATUS records the http status code of the response
      */
-    public static final StringTag PeerService = new StringTag("peer.service");
+    public static final IntTag HTTP_STATUS = new IntTag("http.status_code");
 
     /**
-     * PeerHostname records the host name of the peer
+     *  PEER_HOST_IPV4 records IP v4 host address of the peer.
      */
-    public static final StringTag PeerHostname = new StringTag("peer.hostname");
+    public static final IntTag PEER_HOST_IPV4 = new IntTag("peer.ipv4");
 
     /**
-     *  PeerPort records the port number of the peer
+     *  PEER_HOST_IPV6 records the IP v6 hostof the peer
      */
-    public static final ShortTag PeerPort = new ShortTag("peer.port");
+    public static final StringTag PEER_HOST_IPV6 = new StringTag("peer.ipv6");
 
     /**
-     *  SamplingPriority determines the priority of sampling this Span.
+     *  PEER_SERVICE records the service name of the peer
      */
-    public static final ShortTag SamplingPriority = new ShortTag("sampling.priority");
+    public static final StringTag PEER_SERVICE = new StringTag("peer.service");
 
     /**
-     *  SpanKind hints at the relationship between spans, e.g. client/server
+     * PEER_HOSTNAME records the host name of the peer
      */
-    public static final StringTag SpanKind = new StringTag("span.kind");
+    public static final StringTag PEER_HOSTNAME = new StringTag("peer.hostname");
 
     /**
-     *  Component is a low-cardinality identifier of the module, library, or package that is instrumented.
+     *  PEER_PORT records the port number of the peer
      */
-    public static final StringTag Component  = new StringTag("component");
+    public static final ShortTag PEER_PORT = new ShortTag("peer.port");
+
+    /**
+     *  SAMPLING_PRIORITY determines the priority of sampling this Span.
+     */
+    public static final ShortTag SAMPLING_PRIORITY = new ShortTag("sampling.priority");
+
+    /**
+     *  SPAN_KIND hints at the relationship between spans, e.g. client/server
+     */
+    public static final StringTag SPAN_KIND = new StringTag("span.kind");
+
+    /**
+     *  COMPONENT is a low-cardinality identifier of the module, library, or package that is instrumented.
+     */
+    public static final StringTag COMPONENT  = new StringTag("component");
 }
