@@ -15,7 +15,7 @@ package io.opentracing.tag;
 
 /**
  * The following span tags are recommended for instrumentors who are trying to capture more
- * semantic information about the spans. Tracers may expose additional features based on this
+ * semantic information about the spans. Tracers may expose additional features based on these
  * standardized data points. Tag names follow a general structure of namespacing.
  *
  * @see http://opentracing.io/data-semantics/
@@ -40,32 +40,32 @@ public final class Tags {
     public static final StringTag HTTP_URL = new StringTag("http.url");
 
     /**
-     *  HTTP_STATUS records the http status code of the response
+     *  HTTP_STATUS records the http status code of the response.
      */
     public static final IntTag HTTP_STATUS = new IntTag("http.status_code");
 
     /**
-     *  PEER_HOST_IPV4 records IP v4 host address of the peer.
+     *  PEER_HOST_IPV4 records IPv4 host address of the peer.
      */
     public static final IntTag PEER_HOST_IPV4 = new IntTag("peer.ipv4");
 
     /**
-     *  PEER_HOST_IPV6 records the IP v6 hostof the peer
+     *  PEER_HOST_IPV6 records the IPv6 host address of the peer.
      */
     public static final StringTag PEER_HOST_IPV6 = new StringTag("peer.ipv6");
 
     /**
-     *  PEER_SERVICE records the service name of the peer
+     *  PEER_SERVICE records the service name of the peer.
      */
     public static final StringTag PEER_SERVICE = new StringTag("peer.service");
 
     /**
-     * PEER_HOSTNAME records the host name of the peer
+     * PEER_HOSTNAME records the host name of the peer.
      */
     public static final StringTag PEER_HOSTNAME = new StringTag("peer.hostname");
 
     /**
-     *  PEER_PORT records the port number of the peer
+     *  PEER_PORT records the port number of the peer.
      */
     public static final ShortTag PEER_PORT = new ShortTag("peer.port");
 
@@ -75,7 +75,7 @@ public final class Tags {
     public static final ShortTag SAMPLING_PRIORITY = new ShortTag("sampling.priority");
 
     /**
-     *  SPAN_KIND hints at the relationship between spans, e.g. client/server
+     *  SPAN_KIND hints at the relationship between spans, e.g. client/server.
      */
     public static final StringTag SPAN_KIND = new StringTag("span.kind");
 
