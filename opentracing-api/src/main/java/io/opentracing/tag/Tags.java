@@ -13,8 +13,6 @@
  */
 package io.opentracing.tag;
 
-import com.google.common.annotations.Beta;
-
 /**
  * The following span tags are recommended for instrumentors who are trying to capture more
  * semantic information about the spans. Tracers may expose additional features based on this
@@ -23,7 +21,6 @@ import com.google.common.annotations.Beta;
  * @see http://opentracing.io/data-semantics/
  */
 
-@Beta
 public final class Tags {
     private Tags(){}
 
