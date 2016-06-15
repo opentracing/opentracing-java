@@ -85,7 +85,7 @@ public final class Tags {
     public static final StringTag COMPONENT  = new StringTag("component");
 
     /**
-     * ERROR indicates whether the result of a span representing an rpc call returned an error.
+     * ERROR indicates whether a Span ended in an error state.
      */
     public static final BooleanTag ERROR = new BooleanTag("error");
 }
