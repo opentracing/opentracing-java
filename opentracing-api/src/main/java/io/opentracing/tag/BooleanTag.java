@@ -13,22 +13,13 @@
  */
 package io.opentracing.tag;
 
-import io.opentracing.Span;
-import org.junit.Test;
+public class BooleanTag extends AbstractTag<Boolean> {
+    BooleanTag(String key) {
+        super(key);
+    }
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
-public class IntTagTest {
-    @Test
-    public void testSetInt() {
-        Integer value = 7;
-        String key = "expected.key";
-        Span span = mock(Span.class);
-
-        IntTag tag = new IntTag(key);
-        tag.set(span, value);
-
-        verify(span).setTag(key, value);
+    @Override
+    public void set(io.opentracing.Span span, Boolean tagValue) {
+        span.setTag(super.key, tagValue);
     }
 }

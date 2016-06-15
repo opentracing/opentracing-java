@@ -83,4 +83,9 @@ public final class Tags {
      *  COMPONENT is a low-cardinality identifier of the module, library, or package that is instrumented.
      */
     public static final StringTag COMPONENT  = new StringTag("component");
+
+    /**
+     * ERROR indicates whether the result of a span representing an rpc call returned an error.
+     */
+    public static final BooleanTag ERROR = new BooleanTag("error");
 }

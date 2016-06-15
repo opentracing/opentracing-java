@@ -19,14 +19,14 @@ import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class IntTagTest {
+public class BooleanTagTest {
     @Test
-    public void testSetInt() {
-        Integer value = 7;
+    public void testSetBoolean() {
+        Boolean value = true;
         String key = "expected.key";
         Span span = mock(Span.class);
 
-        IntTag tag = new IntTag(key);
+        BooleanTag tag = new BooleanTag(key);
         tag.set(span, value);
 
         verify(span).setTag(key, value);
