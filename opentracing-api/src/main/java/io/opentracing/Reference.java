@@ -14,7 +14,10 @@
 package io.opentracing;
 
 /**
- * XXX comment
+ * A Reference pairs a reference type with a SpanContext referee.
+ *
+ * References are used by Tracer.buildSpan() to describe the relationships
+ between Spans.
  */
 public class Reference {
     private Type type;
@@ -25,11 +28,38 @@ public class Reference {
         FOLLOWS_FROM,
     }
 
+    /**
+     * Construct a new Reference that describes the relationship between two Spans: an implicit "referring" span and an explicitly-specified "referee" being referred to.
+     *
+     * @param type the Reference.Type that describes the referring Span in terms of the referee
+     * @param referee the SpanContext being referred to
+     */
     public Reference(Type type, SpanContext referee) {
         this.type = type;
         this.referee = referee;
     }
 
+    /**
+     * @return the Reference.Type for this reference.
+     */
     public Type type() { return this.type; }
+
+    /**
+     * @return the SpanContext referred to by this reference.
+     */
     public SpanContext referee() { return this.referee; }
+
+    /**
+     * A shorthand for constructing CHILD_OF Reference instances.
+     */
+    public static Reference childOf(SpanContext referee) {
+        return new Reference(Type.CHILD_OF, referee);
+    }
+
+    /**
+     * A shorthand for constructing FOLLOWS_FROM Reference instances.
+     */
+    public static Reference followsFrom(SpanContext referee) {
+        return new Reference(Type.FOLLOWS_FROM, referee);
+    }
 }

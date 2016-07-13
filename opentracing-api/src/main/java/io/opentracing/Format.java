@@ -14,7 +14,13 @@
 package io.opentracing;
 
 /**
- * Created by bhs on 7/12/16.
+ * Format identifies a reader (R) and Writer (W) pair used by Tracer.inject() and Tracer.extract() to encode/decode SpanContext instances.
+ *
+ * Nearly all OpenTracing use cases are satisfied by the BuiltinFormats, but Format provides extensibility when custom carriers are warranted.
+ *
+ * @see BuiltinFormats
+ * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
+ * @see io.opentracing.Tracer#extract(Format, Object)
  */
 public interface Format<R, W> {
 }

@@ -20,18 +20,17 @@ package io.opentracing;
 public interface Tracer {
 
   /**
-   * Create, start, and return a new Span with the given `operationName`.
-   * An optional parent Span can be specified used to incorporate the newly-returned Span into an existing trace.
+   * Return a new SpanBuilder for a Span with the given `operationName`.
    *
-   * <p>Example:
+   * <p>A contrived example:
    * <pre>{@code
     Tracer tracer = ...
 
-    Span feed = tracer.buildSpan("GetFeed")
-                      .start();
+    Span parentSpan = tracer.buildSpan("DoWork")
+                            .start();
 
     Span http = tracer.buildSpan("HandleHTTPRequest")
-                      .withChildOf(feed.context())
+                      .withChildOf(parentSpan.context())
                       .withTag("user_agent", req.UserAgent)
                       .withTag("lucky_number", 42)
                       .start();
@@ -39,37 +38,45 @@ public interface Tracer {
    */
   SpanBuilder buildSpan(String operationName);
 
-  /** Takes two arguments:
-   *    a Span instance, and
-   *    a “carrier” object in which to inject that Span for cross-process propagation.
+  /**
+   * Inject a SpanContext into a `carrier` of a given `format`, presumably for propagation across process boundaries.
    *
-   * A “carrier” object is some sort of http or rpc envelope, for example HeaderGroup (from Apache HttpComponents).
+   * <p>Example:
+   * <pre>{@code
+   * Tracer tracer = ...
+   * Span clientSpan = ...
+   * TextMapWriter httpHeaderWriter = new AnHttpHeaderCarrier(httpRequest);
+   * tracer.inject(span.context(), BuiltinFormats.HTTP_HEADER, httpHeaderWriter);
+   * }</pre>
    *
-   * Attempting to inject to a carrier that has been registered/configured to this Tracer will result in a
-   * IllegalStateException.
+   * @param spanContext the SpanContext instance to inject into the carrier
+   * @param format the Format of the carrier. See BuiltinFormats.
+   * @param carrier the carrier for the SpanContext state; when inject() returns, the Tracer implementation will have represented the SpanContext within `carrier`
    *
-   * All implementations support at minimum the required carriers BinaryWriter and TextMapWriter.
+   * All implementations must support, at minimum, the BuiltinFormats.
+   *
+   * @see BuiltinFormats
    */
   <W> void inject(SpanContext spanContext, Format<?, W> format, W carrier);
 
-  /**  Returns a SpanBuilder provided
-   *    a “carrier” object from which to extract identifying information needed by the new Span instance.
+  /**
+   * Extract a SpanContext from a `carrier` of a given `format`, presumably after propagation across a process boundary.
    *
-   * If the carrier object has no such span stored within it, a new Span is created.
+   * <p>Example:
+   * <pre>{@code
+   * Tracer tracer = ...
+   * TextMapReader httpHeaderReader = new AnHttpHeaderCarrier(httpRequest);
+   * SpanContext spanCtx = tracer.extract(BuiltinFormats.HTTP_HEADER, httpHeaderReader);
+   * tracer.buildSpan('...').withChildOf(spanCtx).start();
+   * }</pre>
    *
-   * Unless there’s an error, it returns a SpanBuilder.
-   * The Span generated from the builder can be used in the host process like any other.
+   * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an IllegalArgumentException.
    *
-   * (Note that some OpenTracing implementations consider the Spans on either side of an RPC to have the same identity,
-   * and others consider the caller to be the parent and the receiver to be the child)
+   * @param format the Format of the carrier. See BuiltinFormats.
+   * @param carrier the carrier for the SpanContext state
+   * @returns the SpanContext instance extracted from the carrier
    *
-   * Attempting to join from a carrier that has been registered/configured to this Tracer will result in a
-   * IllegalStateException.
-   *
-   * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in a
-   * IllegalArgumentException.
-   *
-   * All implementations support at minimum the BuiltinFormats.
+   * All implementations must support, at minimum, the BuiltinFormats.
    *
    * @see BuiltinFormats
    */
@@ -78,17 +85,14 @@ public interface Tracer {
 
   interface SpanBuilder {
 
-      /** Specify the operationName.
-       *
-       * If the operationName has already been set (implicitly or explicitly) an IllegalStateException will be thrown.
-       */
-      SpanBuilder withOperationName(String operationName);
-
-      /** Specify the parent span
-       *
-       * If the parent has already been set an IllegalStateException will be thrown.
+      /**
+       * A shorthand for withReference(Reference.childOf(parent)).
        */
       SpanBuilder withChildOf(SpanContext parent);
+
+      /**
+       * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to represent multiple such References.
+       */
       SpanBuilder withReference(Reference ref);
 
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
