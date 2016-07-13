@@ -31,7 +31,7 @@ public interface Tracer {
                       .start();
 
     Span http = tracer.buildSpan("HandleHTTPRequest")
-                      .withParent(feed)
+                      .withChildOf(feed.context())
                       .withTag("user_agent", req.UserAgent)
                       .withTag("lucky_number", 42)
                       .start();
@@ -50,7 +50,7 @@ public interface Tracer {
    *
    * All implementations support at minimum the required carriers BinaryWriter and TextMapWriter.
    */
-  <T> void inject(Span span, T carrier);
+  <W> void inject(SpanContext spanContext, Format<?, W> format, W carrier);
 
   /**  Returns a SpanBuilder provided
    *    a “carrier” object from which to extract identifying information needed by the new Span instance.
@@ -69,9 +69,11 @@ public interface Tracer {
    * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in a
    * IllegalArgumentException.
    *
-   * All implementations support at minimum the required carriers BinaryReader and TextMapReader.
+   * All implementations support at minimum the BuiltinFormats.
+   *
+   * @see BuiltinFormats
    */
-  <T> SpanBuilder join(T carrier);
+  <R> SpanContext extract(Format<R, ?> format, R carrier);
 
 
   interface SpanBuilder {
@@ -86,7 +88,8 @@ public interface Tracer {
        *
        * If the parent has already been set an IllegalStateException will be thrown.
        */
-      SpanBuilder withParent(Span parent);
+      SpanBuilder withChildOf(SpanContext parent);
+      SpanBuilder withReference(Reference ref);
 
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
       SpanBuilder withTag(String key, String value);

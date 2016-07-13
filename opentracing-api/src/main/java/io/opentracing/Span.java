@@ -19,6 +19,7 @@ package io.opentracing;
  * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
 public interface Span extends AutoCloseable {
+  SpanContext context();
 
   /**
    * Sets the end timestamp and records the span.
@@ -41,19 +42,6 @@ public interface Span extends AutoCloseable {
 
   /** Same as {@link #setTag(String, String)}, but for numeric values. */
   Span setTag(String key, Number value);
-
-  /**
-   * Set a Baggage item, represented as a simple string:string pair.
-   *
-   * Note that newly-set Baggage items are only guaranteed to propagate to future children of the given Span.
-   */
-  Span setBaggageItem(String key, String value);
-
-  /** Get a Baggage item by key.
-   *
-   * Returns null if no entry found, or baggage is not supported in the current implementation.
-   */
-  String getBaggageItem(String key);
 
   /**
    * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
