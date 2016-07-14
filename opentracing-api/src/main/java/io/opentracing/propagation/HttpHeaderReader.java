@@ -13,6 +13,7 @@
  */
 package io.opentracing.propagation;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -32,5 +33,5 @@ public interface HttpHeaderReader {
      *
      * @see io.opentracing.Tracer#extract(Object)
      */
-    Iterable<Map.Entry<String,String>> getEntries();
+    Iterator<Map.Entry<String,String>> getEntries();
 }

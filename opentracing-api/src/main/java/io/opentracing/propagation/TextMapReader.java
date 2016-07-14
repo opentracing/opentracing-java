@@ -13,6 +13,7 @@
  */
 package io.opentracing.propagation;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -29,5 +30,5 @@ public interface TextMapReader {
      * @see io.opentracing.Tracer#extract(Object)
      * @see io.opentracing.propagation.HttpHeaderReader
      */
-    Iterable<Map.Entry<String,String>> getEntries();
+    Iterator<Map.Entry<String,String>> getEntries();
 }
