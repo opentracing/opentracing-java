@@ -21,5 +21,13 @@ import java.util.Map;
  * @see io.opentracing.Tracer#extract(Object)
  */
 public interface TextMapReader {
+    /**
+     * Gets an iterator over arbitrary key:value pairs from the TextMapReader.
+     *
+     * @return entries in the TextMapReader backing store
+     *
+     * @see io.opentracing.Tracer#extract(Object)
+     * @see io.opentracing.propagation.HttpHeaderReader
+     */
     Iterable<Map.Entry<String,String>> getEntries();
 }

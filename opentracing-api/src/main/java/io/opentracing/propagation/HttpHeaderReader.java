@@ -28,10 +28,7 @@ public interface HttpHeaderReader {
      *
      * Note that these headers will often be a superset of whatever was injected via an HttpHeaderWriter in the peer. As such, Tracers should use a unique prefix or substring to identify their header map entries.
      *
-     * @param key a key suitable for use in an HTTP header (i.e., case-insensitive, no special characters, etc)
-     * @param value a value suitable for use in an HTTP header (i.e., URL-escaped)
-     *
-     * @return all entries in the HTTP header map
+     * @return all entries in the HTTP header map; note that keys may appear multiple times (just as they may with HTTP headers)
      *
      * @see io.opentracing.Tracer#extract(Object)
      */

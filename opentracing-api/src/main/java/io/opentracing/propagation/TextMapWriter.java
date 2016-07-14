@@ -19,5 +19,14 @@ package io.opentracing.propagation;
  * @see io.opentracing.Tracer#inject(io.opentracing.SpanContext, Object)
  */
 public interface TextMapWriter {
+    /**
+     * Puts a key:value pair into the TextMapWriter's backing store.
+     *
+     * @param key an arbitrary string (unlike HttpHeaderWriter, there are no HTTP-style constraints on the contents)
+     * @param value an arbitrary string
+     *
+     * @see io.opentracing.Tracer#inject(io.opentracing.SpanContext, Object)
+     * @see io.opentracing.propagation.HttpHeaderWriter
+     */
     void put(String key, String value);
 }
