@@ -33,7 +33,9 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     private final Map<String, Number> numberTags = new HashMap<>();
     private final Map<String, String> baggage = new HashMap<>();
 
-    AbstractSpanBuilder() {}
+    AbstractSpanBuilder(String operationName) {
+        this.operationName = operationName;
+    }
 
     /** Create a Span, using the builder fields. */
     protected abstract AbstractSpan createSpan();

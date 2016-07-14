@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import io.opentracing.Span;
@@ -32,17 +31,22 @@ abstract class AbstractSpan implements Span {
     final String operationName;
     private final Instant start;
     private Duration duration;
+    private final SpanContext spanContext;
     private final Map<String,Object> tags = new HashMap<>();
     private final List<LogData> logs = new ArrayList<>();
 
-    AbstractSpan(String operationName) {
-        this(operationName, Instant.now());
+    AbstractSpan(String operationName, SpanContext spanContext) {
+        this(operationName, spanContext, Instant.now());
     }
 
-    AbstractSpan(String operationName, Instant start) {
+    AbstractSpan(String operationName, SpanContext spanContext, Instant start) {
         this.operationName = operationName;
         this.start = start;
+        this.spanContext = spanContext;
     }
+
+    @Override
+    public SpanContext context() { return this.spanContext; }
 
     @Override
     public void finish() {
