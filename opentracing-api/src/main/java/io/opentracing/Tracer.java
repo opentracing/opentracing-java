@@ -15,7 +15,7 @@ package io.opentracing;
 
 
 /**
- * Tracer is a simple, thin interface for Span creation, and Span propagation into different transport formats.
+ * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
 public interface Tracer {
 
@@ -30,7 +30,7 @@ public interface Tracer {
                             .start();
 
     Span http = tracer.buildSpan("HandleHTTPRequest")
-                      .withChildOf(parentSpan.context())
+                      .asChildOf(parentSpan.context())
                       .withTag("user_agent", req.UserAgent)
                       .withTag("lucky_number", 42)
                       .start();
@@ -39,48 +39,44 @@ public interface Tracer {
   SpanBuilder buildSpan(String operationName);
 
   /**
-   * Inject a SpanContext into a `carrier` of a given `format`, presumably for propagation across process boundaries.
+   * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
    *
    * <p>Example:
    * <pre>{@code
    * Tracer tracer = ...
    * Span clientSpan = ...
-   * TextMapWriter httpHeaderWriter = new AnHttpHeaderCarrier(httpRequest);
-   * tracer.inject(span.context(), BuiltinFormats.HTTP_HEADER, httpHeaderWriter);
+   * HttpHeaderWriter httpHeaderWriter = new AnHttpHeaderCarrier(httpRequest);
+   * tracer.inject(span.context(), httpHeaderWriter);
    * }</pre>
    *
+   * @param <C> the carrier type: all Tracer.inject() implementations must support io.opentracing.propagation.TextMapWriter, io.opentracing.propagation.HttpHeaderWriter, and java.nio.ByteBuffer
    * @param spanContext the SpanContext instance to inject into the carrier
-   * @param format the Format of the carrier. See BuiltinFormats.
    * @param carrier the carrier for the SpanContext state; when inject() returns, the Tracer implementation will have represented the SpanContext within `carrier`
    *
-   * All implementations must support, at minimum, the BuiltinFormats.
-   *
-   * @see BuiltinFormats
+   * @see io.opentracing.propagation
    */
-  <W> void inject(SpanContext spanContext, Format<?, W> format, W carrier);
+  <C> void inject(SpanContext spanContext, C carrier);
 
   /**
-   * Extract a SpanContext from a `carrier` of a given `format`, presumably after propagation across a process boundary.
+   * Extract a SpanContext from a `carrier` of a given type, presumably after propagation across a process boundary.
    *
    * <p>Example:
    * <pre>{@code
    * Tracer tracer = ...
-   * TextMapReader httpHeaderReader = new AnHttpHeaderCarrier(httpRequest);
-   * SpanContext spanCtx = tracer.extract(BuiltinFormats.HTTP_HEADER, httpHeaderReader);
+   * HttpHeaderReader httpHeaderReader = new AnHttpHeaderCarrier(httpRequest);
+   * SpanContext spanCtx = tracer.extract(httpHeaderReader);
    * tracer.buildSpan('...').withChildOf(spanCtx).start();
    * }</pre>
    *
    * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an IllegalArgumentException.
    *
-   * @param format the Format of the carrier. See BuiltinFormats.
+   * @param <C> the carrier type: all Tracer.extract() implementations must support io.opentracing.propagation.TextMapReader, io.opentracing.propagation.HttpHeaderReader, and java.nio.ByteBuffer
    * @param carrier the carrier for the SpanContext state
    * @returns the SpanContext instance extracted from the carrier
    *
-   * All implementations must support, at minimum, the BuiltinFormats.
-   *
-   * @see BuiltinFormats
+   * @see io.opentracing.propagation
    */
-  <R> SpanContext extract(Format<R, ?> format, R carrier);
+  <C> SpanContext extract(C carrier);
 
 
   interface SpanBuilder {
@@ -88,12 +84,17 @@ public interface Tracer {
       /**
        * A shorthand for withReference(Reference.childOf(parent)).
        */
-      SpanBuilder withChildOf(SpanContext parent);
+      SpanBuilder asChildOf(SpanContext parent);
 
       /**
        * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to represent multiple such References.
+       *
+       * @param referenceType the reference type, typically one of the constants defined in References
+       * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the referencedContext is the parent
+       *
+       * @see io.opentracing.References
        */
-      SpanBuilder withReference(Reference ref);
+      SpanBuilder addReference(Comparable referenceType, SpanContext referencedContext);
 
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
       SpanBuilder withTag(String key, String value);

@@ -13,6 +13,11 @@
  */
 package io.opentracing.propagation;
 
+/**
+ * TextMapWriter is a built-in carrier for Tracer.inject(). TextMapWriter implementations allows Tracers to write key:value String pairs into arbitrary data structures.
+ *
+ * @see io.opentracing.Tracer#inject(io.opentracing.SpanContext, Object)
+ */
 public interface TextMapWriter {
     void put(String key, String value);
 }

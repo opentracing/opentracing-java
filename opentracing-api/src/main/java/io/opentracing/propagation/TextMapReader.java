@@ -15,6 +15,11 @@ package io.opentracing.propagation;
 
 import java.util.Map;
 
+/**
+ * TextMapReader is a built-in carrier for Tracer.extract(). TextMapReader implementations allows Tracers to read key:value String pairs from arbitrary underlying sources of data.
+ *
+ * @see io.opentracing.Tracer#extract(Object)
+ */
 public interface TextMapReader {
     Iterable<Map.Entry<String,String>> getEntries();
 }
