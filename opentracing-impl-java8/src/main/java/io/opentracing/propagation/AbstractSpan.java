@@ -24,9 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.opentracing.Span;
 
-abstract class AbstractSpan implements Span {
-
-    final Map<String,String> baggage = new HashMap<>();
+class AbstractSpan implements Span {
 
     final String operationName;
     private final Instant start;

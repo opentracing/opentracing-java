@@ -51,123 +51,49 @@ public final class AbstractTracerTest {
     @Test
     public void testInject() {
         System.out.println("inject");
+        AbstractTracer instance = new TestTracerImpl();
+        instance.register(TextMapWriter.class, new TestTextMapInjectorImpl());
+
         String operationName = "test-inject-span";
-        Span span = new AbstractSpan(operationName, null) {};
+        Span span = new AbstractSpan(operationName, new TestSpanContextImpl("whatever")) {};
         Map<String,String> map = new HashMap<>();
         TextMapWriter carrier = new TextMapImpl(map);
-        AbstractTracer instance = new TestTracerImpl();
         instance.inject(span.context(), carrier);
 
-        assertTrue(
-                "operationName should have been injected into map",
-                map.containsKey(TestTracerImpl.OPERATION_NAME));
-
         assertEquals(
-                "operationName should have been injected into map",
-                operationName, map.get(TestTracerImpl.OPERATION_NAME));
+                "marker should have been injected into map",
+                "whatever", map.get("test-marker"));
     }
 
     /**
-     * Test of extract method, of class AbstractTracer.
+     * Test of extract method, of class AbstractTracer, with an empty carrier.
      */
     @Test
-    public void testExtract() {
-        System.out.println("extract");
+    public void testEmptyExtract() {
+        System.out.println("empty extract");
+        AbstractTracer instance = new TestTracerImpl();
+        instance.register(TextMapReader.class, new TestTextMapExtractorImpl());
+
         Map<String,String> map = Collections.singletonMap("garbageEntry", "garbageVal");
         TextMapReader carrier = new TextMapImpl(map);
-        AbstractTracer instance = new TestTracerImpl();
         SpanContext emptyResult = instance.extract(carrier);
         assertNull("Should be nothing to extract", emptyResult);
     }
 
     /**
-     * Test of register method, of class AbstractTracer.
+     * Test of extract method, of class AbstractTracer, with a valid carrier.
      */
-    /* XXX: not fixing this until the Format stuff is resolved
     @Test
-    public void testRegister_Class_Injector() {
-        System.out.println("register injector");
+    public void testNonEmptyExtract() {
+        System.out.println("non-empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        Injector expResult = new TextFormatInjectorImpl(instance);
-        Injector result = instance.register(TextMapWriter.class, expResult);
+        instance.register(TextMapReader.class, new TestTextMapExtractorImpl());
 
-        assertNotEquals("TextMapWriter carrier should already be registered", expResult, result);
-        assertNotNull("TextMapWriter carrier should already be registered", result);
-    }
-    */
-
-    /* XXX: not fixing this until the Format stuff is resolved
-    @Test
-    public void testRegister_Class_Injector_superclass_before_interface() {
-        System.out.println("testRegister_Class_Injector_superclass_before_interface");
-        String testKey = "testRegister_Class_Injector_superclass_before_interface";
-        AbstractTracer instance = new TestTracerImpl();
-        Map<String,String> map = new HashMap<>();
-        TextMapImpl carrier = new TextMapImpl(map);
-
-        Injector result = instance.register(
-                TextMapImpl.class,
-                (Span s, TextMapImpl c) -> { c.put(testKey, "true"); });
-
-        assertNull("TextMapImpl carrier should get registered", result);
-
-        String operationName = "test-register-superclass_before_interface-span";
-        Span span = new AbstractSpan(operationName) {};
-        instance.inject(span, carrier);
-
-        assertTrue("test injector should have been used", map.containsKey(testKey));
-        assertEquals("test injector should have been used", map.get(testKey), "true");
-    }
-    */
-
-    /**
-     * Test of register method, of class AbstractTracer.
-     */
-    /* XXX: not fixing this until the Format stuff is resolved
-    @Test
-    public void testRegister_Class_Extractor() {
-        System.out.println("register extractor");
-        AbstractTracer instance = new TestTracerImpl();
-        Extractor expResult = new TextFormatExtractorImpl(instance);
-        Extractor result = instance.register(TextMapReader.class, expResult);
-
-        assertNotEquals("TextMapReader carrier should already be registered", expResult, result);
-        assertNotNull("TextMapReader carrier should already be registered", result);
-    }
-    */
-
-
-    /* XXX: not fixing this until the Format stuff is resolved
-    @Test
-    public void testRegister_Class_Extractor_superclass_before_interface() {
-        System.out.println("testRegister_Class_Extractor_superclass_before_interface");
-        String testKey = "testRegister_Class_Extractor_superclass_before_interface";
-        final AbstractTracer instance = new TestTracerImpl();
-        Map<String,String> map = new HashMap<>();
-        TextMapImpl carrier = new TextMapImpl(map);
-
-        Extractor result = instance.register(
-                TextMapImpl.class,
-                (TextMapImpl c) -> {
-                    c.put(testKey, "true");
-                    return instance.createSpanBuilder();
-                });
-
-        assertNull("TextMapImpl carrier should get registered", result);
-
-        instance.join(carrier);
-
-        assertTrue("test extractor should have been used", map.containsKey(testKey));
-        assertEquals("test extractor should have been used", map.get(testKey), "true");
-    }
-    */
-
-    final static class TestSpanContext implements SpanContext {
-        @Override
-        public SpanContext setBaggageItem(String key, String val) { return this; }
-
-        @Override
-        public String getBaggageItem(String key) { return null; }
+        Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
+        TextMapReader carrier = new TextMapImpl(map);
+        SpanContext result = instance.extract(carrier);
+        assertNotNull("Should be something to extract", result);
+        assertEquals("Should find the marker", "whatever", ((TestSpanContextImpl)result).getMarker());
     }
 
     final class TestTracerImpl extends AbstractTracer {
@@ -179,20 +105,10 @@ public final class AbstractTracerTest {
             return new AbstractSpanBuilder(operationName) {
                 @Override
                 protected AbstractSpan createSpan() {
-                    return new AbstractSpan(this.operationName, new TestSpanContext()) {
+                    return new AbstractSpan(this.operationName, new TestSpanContextImpl("op=" + operationName)) {
                     };
                 }
             };
-        }
-
-        @Override
-        public Map<String, String> getTraceState(Span span) {
-            return Collections.singletonMap(OPERATION_NAME, ((AbstractSpan)span).operationName);
-        }
-
-        @Override
-        public Map<String, String> getBaggage(Span span) {
-            return Collections.emptyMap();
         }
     }
 

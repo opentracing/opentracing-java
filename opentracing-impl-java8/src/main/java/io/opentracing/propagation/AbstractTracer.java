@@ -24,20 +24,11 @@ import io.opentracing.Tracer.SpanBuilder;
 
 abstract class AbstractTracer implements Tracer {
 
-    static final boolean BAGGAGE_ENABLED = !Boolean.getBoolean("opentracing.propagation.dropBaggage");
-
     private final PropagationRegistry registry = new PropagationRegistry();
 
-    protected AbstractTracer() {
-        // XXX: register injectors/extractors for required carriers
-        //
-        //     registry.register(TextMapWriter.class, new TextFormatInjectorImpl(this));
-        //     registry.register(TextMapReader.class, new TextFormatExtractorImpl(this));
-    }
+    protected AbstractTracer() {}
 
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
-    abstract Map<String,String> getTraceState(Span span);
-    abstract Map<String,String> getBaggage(Span span);
 
     @Override
     public SpanBuilder buildSpan(String operationName){

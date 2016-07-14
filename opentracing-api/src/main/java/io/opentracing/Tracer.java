@@ -49,13 +49,12 @@ public interface Tracer {
    * tracer.inject(span.context(), httpHeaderWriter);
    * }</pre>
    *
-   * @param <C> the carrier type: all Tracer.inject() implementations must support io.opentracing.propagation.TextMapWriter, io.opentracing.propagation.HttpHeaderWriter, and java.nio.ByteBuffer
    * @param spanContext the SpanContext instance to inject into the carrier
-   * @param carrier the carrier for the SpanContext state; when inject() returns, the Tracer implementation will have represented the SpanContext within `carrier`
+   * @param carrier the carrier for the SpanContext state; when inject() returns, the Tracer implementation will have represented the SpanContext within `carrier`. All Tracer.inject() implementations must support io.opentracing.propagation.TextMapWriter, io.opentracing.propagation.HttpHeaderWriter, and java.nio.ByteBuffer.
    *
    * @see io.opentracing.propagation
    */
-  <C> void inject(SpanContext spanContext, C carrier);
+  void inject(SpanContext spanContext, Object carrier);
 
   /**
    * Extract a SpanContext from a `carrier` of a given type, presumably after propagation across a process boundary.
@@ -70,13 +69,12 @@ public interface Tracer {
    *
    * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an IllegalArgumentException.
    *
-   * @param <C> the carrier type: all Tracer.extract() implementations must support io.opentracing.propagation.TextMapReader, io.opentracing.propagation.HttpHeaderReader, and java.nio.ByteBuffer
-   * @param carrier the carrier for the SpanContext state
+   * @param carrier the carrier for the SpanContext state. All Tracer.extract() implementations must support io.opentracing.propagation.TextMapReader, io.opentracing.propagation.HttpHeaderReader, and java.nio.ByteBuffer.
    * @returns the SpanContext instance extracted from the carrier
    *
    * @see io.opentracing.propagation
    */
-  <C> SpanContext extract(C carrier);
+  SpanContext extract(Object carrier);
 
 
   interface SpanBuilder {
