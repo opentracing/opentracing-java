@@ -13,6 +13,7 @@
  */
 package io.opentracing.propagation;
 
+import java.util.Iterator;
 import java.util.Map;
 
 public final class TextMapImpl implements TextMapWriter, TextMapReader {
@@ -29,8 +30,8 @@ public final class TextMapImpl implements TextMapWriter, TextMapReader {
     }
 
     @Override
-    public Iterable<Map.Entry<String, String>> getEntries() {
-        return map.entrySet();
+    public Iterator<Map.Entry<String, String>> getEntries() {
+        return map.entrySet().iterator();
     }
 
 }

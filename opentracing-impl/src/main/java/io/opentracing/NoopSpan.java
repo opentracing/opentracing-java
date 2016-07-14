@@ -16,12 +16,15 @@ package io.opentracing;
 final class NoopSpan implements Span {
 
     static final NoopSpan INSTANCE = new NoopSpan();
+    static final NoopSpanContext CONTEXT_INSTANCE = new NoopSpanContext();
 
     private NoopSpan() {}
 
     @Override
-    public void finish() {
-    }
+    public SpanContext context() { return CONTEXT_INSTANCE; }
+
+    @Override
+    public void finish() {}
 
     @Override
     public void close() {
@@ -41,16 +44,6 @@ final class NoopSpan implements Span {
     @Override
     public Span setTag(String key, Number value) {
         return this;
-    }
-
-    @Override
-    public Span setBaggageItem(String key, String value) {
-        return this;
-    }
-
-    @Override
-    public String getBaggageItem(String key) {
-        return null;
     }
 
     @Override

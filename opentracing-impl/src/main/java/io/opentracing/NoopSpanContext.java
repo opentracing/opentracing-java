@@ -11,13 +11,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.propagation;
+package io.opentracing;
 
-import io.opentracing.SpanContext;
+public class NoopSpanContext implements SpanContext {
+    @Override
+    public SpanContext setBaggageItem(String key, String value) {
+        return this;
+    }
 
-/**
- *
- */
-public interface Injector<T> {
-    void inject(SpanContext spanContext, T carrier);
+    @Override
+    public String getBaggageItem(String key) {
+        return null;
+    }
 }

@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.Tracer.SpanBuilder;
 
@@ -28,27 +29,29 @@ abstract class AbstractTracer implements Tracer {
     private final PropagationRegistry registry = new PropagationRegistry();
 
     protected AbstractTracer() {
-        registry.register(TextMapWriter.class, new TextFormatInjectorImpl(this));
-        registry.register(TextMapReader.class, new TextFormatExtractorImpl(this));
+        // XXX: register injectors/extractors for required carriers
+        //
+        //     registry.register(TextMapWriter.class, new TextFormatInjectorImpl(this));
+        //     registry.register(TextMapReader.class, new TextFormatExtractorImpl(this));
     }
 
-    abstract AbstractSpanBuilder createSpanBuilder();
+    abstract AbstractSpanBuilder createSpanBuilder(String operationName);
     abstract Map<String,String> getTraceState(Span span);
     abstract Map<String,String> getBaggage(Span span);
 
     @Override
     public SpanBuilder buildSpan(String operationName){
-        return createSpanBuilder().withOperationName(operationName);
+        return createSpanBuilder(operationName);
     }
 
     @Override
-    public <T> void inject(Span span, T carrier) {
-        registry.getInjector((Class<T>)carrier.getClass()).inject(span, carrier);
+    public <T> void inject(SpanContext spanContext, T carrier) {
+        registry.getInjector((Class<T>)carrier.getClass()).inject(spanContext, carrier);
     }
 
     @Override
-    public <T> SpanBuilder join(T carrier) {
-        return registry.getExtractor((Class<T>)carrier.getClass()).join(carrier);
+    public <T> SpanContext extract(T carrier) {
+        return registry.getExtractor((Class<T>)carrier.getClass()).extract(carrier);
     }
 
     public <T> Injector<T> register(Class<T> carrierType, Injector<T> injector) {

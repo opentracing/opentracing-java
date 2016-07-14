@@ -13,11 +13,24 @@
  */
 package io.opentracing.propagation;
 
-import io.opentracing.SpanContext;
+import java.util.Iterator;
+import java.util.Map;
 
-/**
- *
- */
-public interface Injector<T> {
-    void inject(SpanContext spanContext, T carrier);
+public final class HttpHeaderImpl implements HttpHeaderReader, HttpHeaderWriter {
+    private final Map<String,String> map;
+
+    // XXX: this should take some sort of HTTP Header object, not a Map.
+    public HttpHeaderImpl(final Map<String,String> map) {
+        this.map = map;
+    }
+
+    @Override
+    public void put(String key, String value) {
+        map.put(key, value);
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, String>> getEntries() {
+        return map.entrySet().iterator();
+    }
 }

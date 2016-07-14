@@ -13,6 +13,7 @@
  */
 package io.opentracing.propagation;
 
+import io.opentracing.SpanContext;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -29,19 +30,17 @@ abstract class AbstractSpan implements Span {
     final Map<String,String> baggage = new HashMap<>();
 
     final String operationName;
-    private final Optional<Span> parent;
     private final Instant start;
     private Duration duration;
     private final Map<String,Object> tags = new HashMap<>();
     private final List<LogData> logs = new ArrayList<>();
 
     AbstractSpan(String operationName) {
-        this(operationName, Optional.<Span>empty(), Instant.now());
+        this(operationName, Instant.now());
     }
 
-    AbstractSpan(String operationName, Optional<Span> parent, Instant start) {
+    AbstractSpan(String operationName, Instant start) {
         this.operationName = operationName;
-        this.parent = parent;
         this.start = start;
     }
 
@@ -72,17 +71,6 @@ abstract class AbstractSpan implements Span {
     public final Span setTag(String key, Number value) {
         tags.put(key, value);
         return this;
-    }
-
-    @Override
-    public final Span setBaggageItem(String key, String value) {
-        baggage.put(key, value);
-        return this;
-    }
-
-    @Override
-    public final String getBaggageItem(String key) {
-        return baggage.get(key);
     }
 
     @Override
