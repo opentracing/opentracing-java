@@ -13,7 +13,15 @@
  */
 package io.opentracing.propagation;
 
-/** work in progress */
-public interface BinaryWriter {
-    // TODO
+import java.util.Iterator;
+import java.util.Map;
+
+import io.opentracing.propagation.TextMapWriter;
+import io.opentracing.SpanContext;
+
+public class TestTextMapInjectorImpl implements Injector {
+    public void inject(SpanContext spanContext, Object carrier) {
+        TextMapWriter textMapCarrier = (TextMapWriter)carrier;
+        textMapCarrier.put("test-marker", ((TestSpanContextImpl)spanContext).getMarker());
+    }
 }

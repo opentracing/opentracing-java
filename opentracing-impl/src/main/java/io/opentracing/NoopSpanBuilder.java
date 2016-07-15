@@ -19,12 +19,12 @@ final class NoopSpanBuilder implements Tracer.SpanBuilder {
     private NoopSpanBuilder() {}
 
     @Override
-    public Tracer.SpanBuilder withOperationName(String operationName) {
+    public Tracer.SpanBuilder addReference(String refType, SpanContext referenced) {
         return this;
     }
 
     @Override
-    public Tracer.SpanBuilder withParent(Span parent) {
+    public Tracer.SpanBuilder asChildOf(SpanContext parent) {
         return this;
     }
 

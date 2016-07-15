@@ -13,52 +13,42 @@
  */
 package io.opentracing.propagation;
 
+import io.opentracing.References;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
-
     protected String operationName = null;
-    protected Span parent = null;
+    protected List<Reference> references = new ArrayList<Reference>();
     protected Instant start = Instant.now();
     private final Map<String, String> stringTags = new HashMap<>();
     private final Map<String, Boolean> booleanTags = new HashMap<>();
     private final Map<String, Number> numberTags = new HashMap<>();
     private final Map<String, String> baggage = new HashMap<>();
 
-    AbstractSpanBuilder() {}
+    AbstractSpanBuilder(String operationName) {
+        this.operationName = operationName;
+    }
 
     /** Create a Span, using the builder fields. */
     protected abstract AbstractSpan createSpan();
 
-    /** Returns true if this key+value belongs in a Span's traceState. */
-    abstract boolean isTraceState(String key, Object value);
-
-    /** Returns true if this key+value belongs in a Span's baggage. */
-    abstract boolean isBaggage(String key, Object value);
-
-    abstract Tracer.SpanBuilder withStateItem(String key, Object value);
-
-    public Tracer.SpanBuilder withBaggageItem(String key, String value) {
-        assert isBaggage(key, value);
-        baggage.put(key, value);
+    @Override
+    public final Tracer.SpanBuilder addReference(String referenceType, SpanContext referredTo) {
+        this.references.add(new Reference(referenceType, referredTo));
         return this;
     }
 
     @Override
-    public final Tracer.SpanBuilder withOperationName(String operationName) {
-        this.operationName = operationName;
-        return this;
-    }
-
-    @Override
-    public final Tracer.SpanBuilder withParent(Span parent) {
-        this.parent = parent;
-        return this;
+    public final Tracer.SpanBuilder asChildOf(SpanContext parent) {
+        return this.addReference(References.CHILD_OF, parent);
     }
 
     @Override
@@ -93,8 +83,20 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
         stringTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
         booleanTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
         numberTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
-        baggage.entrySet().stream().forEach((entry) -> { span.setBaggageItem(entry.getKey(), entry.getValue()); });
+        baggage.entrySet().stream().forEach((entry) -> { span.context().setBaggageItem(entry.getKey(), entry.getValue()); });
         return span;
     }
 
+    public static final class Reference {
+        private String referenceType;
+        private SpanContext referredTo;
+
+        Reference(String type, SpanContext referredTo) {
+            this.referenceType = type;
+            this.referredTo = referredTo;
+        }
+
+        public final Object getReferenceType() { return referenceType; }
+        public final SpanContext getReferredTo() { return referredTo; }
+    }
 }

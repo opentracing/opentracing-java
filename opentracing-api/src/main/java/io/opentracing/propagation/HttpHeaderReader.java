@@ -17,18 +17,21 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * TextMapReader is a built-in carrier for Tracer.extract(). TextMapReader implementations allows Tracers to read key:value String pairs from arbitrary underlying sources of data.
+ * HttpHeaderReader is a built-in carrier for Tracer.inject().
+ *
+ * HttpHeaderReader implementations allows Tracers to write key:value String pairs into arbitrary HTTP header representations. In this way, HttpHeaderReader prevents a tight coupling between OpenTracing and any particular Java HTTP Header representation.
  *
  * @see io.opentracing.Tracer#extract(Object)
  */
-public interface TextMapReader {
+public interface HttpHeaderReader {
     /**
-     * Gets an iterator over arbitrary key:value pairs from the TextMapReader.
+     * Gets HTTP headers from the implementations backing store.
      *
-     * @return entries in the TextMapReader backing store
+     * Note that these headers will often be a superset of whatever was injected via an HttpHeaderWriter in the peer. As such, Tracers should use a unique prefix or substring to identify their header map entries.
+     *
+     * @return all entries in the HTTP header map; note that keys may appear multiple times (just as they may with HTTP headers)
      *
      * @see io.opentracing.Tracer#extract(Object)
-     * @see io.opentracing.propagation.HttpHeaderReader
      */
     Iterator<Map.Entry<String,String>> getEntries();
 }

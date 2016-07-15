@@ -13,11 +13,8 @@
  */
 package io.opentracing.propagation;
 
-import io.opentracing.Span;
+import io.opentracing.SpanContext;
 
-/**
- *
- */
-public interface Injector<T> {
-    void inject(Span span, T carrier);
+public interface Injector {
+    void inject(SpanContext spanContext, Object carrier);
 }

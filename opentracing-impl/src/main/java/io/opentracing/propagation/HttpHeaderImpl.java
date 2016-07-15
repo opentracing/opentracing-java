@@ -16,11 +16,11 @@ package io.opentracing.propagation;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class TextMapImpl implements TextMapWriter, TextMapReader {
-
+public final class HttpHeaderImpl implements HttpHeaderReader, HttpHeaderWriter {
     private final Map<String,String> map;
 
-    public TextMapImpl(final Map<String,String> map) {
+    // XXX: this should take some sort of HTTP Header object, not a Map.
+    public HttpHeaderImpl(final Map<String,String> map) {
         this.map = map;
     }
 
@@ -33,5 +33,4 @@ public final class TextMapImpl implements TextMapWriter, TextMapReader {
     public Iterator<Map.Entry<String, String>> getEntries() {
         return map.entrySet().iterator();
     }
-
 }

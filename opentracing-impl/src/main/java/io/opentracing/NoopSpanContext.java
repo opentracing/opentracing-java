@@ -11,9 +11,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.propagation;
+package io.opentracing;
 
-/** work in progress */
-public interface BinaryReader {
-    // TODO
+public class NoopSpanContext implements SpanContext {
+    @Override
+    public SpanContext setBaggageItem(String key, String value) {
+        return this;
+    }
+
+    @Override
+    public String getBaggageItem(String key) {
+        return null;
+    }
 }

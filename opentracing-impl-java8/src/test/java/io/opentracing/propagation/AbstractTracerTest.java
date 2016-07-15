@@ -18,9 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import org.junit.Test;
 
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -50,110 +51,56 @@ public final class AbstractTracerTest {
     @Test
     public void testInject() {
         System.out.println("inject");
+        AbstractTracer instance = new TestTracerImpl();
+        instance.register(TextMapWriter.class, new TestTextMapInjectorImpl());
+
         String operationName = "test-inject-span";
-        Span span = new AbstractSpan(operationName) {};
+        Span span = new AbstractSpan(operationName) {
+            SpanContext spanContext = new TestSpanContextImpl("whatever");
+
+            @Override
+            public SpanContext context() {
+                return spanContext;
+            }
+        };
         Map<String,String> map = new HashMap<>();
         TextMapWriter carrier = new TextMapImpl(map);
-        AbstractTracer instance = new TestTracerImpl();
-        instance.inject(span, carrier);
-
-        assertTrue(
-                "operationName should have been injected into map",
-                map.containsKey(TestTracerImpl.OPERATION_NAME));
+        instance.inject(span.context(), carrier);
 
         assertEquals(
-                "operationName should have been injected into map",
-                operationName, map.get(TestTracerImpl.OPERATION_NAME));
+                "marker should have been injected into map",
+                "whatever", map.get("test-marker"));
     }
 
     /**
-     * Test of join method, of class AbstractTracer.
+     * Test of extract method, of class AbstractTracer, with an empty carrier.
      */
     @Test
-    public void testJoin() {
-        System.out.println("join");
-        String operationName = "test-join-span";
-        Map<String,String> map = Collections.singletonMap(TestTracerImpl.OPERATION_NAME, operationName);
+    public void testEmptyExtract() {
+        System.out.println("empty extract");
+        AbstractTracer instance = new TestTracerImpl();
+        instance.register(TextMapReader.class, new TestTextMapExtractorImpl());
+
+        Map<String,String> map = Collections.singletonMap("garbageEntry", "garbageVal");
         TextMapReader carrier = new TextMapImpl(map);
-        AbstractTracer instance = new TestTracerImpl();
-        Tracer.SpanBuilder result = instance.join(carrier);
-        AbstractSpan span = (AbstractSpan) result.start();
-        assertNotNull("Expected to create a valid Span", span);
-        assertEquals("Expected to create a Span with operationName", operationName, span.operationName);
+        SpanContext emptyResult = instance.extract(carrier);
+        assertNull("Should be nothing to extract", emptyResult);
     }
 
     /**
-     * Test of register method, of class AbstractTracer.
+     * Test of extract method, of class AbstractTracer, with a valid carrier.
      */
     @Test
-    public void testRegister_Class_Injector() {
-        System.out.println("register injector");
+    public void testNonEmptyExtract() {
+        System.out.println("non-empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        Injector expResult = new TextFormatInjectorImpl(instance);
-        Injector result = instance.register(TextMapWriter.class, expResult);
+        instance.register(TextMapReader.class, new TestTextMapExtractorImpl());
 
-        assertNotEquals("TextMapWriter carrier should already be registered", expResult, result);
-        assertNotNull("TextMapWriter carrier should already be registered", result);
-    }
-
-    @Test
-    public void testRegister_Class_Injector_superclass_before_interface() {
-        System.out.println("testRegister_Class_Injector_superclass_before_interface");
-        String testKey = "testRegister_Class_Injector_superclass_before_interface";
-        AbstractTracer instance = new TestTracerImpl();
-        Map<String,String> map = new HashMap<>();
-        TextMapImpl carrier = new TextMapImpl(map);
-
-        Injector result = instance.register(
-                TextMapImpl.class,
-                (Span s, TextMapImpl c) -> { c.put(testKey, "true"); });
-
-        assertNull("TextMapImpl carrier should get registered", result);
-
-        String operationName = "test-register-superclass_before_interface-span";
-        Span span = new AbstractSpan(operationName) {};
-        instance.inject(span, carrier);
-
-        assertTrue("test injector should have been used", map.containsKey(testKey));
-        assertEquals("test injector should have been used", map.get(testKey), "true");
-    }
-
-    /**
-     * Test of register method, of class AbstractTracer.
-     */
-    @Test
-    public void testRegister_Class_Extractor() {
-        System.out.println("register extractor");
-        AbstractTracer instance = new TestTracerImpl();
-        Extractor expResult = new TextFormatExtractorImpl(instance);
-        Extractor result = instance.register(TextMapReader.class, expResult);
-
-        assertNotEquals("TextMapReader carrier should already be registered", expResult, result);
-        assertNotNull("TextMapReader carrier should already be registered", result);
-    }
-
-
-    @Test
-    public void testRegister_Class_Extractor_superclass_before_interface() {
-        System.out.println("testRegister_Class_Extractor_superclass_before_interface");
-        String testKey = "testRegister_Class_Extractor_superclass_before_interface";
-        final AbstractTracer instance = new TestTracerImpl();
-        Map<String,String> map = new HashMap<>();
-        TextMapImpl carrier = new TextMapImpl(map);
-
-        Extractor result = instance.register(
-                TextMapImpl.class,
-                (TextMapImpl c) -> {
-                    c.put(testKey, "true");
-                    return instance.createSpanBuilder();
-                });
-
-        assertNull("TextMapImpl carrier should get registered", result);
-
-        instance.join(carrier);
-
-        assertTrue("test extractor should have been used", map.containsKey(testKey));
-        assertEquals("test extractor should have been used", map.get(testKey), "true");
+        Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
+        TextMapReader carrier = new TextMapImpl(map);
+        SpanContext result = instance.extract(carrier);
+        assertNotNull("Should be something to extract", result);
+        assertEquals("Should find the marker", "whatever", ((TestSpanContextImpl)result).getMarker());
     }
 
     final class TestTracerImpl extends AbstractTracer {
@@ -161,41 +108,20 @@ public final class AbstractTracerTest {
         static final String OPERATION_NAME = "operation-name";
 
         @Override
-        public AbstractSpanBuilder createSpanBuilder() {
-            return new AbstractSpanBuilder() {
+        public AbstractSpanBuilder createSpanBuilder(String operationName) {
+            return new AbstractSpanBuilder(operationName) {
                 @Override
                 protected AbstractSpan createSpan() {
                     return new AbstractSpan(this.operationName) {
+                        SpanContext spanContext = new TestSpanContextImpl("op=" + operationName);
+
+                        @Override
+                        public SpanContext context() {
+                            return spanContext;
+                        }
                     };
                 }
-
-                @Override
-                boolean isTraceState(String key, Object value) {
-                    return OPERATION_NAME.equals(key);
-                }
-
-                @Override
-                boolean isBaggage(String key, Object value) {
-                    return !isTraceState(key, value);
-                }
-
-                @Override
-                SpanBuilder withStateItem(String key, Object value) {
-                    assert isTraceState(key, value);
-                    this.operationName = (String) value;
-                    return this;
-                }
             };
-        }
-
-        @Override
-        public Map<String, String> getTraceState(Span span) {
-            return Collections.singletonMap(OPERATION_NAME, ((AbstractSpan)span).operationName);
-        }
-
-        @Override
-        public Map<String, String> getBaggage(Span span) {
-            return Collections.emptyMap();
         }
     }
 

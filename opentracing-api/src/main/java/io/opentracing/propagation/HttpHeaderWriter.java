@@ -14,19 +14,22 @@
 package io.opentracing.propagation;
 
 /**
- * TextMapWriter is a built-in carrier for Tracer.inject(). TextMapWriter implementations allows Tracers to write key:value String pairs into arbitrary data structures.
+ * HttpHeaderWriter is a built-in carrier for Tracer.inject().
+ *
+ * HttpHeaderWriter implementations allows Tracers to write key:value String pairs into arbitrary HTTP header representations. In this way, HttpHeaderWriter prevents a tight coupling between OpenTracing and any particular Java HTTP Header representation.
  *
  * @see io.opentracing.Tracer#inject(io.opentracing.SpanContext, Object)
  */
-public interface TextMapWriter {
+public interface HttpHeaderWriter {
     /**
-     * Puts a key:value pair into the TextMapWriter's backing store.
+     * Puts a key:value pair into the HTTP header map.
      *
-     * @param key an arbitrary string (unlike HttpHeaderWriter, there are no HTTP-style constraints on the contents)
-     * @param value an arbitrary string
+     * Note that headers added via put() will often share the HTTP header map with other application data. As such, Tracers should use a unique prefix or substring to identify their header map entries.
+     *
+     * @param key a key suitable for use in an HTTP header (i.e., case-insensitive, no special characters, etc)
+     * @param value a value suitable for use in an HTTP header (i.e., URL-escaped)
      *
      * @see io.opentracing.Tracer#inject(io.opentracing.SpanContext, Object)
-     * @see io.opentracing.propagation.HttpHeaderWriter
      */
     void put(String key, String value);
 }

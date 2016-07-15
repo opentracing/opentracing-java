@@ -19,60 +19,53 @@ package io.opentracing;
  * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
 public interface Span extends AutoCloseable {
+    /**
+     * Retrieve the associated SpanContext.
+     *
+     * @return the SpanContext that encapsulates Span state that should propagate across process boundaries.
+     */
+    SpanContext context();
 
-  /**
-   * Sets the end timestamp and records the span.
-   *
-   * <p>This should be the last call made to any span instance, and to do otherwise leads to
-   * undefined behavior.
-   */
-  void finish();
+    /**
+     * Sets the end timestamp and records the span.
+     *
+     * <p>This should be the last call made to any span instance, and to do otherwise leads to
+     * undefined behavior.
+     */
+    void finish();
 
-  void close();
+    void close();
 
-  /**
-   * Set a key:value tag on the Span.
-   */
-  // overloaded 3x to support the BasicType concern
-  Span setTag(String key, String value);
+    /**
+     * Set a key:value tag on the Span.
+     */
+    // overloaded 3x to support the BasicType concern
+    Span setTag(String key, String value);
 
-  /** Same as {@link #setTag(String, String)}, but for boolean values. */
-  Span setTag(String key, boolean value);
+    /** Same as {@link #setTag(String, String)}, but for boolean values. */
+    Span setTag(String key, boolean value);
 
-  /** Same as {@link #setTag(String, String)}, but for numeric values. */
-  Span setTag(String key, Number value);
+    /** Same as {@link #setTag(String, String)}, but for numeric values. */
+    Span setTag(String key, Number value);
 
-  /**
-   * Set a Baggage item, represented as a simple string:string pair.
-   *
-   * Note that newly-set Baggage items are only guaranteed to propagate to future children of the given Span.
-   */
-  Span setBaggageItem(String key, String value);
+    /**
+     * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
+     * If specified, the payload argument may be of any type and arbitrary size,
+     * though implementations are not required to retain all payload arguments
+     * (or even all parts of all payload arguments).
+     *
+     * The timestamp of this log event is the current time.
+     **/
+    Span log(String eventName, /* @Nullable */ Object payload);
 
-  /** Get a Baggage item by key.
-   *
-   * Returns null if no entry found, or baggage is not supported in the current implementation.
-   */
-  String getBaggageItem(String key);
-
-  /**
-   * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
-   * If specified, the payload argument may be of any type and arbitrary size,
-   * though implementations are not required to retain all payload arguments
-   * (or even all parts of all payload arguments).
-   *
-   * The timestamp of this log event is the current time.
-   **/
-  Span log(String eventName, /* @Nullable */ Object payload);
-
-  /**
-   * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
-   * If specified, the payload argument may be of any type and arbitrary size,
-   * though implementations are not required to retain all payload arguments
-   * (or even all parts of all payload arguments).
-   *
-   * The timestamp is specified manually here to represent a past log event.
-   * The timestamp in microseconds in UTC time.
-   **/
-  Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
+    /**
+     * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
+     * If specified, the payload argument may be of any type and arbitrary size,
+     * though implementations are not required to retain all payload arguments
+     * (or even all parts of all payload arguments).
+     *
+     * The timestamp is specified manually here to represent a past log event.
+     * The timestamp in microseconds in UTC time.
+     **/
+    Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }

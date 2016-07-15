@@ -13,25 +13,29 @@
  */
 package io.opentracing.propagation;
 
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
 
-public final class TextMapImpl implements TextMapWriter, TextMapReader {
+import io.opentracing.SpanContext;
 
-    private final Map<String,String> map;
+public class TestSpanContextImpl implements SpanContext {
+    final String marker;
+    protected Map<String, String> baggage = new HashMap<String, String>();
 
-    public TextMapImpl(final Map<String,String> map) {
-        this.map = map;
+    public TestSpanContextImpl(String marker) {
+        this.marker = marker;
+    }
+
+    public String getMarker() { return marker; }
+
+    @Override
+    public synchronized SpanContext setBaggageItem(String key, String value) {
+        this.baggage.put(key, value);
+        return this;
     }
 
     @Override
-    public void put(String key, String value) {
-        map.put(key, value);
+    public synchronized String getBaggageItem(String key) {
+        return this.baggage.get(key);
     }
-
-    @Override
-    public Iterator<Map.Entry<String, String>> getEntries() {
-        return map.entrySet().iterator();
-    }
-
 }

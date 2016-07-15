@@ -16,22 +16,22 @@ package io.opentracing.propagation;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class TextMapImpl implements TextMapWriter, TextMapReader {
+import io.opentracing.propagation.TextMapReader;
+import io.opentracing.SpanContext;
 
-    private final Map<String,String> map;
-
-    public TextMapImpl(final Map<String,String> map) {
-        this.map = map;
+public class TestTextMapExtractorImpl implements Extractor {
+    public SpanContext extract(Object carrier) {
+        TextMapReader textMapCarrier = (TextMapReader)carrier;
+        String marker = null;
+        for (Iterator<Map.Entry<String,String>> iter = textMapCarrier.getEntries(); iter.hasNext();) {
+            Map.Entry<String, String> entry = iter.next();
+            if (entry.getKey().equals("test-marker")) {
+                marker = entry.getValue();
+            }
+        }
+        if (marker == null) {
+            return null;
+        }
+        return new TestSpanContextImpl(marker);
     }
-
-    @Override
-    public void put(String key, String value) {
-        map.put(key, value);
-    }
-
-    @Override
-    public Iterator<Map.Entry<String, String>> getEntries() {
-        return map.entrySet().iterator();
-    }
-
 }
