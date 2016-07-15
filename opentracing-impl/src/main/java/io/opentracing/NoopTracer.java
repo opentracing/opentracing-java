@@ -21,9 +21,9 @@ public final class NoopTracer implements Tracer {
     }
 
     @Override
-    public <T> void inject(SpanContext spanContext, T carrier) {}
+    public void inject(SpanContext spanContext, Object carrier) {}
 
     @Override
-    public <T> SpanContext extract(T carrier) { return null; }
+    public SpanContext extract(Object carrier) { return null; }
 
 }

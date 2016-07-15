@@ -55,7 +55,14 @@ public final class AbstractTracerTest {
         instance.register(TextMapWriter.class, new TestTextMapInjectorImpl());
 
         String operationName = "test-inject-span";
-        Span span = new AbstractSpan(operationName, new TestSpanContextImpl("whatever")) {};
+        Span span = new AbstractSpan(operationName) {
+            SpanContext spanContext = new TestSpanContextImpl("whatever");
+
+            @Override
+            public SpanContext context() {
+                return spanContext;
+            }
+        };
         Map<String,String> map = new HashMap<>();
         TextMapWriter carrier = new TextMapImpl(map);
         instance.inject(span.context(), carrier);
@@ -105,7 +112,13 @@ public final class AbstractTracerTest {
             return new AbstractSpanBuilder(operationName) {
                 @Override
                 protected AbstractSpan createSpan() {
-                    return new AbstractSpan(this.operationName, new TestSpanContextImpl("op=" + operationName)) {
+                    return new AbstractSpan(this.operationName) {
+                        SpanContext spanContext = new TestSpanContextImpl("op=" + operationName);
+
+                        @Override
+                        public SpanContext context() {
+                            return spanContext;
+                        }
                     };
                 }
             };

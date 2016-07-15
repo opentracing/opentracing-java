@@ -19,8 +19,9 @@ import java.util.Map;
 import io.opentracing.propagation.TextMapWriter;
 import io.opentracing.SpanContext;
 
-public class TestTextMapInjectorImpl implements Injector<TextMapWriter> {
-    public void inject(SpanContext spanContext, TextMapWriter carrier) {
-        carrier.put("test-marker", ((TestSpanContextImpl)spanContext).getMarker());
+public class TestTextMapInjectorImpl implements Injector {
+    public void inject(SpanContext spanContext, Object carrier) {
+        TextMapWriter textMapCarrier = (TextMapWriter)carrier;
+        textMapCarrier.put("test-marker", ((TestSpanContextImpl)spanContext).getMarker());
     }
 }

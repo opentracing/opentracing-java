@@ -15,8 +15,6 @@ package io.opentracing.propagation;
 
 import io.opentracing.SpanContext;
 
-/**
- */
-public interface Extractor<T> {
-    SpanContext extract(T carrier);
+public interface Extractor {
+    SpanContext extract(Object carrier);
 }

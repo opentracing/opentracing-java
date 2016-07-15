@@ -36,20 +36,20 @@ abstract class AbstractTracer implements Tracer {
     }
 
     @Override
-    public <T> void inject(SpanContext spanContext, T carrier) {
-        registry.getInjector((Class<T>)carrier.getClass()).inject(spanContext, carrier);
+    public void inject(SpanContext spanContext, Object carrier) {
+        registry.getInjector(carrier.getClass()).inject(spanContext, carrier);
     }
 
     @Override
-    public <T> SpanContext extract(T carrier) {
-        return registry.getExtractor((Class<T>)carrier.getClass()).extract(carrier);
+    public SpanContext extract(Object carrier) {
+        return registry.getExtractor(carrier.getClass()).extract(carrier);
     }
 
-    public <T> Injector<T> register(Class<T> carrierType, Injector<T> injector) {
+    public Injector register(Class carrierType, Injector injector) {
         return registry.register(carrierType, injector);
     }
 
-    public <T> Extractor<T> register(Class<T> carrierType, Extractor<T> extractor) {
+    public Extractor register(Class carrierType, Extractor extractor) {
         return registry.register(carrierType, extractor);
     }
 
@@ -58,7 +58,7 @@ abstract class AbstractTracer implements Tracer {
         private final ConcurrentMap<Class, Injector> injectors = new ConcurrentHashMap<>();
         private final ConcurrentMap<Class, Extractor> extractors = new ConcurrentHashMap<>();
 
-        public <T> Injector<T> getInjector(Class<T> carrierType) {
+        public Injector getInjector(Class carrierType) {
             Class<?> c = carrierType;
             // match first on concrete classes
             do {
@@ -76,7 +76,7 @@ abstract class AbstractTracer implements Tracer {
             throw new AssertionError("no registered injector for " + carrierType.getName());
         }
 
-        public <T> Extractor<T> getExtractor(Class<T> carrierType) {
+        public Extractor getExtractor(Class carrierType) {
             Class<?> c = carrierType;
             // match first on concrete classes
             do {
@@ -94,11 +94,11 @@ abstract class AbstractTracer implements Tracer {
             throw new AssertionError("no registered extractor for " + carrierType.getName());
         }
 
-        public <T> Injector<T> register(Class<T> carrierType, Injector<T> injector) {
+        public Injector register(Class carrierType, Injector injector) {
             return injectors.putIfAbsent(carrierType, injector);
         }
 
-        public <T> Extractor<T> register(Class<T> carrierType, Extractor<T> extractor) {
+        public Extractor register(Class carrierType, Extractor extractor) {
             return extractors.putIfAbsent(carrierType, extractor);
         }
     }
