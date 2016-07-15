@@ -41,7 +41,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     protected abstract AbstractSpan createSpan();
 
     @Override
-    public final Tracer.SpanBuilder addReference(Object referenceType, SpanContext referredTo) {
+    public final Tracer.SpanBuilder addReference(String referenceType, SpanContext referredTo) {
         this.references.add(new Reference(referenceType, referredTo));
         return this;
     }
@@ -88,10 +88,10 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     public static final class Reference {
-        private Object referenceType;
+        private String referenceType;
         private SpanContext referredTo;
 
-        Reference(Object type, SpanContext referredTo) {
+        Reference(String type, SpanContext referredTo) {
             this.referenceType = type;
             this.referredTo = referredTo;
         }

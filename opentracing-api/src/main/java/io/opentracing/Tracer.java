@@ -92,7 +92,7 @@ public interface Tracer {
        *
        * @see io.opentracing.References
        */
-      SpanBuilder addReference(Object referenceType, SpanContext referencedContext);
+      SpanBuilder addReference(String referenceType, SpanContext referencedContext);
 
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
       SpanBuilder withTag(String key, String value);
