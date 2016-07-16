@@ -29,6 +29,11 @@ final class NoopSpanBuilder implements Tracer.SpanBuilder {
     }
 
     @Override
+    public Tracer.SpanBuilder asChildOf(Span parent) {
+        return this;
+    }
+
+    @Override
     public Tracer.SpanBuilder withTag(String key, String value) {
         return this;
     }

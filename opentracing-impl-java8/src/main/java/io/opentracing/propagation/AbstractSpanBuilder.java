@@ -52,6 +52,11 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     @Override
+    public final Tracer.SpanBuilder asChildOf(Span parent) {
+        return this.addReference(References.CHILD_OF, parent.context());
+    }
+
+    @Override
     public final Tracer.SpanBuilder withTag(String key, String value) {
         stringTags.put(key, value);
         return this;

@@ -85,6 +85,11 @@ public interface Tracer {
       SpanBuilder asChildOf(SpanContext parent);
 
       /**
+       * A shorthand for withReference(Reference.childOf(parent.context())).
+       */
+      SpanBuilder asChildOf(Span parent);
+
+      /**
        * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to represent multiple such References.
        *
        * @param referenceType the reference type, typically one of the constants defined in References
