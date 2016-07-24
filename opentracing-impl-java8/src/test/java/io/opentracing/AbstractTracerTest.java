@@ -11,22 +11,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.propagation;
+package io.opentracing;
+
+import io.opentracing.propagation.*;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public final class AbstractTracerTest {
@@ -52,7 +46,7 @@ public final class AbstractTracerTest {
     public void testInject() {
         System.out.println("inject");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(TextMapWriter.class, new TestTextMapInjectorImpl());
+        instance.register(TextMap.class, new TestTextMapInjectorImpl());
 
         String operationName = "test-inject-span";
         Span span = new AbstractSpan(operationName) {
@@ -64,8 +58,8 @@ public final class AbstractTracerTest {
             }
         };
         Map<String,String> map = new HashMap<>();
-        TextMapWriter carrier = new TextMapImpl(map);
-        instance.inject(span.context(), carrier);
+        TextMap carrier = new TextMapImpl(map);
+        instance.inject(span.context(), Format.Builtin.TEXT_MAP, carrier);
 
         assertEquals(
                 "marker should have been injected into map",
@@ -79,11 +73,11 @@ public final class AbstractTracerTest {
     public void testEmptyExtract() {
         System.out.println("empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(TextMapReader.class, new TestTextMapExtractorImpl());
+        instance.register(TextMap.class, new TestTextMapExtractorImpl());
 
         Map<String,String> map = Collections.singletonMap("garbageEntry", "garbageVal");
-        TextMapReader carrier = new TextMapImpl(map);
-        SpanContext emptyResult = instance.extract(carrier);
+        TextMap carrier = new TextMapImpl(map);
+        SpanContext emptyResult = instance.extract(Format.Builtin.TEXT_MAP, carrier);
         assertNull("Should be nothing to extract", emptyResult);
     }
 
@@ -94,11 +88,11 @@ public final class AbstractTracerTest {
     public void testNonEmptyExtract() {
         System.out.println("non-empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(TextMapReader.class, new TestTextMapExtractorImpl());
+        instance.register(TextMap.class, new TestTextMapExtractorImpl());
 
         Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
-        TextMapReader carrier = new TextMapImpl(map);
-        SpanContext result = instance.extract(carrier);
+        TextMap carrier = new TextMapImpl(map);
+        SpanContext result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
         assertNotNull("Should be something to extract", result);
         assertEquals("Should find the marker", "whatever", ((TestSpanContextImpl)result).getMarker());
     }

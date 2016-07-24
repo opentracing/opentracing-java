@@ -16,7 +16,7 @@ package io.opentracing.propagation;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class TextMapImpl implements TextMapWriter, TextMapReader {
+public final class TextMapImpl implements TextMap {
 
     private final Map<String,String> map;
 

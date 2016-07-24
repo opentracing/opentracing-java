@@ -11,16 +11,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.propagation;
+package io.opentracing;
 
-import java.util.Map;
+import io.opentracing.propagation.Extractor;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.Injector;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-import io.opentracing.Tracer.SpanBuilder;
 
 abstract class AbstractTracer implements Tracer {
 
@@ -36,20 +34,20 @@ abstract class AbstractTracer implements Tracer {
     }
 
     @Override
-    public void inject(SpanContext spanContext, Object carrier) {
-        registry.getInjector(carrier.getClass()).inject(spanContext, carrier);
+    public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
+        registry.getInjector((Class<C>)carrier.getClass()).inject(spanContext, carrier);
     }
 
     @Override
-    public SpanContext extract(Object carrier) {
-        return registry.getExtractor(carrier.getClass()).extract(carrier);
+    public <C> SpanContext extract(Format<C> format, C carrier) {
+        return registry.getExtractor((Class<C>)carrier.getClass()).extract(carrier);
     }
 
-    public Injector register(Class carrierType, Injector injector) {
+    public <C> Injector<C> register(Class<C> carrierType, Injector<C> injector) {
         return registry.register(carrierType, injector);
     }
 
-    public Extractor register(Class carrierType, Extractor extractor) {
+    public <C> Extractor<C> register(Class<C> carrierType, Extractor<C> extractor) {
         return registry.register(carrierType, extractor);
     }
 
@@ -58,7 +56,7 @@ abstract class AbstractTracer implements Tracer {
         private final ConcurrentMap<Class, Injector> injectors = new ConcurrentHashMap<>();
         private final ConcurrentMap<Class, Extractor> extractors = new ConcurrentHashMap<>();
 
-        public Injector getInjector(Class carrierType) {
+        public <C> Injector<C> getInjector(Class<C> carrierType) {
             Class<?> c = carrierType;
             // match first on concrete classes
             do {
@@ -76,7 +74,7 @@ abstract class AbstractTracer implements Tracer {
             throw new AssertionError("no registered injector for " + carrierType.getName());
         }
 
-        public Extractor getExtractor(Class carrierType) {
+        public <C> Extractor<C> getExtractor(Class<C> carrierType) {
             Class<?> c = carrierType;
             // match first on concrete classes
             do {
@@ -94,11 +92,11 @@ abstract class AbstractTracer implements Tracer {
             throw new AssertionError("no registered extractor for " + carrierType.getName());
         }
 
-        public Injector register(Class carrierType, Injector injector) {
+        public <C> Injector<C> register(Class<C> carrierType, Injector<C> injector) {
             return injectors.putIfAbsent(carrierType, injector);
         }
 
-        public Extractor register(Class carrierType, Extractor extractor) {
+        public <C> Extractor<C> register(Class<C> carrierType, Extractor<C> extractor) {
             return extractors.putIfAbsent(carrierType, extractor);
         }
     }

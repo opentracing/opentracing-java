@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.propagation;
+package io.opentracing;
 
 import io.opentracing.References;
 import io.opentracing.Span;

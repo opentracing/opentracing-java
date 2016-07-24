@@ -13,17 +13,16 @@
  */
 package io.opentracing.propagation;
 
+import io.opentracing.SpanContext;
+import io.opentracing.TestSpanContextImpl;
+
 import java.util.Iterator;
 import java.util.Map;
 
-import io.opentracing.propagation.TextMapReader;
-import io.opentracing.SpanContext;
-
-public class TestTextMapExtractorImpl implements Extractor {
-    public SpanContext extract(Object carrier) {
-        TextMapReader textMapCarrier = (TextMapReader)carrier;
+public class TestTextMapExtractorImpl implements Extractor<TextMap> {
+    public SpanContext extract(TextMap carrier) {
         String marker = null;
-        for (Iterator<Map.Entry<String,String>> iter = textMapCarrier.getEntries(); iter.hasNext();) {
+        for (Iterator<Map.Entry<String,String>> iter = carrier.getEntries(); iter.hasNext();) {
             Map.Entry<String, String> entry = iter.next();
             if (entry.getKey().equals("test-marker")) {
                 marker = entry.getValue();

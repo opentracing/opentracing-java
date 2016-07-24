@@ -11,9 +11,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.propagation;
+package io.opentracing;
 
-import io.opentracing.SpanContext;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import io.opentracing.Span;
 
 abstract class AbstractSpan implements Span {
 
