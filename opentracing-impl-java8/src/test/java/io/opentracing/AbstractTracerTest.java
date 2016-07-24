@@ -58,7 +58,7 @@ public final class AbstractTracerTest {
             }
         };
         Map<String,String> map = new HashMap<>();
-        TextMap carrier = new TextMapImpl(map);
+        TextMap carrier = new TextMapInjectAdapter(map);
         instance.inject(span.context(), Format.Builtin.TEXT_MAP, carrier);
 
         assertEquals(
@@ -76,7 +76,7 @@ public final class AbstractTracerTest {
         instance.register(TextMap.class, new TestTextMapExtractorImpl());
 
         Map<String,String> map = Collections.singletonMap("garbageEntry", "garbageVal");
-        TextMap carrier = new TextMapImpl(map);
+        TextMap carrier = new TextMapExtractAdapter(map);
         SpanContext emptyResult = instance.extract(Format.Builtin.TEXT_MAP, carrier);
         assertNull("Should be nothing to extract", emptyResult);
     }
@@ -91,7 +91,7 @@ public final class AbstractTracerTest {
         instance.register(TextMap.class, new TestTextMapExtractorImpl());
 
         Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
-        TextMap carrier = new TextMapImpl(map);
+        TextMap carrier = new TextMapExtractAdapter(map);
         SpanContext result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
         assertNotNull("Should be something to extract", result);
         assertEquals("Should find the marker", "whatever", ((TestSpanContextImpl)result).getMarker());
