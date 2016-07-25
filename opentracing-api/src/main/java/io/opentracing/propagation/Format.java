@@ -19,7 +19,7 @@ import io.opentracing.Tracer;
 import java.nio.ByteBuffer;
 
 /**
- * Format instances control the behavier of Tracer.inject and Tracer.extract (and also constrain the type of the carrier parameter to same).
+ * Format instances control the behavior of Tracer.inject and Tracer.extract (and also constrain the type of the carrier parameter to same).
  *
  * Most OpenTracing users will only reference the Format.Builtin constants. For example:
  *
