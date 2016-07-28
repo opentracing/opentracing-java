@@ -50,9 +50,9 @@ public interface Span extends AutoCloseable {
 
     /**
      * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
-     * If specified, the payload argument may be of any type and arbitrary size,
-     * though implementations are not required to retain all payload arguments
-     * (or even all parts of all payload arguments).
+     *
+     * If specified, the payload argument may be of any type and arbitrary size, though implementations are not
+     * required to retain all payload arguments (or even all parts of all payload arguments).
      *
      * The timestamp of this log event is the current time.
      **/
@@ -60,9 +60,9 @@ public interface Span extends AutoCloseable {
 
     /**
      * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
-     * If specified, the payload argument may be of any type and arbitrary size,
-     * though implementations are not required to retain all payload arguments
-     * (or even all parts of all payload arguments).
+     *
+     * If specified, the payload argument may be of any type and arbitrary size, though implementations are not
+     * required to retain all payload arguments (or even all parts of all payload arguments).
      *
      * The timestamp is specified manually here to represent a past log event.
      * The timestamp in microseconds in UTC time.

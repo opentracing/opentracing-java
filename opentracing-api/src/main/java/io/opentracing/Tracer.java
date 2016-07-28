@@ -71,11 +71,13 @@ public interface Tracer {
    * tracer.buildSpan('...').withChildOf(spanCtx).start();
    * }</pre>
    *
-   * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an IllegalArgumentException.
+   * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
+   * IllegalArgumentException.
    *
    * @param <C> the carrier type, which also parametrizes the Format.
    * @param format the Format of the carrier
-   * @param carrier the carrier for the SpanContext state. All Tracer.extract() implementations must support io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
+   * @param carrier the carrier for the SpanContext state. All Tracer.extract() implementations must support
+   *                io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
    * @returns the SpanContext instance extracted from the carrier
    *
    * @see io.opentracing.propagation.Format
@@ -97,10 +99,12 @@ public interface Tracer {
       SpanBuilder asChildOf(Span parent);
 
       /**
-       * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to represent multiple such References.
+       * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to
+       * represent multiple such References.
        *
        * @param referenceType the reference type, typically one of the constants defined in References
-       * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the referencedContext is the parent
+       * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
+       *                          referencedContext is the parent
        *
        * @see io.opentracing.References
        */

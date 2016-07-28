@@ -19,7 +19,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * TextMap is a built-in carrier for Tracer.inject() and Tracer.extract(). TextMap implementations allows Tracers to read and write key:value String pairs from arbitrary underlying sources of data.
+ * TextMap is a built-in carrier for Tracer.inject() and Tracer.extract(). TextMap implementations allows Tracers to
+ * read and write key:value String pairs from arbitrary underlying sources of data.
  *
  * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
  * @see io.opentracing.Tracer#extract(Format, Object)
@@ -28,7 +29,8 @@ public interface TextMap {
     /**
      * Gets an iterator over arbitrary key:value pairs from the TextMapReader.
      *
-     * @return entries in the TextMap backing store; note that for some Formats, the iterator may include entries that were never injected by a Tracer implementation (e.g., unrelated HTTP headers)
+     * @return entries in the TextMap backing store; note that for some Formats, the iterator may include entries that
+     * were never injected by a Tracer implementation (e.g., unrelated HTTP headers)
      *
      * @see io.opentracing.Tracer#extract(Format, Object)
      * @see Format.Builtin#TEXT_MAP
