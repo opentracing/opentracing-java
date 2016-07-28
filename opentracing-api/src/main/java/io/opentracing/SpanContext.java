@@ -16,17 +16,22 @@ package io.opentracing;
 /**
  * SpanContext represents Span state that must propagate to descendant Spans and across process boundaries.
  *
- * SpanContext is logically divided into two pieces: (1) the user-level "Baggage" (see set_baggage_item and get_baggage_item) that propagates across Span boundaries and (2) any Tracer-implementation-specific fields that are needed to identify or otherwise contextualize the associated Span instance (e.g., a <trace_id, span_id, sampled> tuple).
+ * SpanContext is logically divided into two pieces: (1) the user-level "Baggage" (see set_baggage_item and
+ * get_baggage_item) that propagates across Span boundaries and (2) any Tracer-implementation-specific fields that are
+ * needed to identify or otherwise contextualize the associated Span instance (e.g., a <trace_id, span_id, sampled>
+ * tuple).
  */
 public interface SpanContext {
     /**
      * Sets a baggage item in the SpanContext as a key/value pair.
      *
-     * Baggage enables powerful distributed context propagation functionality where arbitrary application data can be carried along the full path of request execution throughout the system.
+     * Baggage enables powerful distributed context propagation functionality where arbitrary application data can be
+     * carried along the full path of request execution throughout the system.
      *
      * Note 1: Baggage is only propagated to the future (recursive) children of this SpanContext.
      *
-     * Note 2: Baggage is sent in-band with every subsequent local and remote calls, so this feature must be used with care.
+     * Note 2: Baggage is sent in-band with every subsequent local and remote calls, so this feature must be used with
+     * care.
      *
      * @return this SpanContext instance, for chaining
      */

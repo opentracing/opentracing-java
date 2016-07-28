@@ -13,15 +13,12 @@
  */
 package io.opentracing.propagation;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import io.opentracing.propagation.TextMapWriter;
 import io.opentracing.SpanContext;
+import io.opentracing.TestSpanContextImpl;
 
-public class TestTextMapInjectorImpl implements Injector {
-    public void inject(SpanContext spanContext, Object carrier) {
-        TextMapWriter textMapCarrier = (TextMapWriter)carrier;
-        textMapCarrier.put("test-marker", ((TestSpanContextImpl)spanContext).getMarker());
+public class TestTextMapInjectorImpl implements Injector<TextMap> {
+    @Override
+    public void inject(SpanContext spanContext, TextMap carrier) {
+        carrier.put("test-marker", ((TestSpanContextImpl)spanContext).getMarker());
     }
 }

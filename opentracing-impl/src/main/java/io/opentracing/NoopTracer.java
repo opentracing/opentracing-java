@@ -13,6 +13,8 @@
  */
 package io.opentracing;
 
+import io.opentracing.propagation.Format;
+
 public final class NoopTracer implements Tracer {
 
     @Override
@@ -21,9 +23,9 @@ public final class NoopTracer implements Tracer {
     }
 
     @Override
-    public void inject(SpanContext spanContext, Object carrier) {}
+    public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}
 
     @Override
-    public SpanContext extract(Object carrier) { return null; }
+    public <C> SpanContext extract(Format<C> format, C carrier) { return null; }
 
 }

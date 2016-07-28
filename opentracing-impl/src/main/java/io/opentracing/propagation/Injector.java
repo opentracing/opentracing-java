@@ -15,6 +15,6 @@ package io.opentracing.propagation;
 
 import io.opentracing.SpanContext;
 
-public interface Injector {
-    void inject(SpanContext spanContext, Object carrier);
+public interface Injector<C> {
+    void inject(SpanContext spanContext, C carrier);
 }

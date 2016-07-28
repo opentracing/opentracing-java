@@ -13,24 +13,34 @@
  */
 package io.opentracing.propagation;
 
+import io.opentracing.Tracer;
+
 import java.util.Iterator;
 import java.util.Map;
 
-public final class HttpHeaderImpl implements HttpHeaderReader, HttpHeaderWriter {
+/**
+ * A TextMap carrier for use with Tracer.extract() ONLY (it has no mutating methods).
+ *
+ * Note that the TextMap interface can be made to wrap around arbitrary data types (not just Map<String, String> as
+ * illustrated here).
+ *
+ * @see Tracer#extract(Format, Object)
+ */
+public class TextMapExtractAdapter implements TextMap {
     private final Map<String,String> map;
 
-    // XXX: this should take some sort of HTTP Header object, not a Map.
-    public HttpHeaderImpl(final Map<String,String> map) {
+    public TextMapExtractAdapter(final Map<String,String> map) {
         this.map = map;
-    }
-
-    @Override
-    public void put(String key, String value) {
-        map.put(key, value);
     }
 
     @Override
     public Iterator<Map.Entry<String, String>> getEntries() {
         return map.entrySet().iterator();
+    }
+
+    @Override
+    public void put(String key, String value) {
+        throw new UnsupportedOperationException(
+                "TextMapInjectAdapter should only be used with Tracer.extract()");
     }
 }

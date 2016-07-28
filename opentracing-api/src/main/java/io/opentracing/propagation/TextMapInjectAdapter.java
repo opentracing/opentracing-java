@@ -13,25 +13,35 @@
  */
 package io.opentracing.propagation;
 
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+
 import java.util.Iterator;
 import java.util.Map;
 
-public final class TextMapImpl implements TextMapWriter, TextMapReader {
-
+/**
+ * A TextMap carrier for use with Tracer.inject() ONLY (it has no read methods).
+ *
+ * Note that the TextMap interface can be made to wrap around arbitrary data types (not just Map<String, String> as
+ * illustrated here).
+ *
+ * @see Tracer#inject(SpanContext, Format, Object)
+ */
+public class TextMapInjectAdapter implements TextMap {
     private final Map<String,String> map;
 
-    public TextMapImpl(final Map<String,String> map) {
+    public TextMapInjectAdapter(final Map<String,String> map) {
         this.map = map;
     }
 
     @Override
-    public void put(String key, String value) {
-        map.put(key, value);
+    public Iterator<Map.Entry<String, String>> getEntries() {
+        throw new UnsupportedOperationException(
+                "TextMapInjectAdapter should only be used with Tracer.inject()");
     }
 
     @Override
-    public Iterator<Map.Entry<String, String>> getEntries() {
-        return map.entrySet().iterator();
+    public void put(String key, String value) {
+        this.map.put(key, value);
     }
-
 }
