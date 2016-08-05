@@ -19,7 +19,7 @@
 
     <groupId>io.opentracing</groupId>
     <artifactId>parent</artifactId>
-    <version>0.13.1-SNAPSHOT</version>
+    <version>0.14-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
