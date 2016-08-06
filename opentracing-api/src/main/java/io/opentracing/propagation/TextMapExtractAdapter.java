@@ -34,7 +34,7 @@ public class TextMapExtractAdapter implements TextMap {
     }
 
     @Override
-    public Iterator<Map.Entry<String, String>> getEntries() {
+    public Iterator<Map.Entry<String, String>> iterator() {
         return map.entrySet().iterator();
     }
 

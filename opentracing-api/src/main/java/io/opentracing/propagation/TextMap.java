@@ -25,7 +25,7 @@ import java.util.Map;
  * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
  * @see io.opentracing.Tracer#extract(Format, Object)
  */
-public interface TextMap {
+public interface TextMap extends Iterable<Map.Entry<String, String>> {
     /**
      * Gets an iterator over arbitrary key:value pairs from the TextMapReader.
      *
@@ -36,7 +36,7 @@ public interface TextMap {
      * @see Format.Builtin#TEXT_MAP
      * @see Format.Builtin#HTTP_HEADERS
      */
-    Iterator<Map.Entry<String,String>> getEntries();
+    Iterator<Map.Entry<String,String>> iterator();
 
     /**
      * Puts a key:value pair into the TextMapWriter's backing store.
