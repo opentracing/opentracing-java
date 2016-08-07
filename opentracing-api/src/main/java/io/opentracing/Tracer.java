@@ -89,12 +89,12 @@ public interface Tracer {
   interface SpanBuilder {
 
       /**
-       * A shorthand for withReference(Reference.childOf(parent)).
+       * A shorthand for addReference(References.CHILD_OF, parent).
        */
       SpanBuilder asChildOf(SpanContext parent);
 
       /**
-       * A shorthand for withReference(Reference.childOf(parent.context())).
+       * A shorthand for addReference(References.CHILD_OF, parent.context()).
        */
       SpanBuilder asChildOf(Span parent);
 
