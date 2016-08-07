@@ -22,17 +22,33 @@ public interface Span extends AutoCloseable {
     /**
      * Retrieve the associated SpanContext.
      *
+     * This may be called at any time, including after calls to finish().
+     *
      * @return the SpanContext that encapsulates Span state that should propagate across process boundaries.
      */
     SpanContext context();
 
     /**
-     * Sets the end timestamp and records the span.
+     * Sets the end timestamp to now and records the span.
      *
-     * <p>This should be the last call made to any span instance, and to do otherwise leads to
-     * undefined behavior.
+     * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
+     * do otherwise leads to undefined behavior.
+     *
+     * @see Span#context()
      */
     void finish();
+
+    /**
+     * Sets an explicit end timestamp and records the span.
+     *
+     * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
+     * do otherwise leads to undefined behavior.
+     *
+     * @param finishMicros an explicit finish time, in microseconds since the epoch
+     *
+     * @see Span#context()
+     */
+    void finish(long finishMicros);
 
     void close();
 

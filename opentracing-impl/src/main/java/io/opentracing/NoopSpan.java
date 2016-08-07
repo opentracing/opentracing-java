@@ -27,6 +27,9 @@ final class NoopSpan implements Span {
     public void finish() {}
 
     @Override
+    public void finish(long finishMicros) {}
+
+    @Override
     public void close() {
         finish();
     }
