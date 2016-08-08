@@ -43,6 +43,13 @@ abstract class AbstractSpan implements Span {
         assert null == duration;
         duration = Duration.between(start, Instant.now());
     }
+    @Override
+    public void finish(long finishMicros) {
+        long finishEpochSeconds = TimeUnit.MICROSECONDS.toSeconds(finishMicros);
+        long nanos = TimeUnit.MICROSECONDS.toNanos(finishMicros) - TimeUnit.SECONDS.toNanos(finishEpochSeconds);
+        assert null == duration;
+        duration = Duration.between(start, Instant.ofEpochSecond(finishEpochSeconds, nanos));
+    }
 
     @Override
     public void close() {
