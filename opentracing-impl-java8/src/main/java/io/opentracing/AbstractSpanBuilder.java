@@ -13,10 +13,6 @@
  */
 package io.opentracing;
 
-import io.opentracing.References;
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,7 +84,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
         stringTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
         booleanTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
         numberTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
-        baggage.entrySet().stream().forEach((entry) -> { span.context().setBaggageItem(entry.getKey(), entry.getValue()); });
+        baggage.entrySet().stream().forEach((entry) -> { span.setBaggageItem(entry.getKey(), entry.getValue()); });
         return span;
     }
 

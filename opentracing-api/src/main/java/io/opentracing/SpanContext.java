@@ -13,32 +13,24 @@
  */
 package io.opentracing;
 
+import java.util.Map;
+
 /**
  * SpanContext represents Span state that must propagate to descendant Spans and across process boundaries.
  *
- * SpanContext is logically divided into two pieces: (1) the user-level "Baggage" (see set_baggage_item and
- * get_baggage_item) that propagates across Span boundaries and (2) any Tracer-implementation-specific fields that are
- * needed to identify or otherwise contextualize the associated Span instance (e.g., a <trace_id, span_id, sampled>
- * tuple).
+ * SpanContext is logically divided into two pieces: (1) the user-level "Baggage" that propagates across Span
+ * boundaries and (2) any Tracer-implementation-specific fields that are needed to identify or otherwise contextualize
+ * the associated Span instance (e.g., a <trace_id, span_id, sampled> tuple).
+ *
+ * @see Span#setBaggageItem(String, String)
+ * @see Span#getBaggageItem(String)
  */
 public interface SpanContext {
     /**
-     * Sets a baggage item in the SpanContext as a key/value pair.
+     * @return all zero or more baggage items propagating along with the associated Span
      *
-     * Baggage enables powerful distributed context propagation functionality where arbitrary application data can be
-     * carried along the full path of request execution throughout the system.
-     *
-     * Note 1: Baggage is only propagated to the future (recursive) children of this SpanContext.
-     *
-     * Note 2: Baggage is sent in-band with every subsequent local and remote calls, so this feature must be used with
-     * care.
-     *
-     * @return this SpanContext instance, for chaining
+     * @see Span#setBaggageItem(String, String)
+     * @see Span#getBaggageItem(String)
      */
-    SpanContext setBaggageItem(String key, String value);
-
-    /**
-     * @return the value of the baggage item identified by the given key, or null if no such item could be found
-     */
-    String getBaggageItem(String key);
+    Iterable<Map.Entry<String, String>> baggageItems();
 }

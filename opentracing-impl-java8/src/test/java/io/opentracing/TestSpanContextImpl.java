@@ -18,22 +18,35 @@ import java.util.Map;
 
 public class TestSpanContextImpl implements SpanContext {
     final String marker;
-    protected Map<String, String> baggage = new HashMap<String, String>();
+    protected final Map<String, String> baggage;
 
     public TestSpanContextImpl(String marker) {
+        this(marker, new HashMap<>());
+    }
+
+    public TestSpanContextImpl(String marker, Map<String, String> adoptedBaggage) {
         this.marker = marker;
+        this.baggage = adoptedBaggage;
+    }
+
+    @Override
+    public Iterable<Map.Entry<String, String>> baggageItems() {
+        return baggage.entrySet();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    // Implementation-specific extensions (mainly to support the immutable idiom here).
+    ///////////////////////////////////////////////////////////////////////////////////
+
+    public TestSpanContextImpl withBaggageItem(String key, String val) {
+        Map<String, String> baggageCopy = new HashMap<>(baggage);
+        baggageCopy.put(key, val);
+        return new TestSpanContextImpl(marker, baggageCopy);
+    }
+
+    public String getBaggageItem(String key) {
+        return baggage.get(key);
     }
 
     public String getMarker() { return marker; }
-
-    @Override
-    public synchronized SpanContext setBaggageItem(String key, String value) {
-        this.baggage.put(key, value);
-        return this;
-    }
-
-    @Override
-    public synchronized String getBaggageItem(String key) {
-        return this.baggage.get(key);
-    }
 }

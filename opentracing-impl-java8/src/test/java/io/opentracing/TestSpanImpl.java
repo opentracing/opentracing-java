@@ -13,14 +13,26 @@
  */
 package io.opentracing;
 
-import java.util.HashMap;
-import java.util.Map;
+public class TestSpanImpl extends AbstractSpan {
+    TestSpanContextImpl spanContext = new TestSpanContextImpl("whatever");
 
-public class NoopSpanContext implements SpanContext {
-    private static Map<String, String> EMPTY_MAP = new HashMap<>();
+    TestSpanImpl(String operationName) {
+        super(operationName);
+    }
 
     @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return EMPTY_MAP.entrySet();
+    public SpanContext context() {
+        return spanContext;
+    }
+
+    @Override
+    public synchronized Span setBaggageItem(String key, String value) {
+        spanContext = spanContext.withBaggageItem(key, value);
+        return this;
+    }
+
+    @Override
+    public synchronized String getBaggageItem(String key) {
+        return spanContext.getBaggageItem(key);
     }
 }
