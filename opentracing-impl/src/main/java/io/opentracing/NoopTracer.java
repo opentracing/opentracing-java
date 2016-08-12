@@ -17,6 +17,8 @@ import io.opentracing.propagation.Format;
 
 public final class NoopTracer implements Tracer {
 
+    public final static NoopTracer INSTANCE = new NoopTracer();
+
     @Override
     public SpanBuilder buildSpan(String operationName) {
         return NoopSpanBuilder.INSTANCE;
