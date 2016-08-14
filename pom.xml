@@ -26,6 +26,7 @@
         <module>opentracing-api</module>
         <module>opentracing-impl</module>
         <module>opentracing-impl-java8</module>
+        <module>opentracing-mock</module>
     </modules>
 
     <properties>

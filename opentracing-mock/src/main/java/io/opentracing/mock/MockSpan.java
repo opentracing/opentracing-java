@@ -1,4 +1,4 @@
-package io.opentracing.io.opentracing.mocktracer;
+package io.opentracing.mock;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
