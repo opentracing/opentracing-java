@@ -39,8 +39,6 @@ public final class MockTracer implements Tracer {
 
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
-     *
-     * @param propagator
      */
     public MockTracer(Propagator propagator) {
         this.propagator = propagator;
@@ -77,7 +75,7 @@ public final class MockTracer implements Tracer {
         <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier);
         <C> MockSpan.MockContext extract(Format<C> format, C carrier);
 
-        static Propagator PRINTER = new Propagator() {
+        Propagator PRINTER = new Propagator() {
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
                 System.out.println("inject(" + ctx + ", " + format + ", " + carrier + ")");
@@ -132,7 +130,7 @@ public final class MockTracer implements Tracer {
         @Override
         public Tracer.SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
             if (firstParent == null && (
-                    referenceType == References.CHILD_OF || referenceType == References.FOLLOWS_FROM)) {
+                    referenceType.equals(References.CHILD_OF) || referenceType.equals(References.FOLLOWS_FROM))) {
                 this.firstParent = (MockSpan.MockContext)referencedContext;
             }
             return this;
