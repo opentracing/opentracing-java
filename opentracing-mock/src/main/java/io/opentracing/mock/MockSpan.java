@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @see MockTracer#finishedSpans()
  */
-public class MockSpan implements Span {
+public final class MockSpan implements Span {
     // A simple-as-possible (consecutive for repeatability) id generator.
     private static AtomicLong nextId = new AtomicLong(0);
 

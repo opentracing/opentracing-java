@@ -6,10 +6,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -19,7 +16,7 @@ import java.util.Map;
  *
  * The MockTracerTest has simple usage examples.
  */
-public class MockTracer implements Tracer {
+public final class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
 
@@ -100,7 +97,7 @@ public class MockTracer implements Tracer {
         this.finishedSpans.add(mockSpan);
     }
 
-    class SpanBuilder implements Tracer.SpanBuilder {
+    final class SpanBuilder implements Tracer.SpanBuilder {
         private final String operationName;
         private long startMicros;
         private MockSpan.MockContext firstParent;
@@ -155,6 +152,15 @@ public class MockTracer implements Tracer {
         @Override
         public Span start() {
             return new MockSpan(MockTracer.this, this.operationName, this.startMicros, initialTags, this.firstParent);
+        }
+
+        @Override
+        public Iterable<Map.Entry<String, String>> baggageItems() {
+            if (firstParent == null) {
+                return Collections.EMPTY_MAP.entrySet();
+            } else {
+                return firstParent.baggageItems();
+            }
         }
     }
 }
