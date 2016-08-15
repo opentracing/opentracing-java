@@ -145,7 +145,7 @@ public final class MockSpan implements Span {
      * Note that parent ids are part of the MockSpan, not the MockContext (since they do not need to propagate
      * between processes).
      */
-    public static class MockContext implements SpanContext {
+    public static final class MockContext implements SpanContext {
         private final long traceId;
         private final Map<String, String> baggage;
         private final long spanId;
@@ -183,7 +183,7 @@ public final class MockSpan implements Span {
         }
     }
 
-    public static class LogEntry {
+    public static final class LogEntry {
         private final long timestampMicros;
         private final String eventName;
         private final Object payload;
