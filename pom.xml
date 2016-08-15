@@ -133,6 +133,12 @@
             </dependency>
 
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>opentracing-mock</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>

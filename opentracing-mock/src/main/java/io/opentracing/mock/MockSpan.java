@@ -1,3 +1,16 @@
+/**
+ * Copyright 2016 The OpenTracing Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package io.opentracing.mock;
 
 import io.opentracing.Span;
@@ -48,6 +61,7 @@ public final class MockSpan implements Span {
      * @return the finish time of the Span; only valid after a call to finish().
      */
     public long finishMicros() {
+        assert finishMicros > 0 : "must call finish() before finishMicros()";
         return finishMicros;
     }
 
@@ -204,7 +218,7 @@ public final class MockSpan implements Span {
         }
         if (parent == null) {
             // We're a root Span.
-            this.context = new MockContext(nextId(), nextId(), new HashMap<>());
+            this.context = new MockContext(nextId(), nextId(), new HashMap<String, String>());
             this.parentId = 0;
         } else {
             // We're a child Span.
