@@ -23,9 +23,9 @@
         <version>0.14-SNAPSHOT</version>
     </parent>
 
-    <artifactId>opentracing-impl</artifactId>
-    <name>OpenTracing-impl</name>
-    <description>OpenTracing base implementation</description>
+    <artifactId>opentracing-mock</artifactId>
+    <name>OpenTracing-mock</name>
+    <description>OpenTracing Mock Tracer</description>
 
     <properties>
         <main.basedir>${project.basedir}/..</main.basedir>

@@ -26,6 +26,7 @@
         <module>opentracing-api</module>
         <module>opentracing-impl</module>
         <module>opentracing-impl-java8</module>
+        <module>opentracing-mock</module>
     </modules>
 
     <properties>
@@ -128,6 +129,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>opentracing-impl-java8</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>opentracing-mock</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
