@@ -93,9 +93,9 @@ public interface Tracer {
    * IllegalArgumentException.
    *
    * @param <C> the carrier type, which also parametrizes the Format.
-   * @param format the Format of the carrier
-   * @param carrier the carrier for the SpanContext state. All Tracer.extract() implementations must support
-   *                io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
+   * @param format the Format of the carrier. All Tracer.inject() implementations
+   *               must support formats defined in io.opentracing.propagation.Format.Builtin
+   * @param carrier the carrier for the SpanContext state.
    *
    * @return the SpanContext instance extracted from the carrier holding context to create a Span or null if it cannot be extracted.
    *
