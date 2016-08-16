@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -42,6 +42,10 @@ public interface Tracer {
   /**
    * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
    *
+   * If tracer does not support given format, it must throw
+   * io.opentracing.propagation.UnsupportedFormatException so that instrumentation
+   * can try another format.
+   *
    * <p>Example:
    * <pre>{@code
    * Tracer tracer = ...
@@ -52,23 +56,37 @@ public interface Tracer {
    *
    * @param <C> the carrier type, which also parametrizes the Format.
    * @param spanContext the SpanContext instance to inject into the carrier
-   * @param format the Format of the carrier
-   * @param carrier the carrier for the SpanContext state. All Tracer.inject() implementations must support io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
+   * @param format the Format of the carrier. All Tracer.inject() implementations
+   *               must support formats defined in io.opentracing.propagation.Format.Builtin
+   * @param carrier the carrier for the SpanContext state.
+   *
+   * @throws io.opentracing.propagation.UnsupportedFormatException when tracer does not support given format
    *
    * @see io.opentracing.propagation.Format
    * @see io.opentracing.propagation.Format.Builtin
+   * @see io.opentracing.propagation.UnsupportedFormatException
    */
   <C> void inject(SpanContext spanContext, Format<C> format, C carrier);
 
   /**
    * Extract a SpanContext from a `carrier` of a given type, presumably after propagation across a process boundary.
    *
+   * If tracer does not support given format, it must throw
+   * io.opentracing.propagation.UnsupportedFormatException so that instrumentation
+   * can try another format.
+   *
+   * If given carrier does not contain information to construct SpanContext,
+   * the tracer must return `null`. If SpanContext cannot be extracted because
+   * the data in the carrier is malformed, the tracer should return null, rather
+   * than throw an exception. The tracer may handle the exceptions internally
+   * by logging them or incrementing an error counter.
+   *
    * <p>Example:
    * <pre>{@code
    * Tracer tracer = ...
    * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
    * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
-   * tracer.buildSpan('...').withChildOf(spanCtx).start();
+   * tracer.buildSpan('...').asChildOf(spanCtx).start();
    * }</pre>
    *
    * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
@@ -79,10 +97,13 @@ public interface Tracer {
    * @param carrier the carrier for the SpanContext state. All Tracer.extract() implementations must support
    *                io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
    *
-   * @return the SpanContext instance holding context to create a Span.
+   * @return the SpanContext instance extracted from the carrier holding context to create a Span or null if it cannot be extracted.
    *
+   * @throws io.opentracing.propagation.UnsupportedFormatException when tracer does not support given format
+
    * @see io.opentracing.propagation.Format
    * @see io.opentracing.propagation.Format.Builtin
+   * @see io.opentracing.propagation.UnsupportedFormatException
    */
   <C> SpanContext extract(Format<C> format, C carrier);
 
