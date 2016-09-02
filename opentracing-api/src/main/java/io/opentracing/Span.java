@@ -65,25 +65,18 @@ public interface Span extends AutoCloseable {
     Span setTag(String key, Number value);
 
     /**
-     * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
+     * Log key:value pairs to the Span with the current walltime timestamp.
      *
-     * If specified, the payload argument may be of any type and arbitrary size, though implementations are not
-     * required to retain all payload arguments (or even all parts of all payload arguments).
-     *
-     * The timestamp of this log event is the current time.
-     **/
-    Span log(String eventName, /* @Nullable */ Object payload);
-
+     * @param keyValues Alternating key Strings and value Objects. Values may be numeric types, bools, Strings, or
+     *                  arbitrary objects, though the treatment of arbitrary Objects varies across Tracer/Span
+     *                  implementations.
+     * @return the Span, for chaining
+     */
+    Span logKeyValues(Object... keyValues);
     /**
-     * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
-     *
-     * If specified, the payload argument may be of any type and arbitrary size, though implementations are not
-     * required to retain all payload arguments (or even all parts of all payload arguments).
-     *
-     * The timestamp is specified manually here to represent a past log event.
-     * The timestamp in microseconds in UTC time.
-     **/
-    Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
+     * Like logKeyValues(Object...), but with an explicit timestamp.
+     */
+    Span logKeyValues(long timestampMicroseconds, Object... keyValues);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
@@ -111,4 +104,13 @@ public interface Span extends AutoCloseable {
      * @return this Span instance, for chaining
      */
     Span setOperationName(String operationName);
+
+    /**
+     * DEPRECATED
+     **/
+    Span log(String eventName, /* @Nullable */ Object payload);
+    /**
+     * DEPRECATED
+     **/
+    Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }
