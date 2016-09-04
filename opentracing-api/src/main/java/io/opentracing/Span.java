@@ -69,22 +69,20 @@ public interface Span extends AutoCloseable {
      *
      * <p>A contrived example:
      * <pre>{@code
-      span.logKeyValues(
-          "size", rpc.size(),  // numeric values
-          "URI", rpc.URI(),  // String values
-          "payload", rpc.payload());  // Object values
-      }</pre>
+     span.log(
+         new LogField("size", rpc.size()),  // numeric values
+         new LogField("URI", rpc.URI()),  // String values
+         new LogField("payload", rpc.payload()));  // Object values
+     }</pre>
      *
-     * @param keyValues Alternating key Strings and value Objects. Values may be numeric types, bools, Strings, or
-     *                  arbitrary objects, though the treatment of arbitrary Objects varies across Tracer
-     *                  implementations.
+     * @param fields One or more LogField instances
      * @return the Span, for chaining
      */
-    Span logKeyValues(Object... keyValues);
+    Span log(LogField<?>... fields);
     /**
-     * Like logKeyValues(Object...), but with an explicit timestamp.
+     * Like log(LogField...), but with an explicit timestamp.
      */
-    Span logKeyValues(long timestampMicroseconds, Object... keyValues);
+    Span log(long timestampMicroseconds, LogField<?>... fields);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
