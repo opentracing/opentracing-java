@@ -68,7 +68,7 @@ public interface Tracer {
    * Tracer tracer = ...
    * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
    * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
-   * tracer.buildSpan('...').withChildOf(spanCtx).start();
+   * tracer.buildSpan('...').asChildOf(spanCtx).start();
    * }</pre>
    *
    * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
