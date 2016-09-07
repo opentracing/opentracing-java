@@ -23,6 +23,8 @@ public interface Tracer {
   /**
    * Return a new SpanBuilder for a Span with the given `operationName`.
    *
+   * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
+   *
    * <p>A contrived example:
    * <pre>{@code
     Tracer tracer = ...

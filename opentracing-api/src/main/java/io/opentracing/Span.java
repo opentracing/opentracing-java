@@ -104,4 +104,11 @@ public interface Span extends AutoCloseable {
      * @return the value of the baggage item identified by the given key, or null if no such item could be found
      */
     String getBaggageItem(String key);
+
+    /**
+     * Sets the string name for the logical operation this span represents.
+     *
+     * @return this Span instance, for chaining
+     */
+    Span setOperationName(String operationName);
 }

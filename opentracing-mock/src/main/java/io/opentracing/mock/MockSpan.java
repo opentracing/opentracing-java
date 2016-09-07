@@ -13,14 +13,14 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -39,11 +39,18 @@ public final class MockSpan implements Span {
     private long finishMicros;
     private final Map<String, Object> tags;
     private final List<LogEntry> logEntries = new ArrayList<>();
-    private final String operationName;
+    private String operationName;
 
     public String operationName() {
         return this.operationName;
     }
+
+    @Override
+    public Span setOperationName(String operationName) {
+        this.operationName = operationName;
+        return this;
+    }
+
     /**
      * TODO: Support multiple parents in this API.
      *
