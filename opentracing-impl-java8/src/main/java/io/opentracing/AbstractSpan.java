@@ -16,6 +16,7 @@ package io.opentracing;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpan implements Span, SpanContext {
 
-    String operationName;
+    private String operationName;
 
-    protected final Map<String,String> baggage = new HashMap<>();
+    private final Map<String,String> baggage = new HashMap<>();
 
     private final Instant start;
     private Duration duration;
@@ -51,12 +52,31 @@ abstract class AbstractSpan implements Span, SpanContext {
         assert null == duration;
         duration = Duration.between(start, Instant.now());
     }
+
     @Override
     public void finish(long finishMicros) {
         long finishEpochSeconds = TimeUnit.MICROSECONDS.toSeconds(finishMicros);
         long nanos = TimeUnit.MICROSECONDS.toNanos(finishMicros) - TimeUnit.SECONDS.toNanos(finishEpochSeconds);
         assert null == duration;
         duration = Duration.between(start, Instant.ofEpochSecond(finishEpochSeconds, nanos));
+    }
+
+    public final String getOperationName() {
+    	return operationName;
+    }
+
+    @Override
+    public Span setOperationName(String operationName) {
+        this.operationName = operationName;
+        return this;
+    }
+
+    public final Instant getStart() {
+    	return start;
+    }
+
+    public final Duration getDuration() {
+    	return duration;
     }
 
     @Override
@@ -82,6 +102,10 @@ abstract class AbstractSpan implements Span, SpanContext {
         return this;
     }
 
+    public final Map<String,Object> getTags() {
+        return Collections.unmodifiableMap(tags);
+    }
+
     @Override
     public AbstractSpan setBaggageItem(String key, String value) {
         baggage.put(key, value);
@@ -96,6 +120,10 @@ abstract class AbstractSpan implements Span, SpanContext {
     @Override
     public final Iterable<Map.Entry<String,String>> baggageItems() {
         return baggage.entrySet();
+    }
+
+    public final Map<String,String> getBaggage() {
+    	return Collections.unmodifiableMap(baggage);
     }
 
     @Override
@@ -114,10 +142,8 @@ abstract class AbstractSpan implements Span, SpanContext {
         return this;
     }
 
-    @Override
-    public Span setOperationName(String operationName) {
-        this.operationName = operationName;
-        return this;
+    public final List<LogData> getLogs() {
+        return Collections.unmodifiableList(logs);
     }
 
     final class LogData {

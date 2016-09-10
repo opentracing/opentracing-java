@@ -37,7 +37,7 @@ public final class AbstractTracerTest {
         Tracer.SpanBuilder result = instance.buildSpan(operationName);
         AbstractSpan span = (AbstractSpan) result.start();
         assertNotNull("Expected to create a valid Span", span);
-        assertEquals("Expected to create a Span with operationName", operationName, span.operationName);
+        assertEquals("Expected to create a Span with operationName", operationName, span.getOperationName());
     }
 
     /**
@@ -114,7 +114,7 @@ public final class AbstractTracerTest {
 
         @Override
         Map<String, Object> getTraceState(SpanContext spanContext) {
-            return new HashMap<>(((AbstractSpan)spanContext).baggage);
+            return new HashMap<>(((AbstractSpan)spanContext).getBaggage());
         }
     }
 
