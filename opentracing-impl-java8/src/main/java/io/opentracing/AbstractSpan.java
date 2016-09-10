@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpan implements Span, SpanContext {
 
-    final String operationName;
+    String operationName;
 
     protected final Map<String,String> baggage = new HashMap<>();
 
@@ -114,15 +114,21 @@ abstract class AbstractSpan implements Span, SpanContext {
         return this;
     }
 
-    final class LogData {
-            private final Instant time;
-            private final String message;
-            private final Object payload;
+    @Override
+    public Span setOperationName(String operationName) {
+        this.operationName = operationName;
+        return this;
+    }
 
-            LogData(Instant time, String message, Object payload) {
-                this.time = time;
-                this.message = message;
-                this.payload = payload;
-            }
+    final class LogData {
+        private final Instant time;
+        private final String message;
+        private final Object payload;
+
+        LogData(Instant time, String message, Object payload) {
+            this.time = time;
+            this.message = message;
+            this.payload = payload;
         }
+    }
 }

@@ -74,4 +74,9 @@ final class NoopSpan implements Span {
     @Override
     public String getBaggageItem(String key) { return null; }
 
+    @Override
+    public Span setOperationName(String operationName) {
+        return this;
+    }
+
 }
