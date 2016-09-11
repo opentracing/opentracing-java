@@ -13,6 +13,8 @@
  */
 package io.opentracing;
 
+import io.opentracing.log.Field;
+
 /**
  * Represents an in-flight span in the opentracing system.
  *
@@ -70,19 +72,26 @@ public interface Span extends AutoCloseable {
      * <p>A contrived example:
      * <pre>{@code
      span.log(
-         new LogField("size", rpc.size()),  // numeric values
-         new LogField("URI", rpc.URI()),  // String values
-         new LogField("payload", rpc.payload()));  // Object values
+         Field.of("size", rpc.size()),  // numeric values
+         Field.of("URI", rpc.URI()),  // String values
+         Field.of("payload", rpc.payload()));  // Object values
      }</pre>
      *
-     * @param fields One or more LogField instances
+     * @see io.opentracing.log.Field
+     * @param fields One or more Field instances
      * @return the Span, for chaining
      */
-    Span log(LogField<?>... fields);
+    Span log(Field<?>... fields);
     /**
-     * Like log(LogField...), but with an explicit timestamp.
+     * Like log(Field...), but with an explicit timestamp.
+     *
+     * @see io.opentracing.log.Field
+     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
+     *                              Span's start timestamp.
+     * @param fields One or more Field instances
+     * @return the Span, for chaining
      */
-    Span log(long timestampMicroseconds, LogField<?>... fields);
+    Span log(long timestampMicroseconds, Field<?>... fields);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
