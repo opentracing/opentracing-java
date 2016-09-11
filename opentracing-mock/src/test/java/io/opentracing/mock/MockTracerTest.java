@@ -14,6 +14,7 @@
 package io.opentracing.mock;
 
 import io.opentracing.Span;
+import io.opentracing.log.Field;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,7 +32,10 @@ public class MockTracerTest {
             Span span = tracer.buildSpan("tester").withStartTimestamp(1000).start();
             span.setTag("string", "foo");
             span.setTag("int", 7);
+            // Old style logging:
             span.log(1001, "event name", tracer);
+            // New style logging:
+            span.log(1002, Field.of("f1", 4), Field.of("f2", "two"));
             span.finish(2000);
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
@@ -50,11 +54,23 @@ public class MockTracerTest {
         assertEquals(7, tags.get("int"));
         assertEquals("foo", tags.get("string"));
         List<MockSpan.LogEntry> logs = finishedSpan.logEntries();
-        assertEquals(1, logs.size());
-        MockSpan.LogEntry log = logs.get(0);
-        assertEquals(1001, log.timestampMicros());
-        assertEquals("event name", log.eventName());
-        assertEquals(tracer, log.payload());
+        assertEquals(2, logs.size());
+        {
+            MockSpan.LogEntry log = logs.get(0);
+            assertEquals(1001, log.timestampMicros());
+            assertEquals("event", log.fields().get(0).key());
+            assertEquals("event name", log.fields().get(0).value());
+            assertEquals("payload", log.fields().get(1).key());
+            assertEquals(tracer, log.fields().get(1).value());
+        }
+        {
+            MockSpan.LogEntry log = logs.get(1);
+            assertEquals(1002, log.timestampMicros());
+            assertEquals("f1", log.fields().get(0).key());
+            assertEquals(4, log.fields().get(0).value());
+            assertEquals("f2", log.fields().get(1).key());
+            assertEquals("two", log.fields().get(1).value());
+        }
     }
 
     @Test

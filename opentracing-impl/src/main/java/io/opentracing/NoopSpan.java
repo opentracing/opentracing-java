@@ -13,6 +13,8 @@
  */
 package io.opentracing;
 
+import io.opentracing.log.Field;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -57,6 +59,12 @@ final class NoopSpan implements Span {
     public Span setTag(String key, Number value) {
         return this;
     }
+
+    @Override
+    public Span log(Field... fields) { return this; }
+
+    @Override
+    public Span log(long timestampMicroseconds, Field... fields) { return this; }
 
     @Override
     public Span log(String eventName, Object payload) {

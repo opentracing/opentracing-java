@@ -13,13 +13,11 @@
  */
 package io.opentracing;
 
+import io.opentracing.log.Field;
+
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpan implements Span, SpanContext {
@@ -127,6 +125,18 @@ abstract class AbstractSpan implements Span, SpanContext {
     }
 
     @Override
+    public final Span log(Field... fields) {
+        return log(System.nanoTime() / 1000, fields);
+    }
+
+    @Override
+    public final Span log(long timestampMicros, Field... fields) {
+        Instant timestamp = Instant.ofEpochSecond(timestampMicros / 1000000, (timestampMicros % 1000000) * 1000);
+        logs.add(new LogData(timestamp, fields));
+        return this;
+    }
+
+    @Override
     public final Span log(String message, /* @Nullable */ Object payload) {
         Instant now = Instant.now();
 
@@ -137,8 +147,13 @@ abstract class AbstractSpan implements Span, SpanContext {
     }
 
     @Override
-    public final Span log(long instantMicroseconds, String message, /* @Nullable */ Object payload) {
-        logs.add(new LogData(start, message, payload));
+    public final Span log(long timestampMicros, String message, /* @Nullable */ Object payload) {
+        Instant timestamp = Instant.ofEpochSecond(timestampMicros / 1000000, (timestampMicros % 1000000) * 1000);
+        if (payload == null) {
+            logs.add(new LogData(timestamp, Field.of("message", message)));
+        } else {
+            logs.add(new LogData(timestamp, Field.of("message", message), Field.of("payload", payload)));
+        }
         return this;
     }
 
@@ -148,13 +163,11 @@ abstract class AbstractSpan implements Span, SpanContext {
 
     final class LogData {
         private final Instant time;
-        private final String message;
-        private final Object payload;
+        private final List<Field> fields;
 
-        LogData(Instant time, String message, Object payload) {
+        LogData(Instant time, Field... fields) {
             this.time = time;
-            this.message = message;
-            this.payload = payload;
+            this.fields = Arrays.asList(fields);
         }
     }
 }

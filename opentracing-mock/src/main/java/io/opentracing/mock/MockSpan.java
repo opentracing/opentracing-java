@@ -13,14 +13,12 @@
  */
 package io.opentracing.mock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.log.Field;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -125,14 +123,28 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    public final Span log(Field... fields) {
+        long nowMicros = System.nanoTime() / 1000;
+        return log(nowMicros, fields);
+    }
+    @Override
+    public final Span log(long timestampMicros, Field... fields) {
+        this.logEntries.add(new LogEntry(timestampMicros, fields));
+        return this;
+    }
+
+    @Override
     public Span log(String eventName, Object payload) {
         return this.log(System.nanoTime() / 1000, eventName, payload);
     }
 
     @Override
     public synchronized Span log(long timestampMicroseconds, String eventName, Object payload) {
-        this.logEntries.add(new LogEntry(timestampMicroseconds, eventName, payload));
-        return this;
+        if (payload == null) {
+            return this.log(timestampMicroseconds, Field.of("event", eventName));
+        } else {
+            return this.log(timestampMicroseconds, Field.of("event", eventName), Field.of("payload", payload));
+        }
     }
 
     @Override
@@ -192,25 +204,19 @@ public final class MockSpan implements Span {
 
     public static final class LogEntry {
         private final long timestampMicros;
-        private final String eventName;
-        private final Object payload;
+        private final List<Field> fields;
 
-        public LogEntry(long timestampMicros, String eventName, Object payload) {
+        public LogEntry(long timestampMicros, Field... fields) {
             this.timestampMicros = timestampMicros;
-            this.eventName = eventName;
-            this.payload = payload;
+            this.fields = Arrays.asList(fields);
         }
 
         public long timestampMicros() {
             return timestampMicros;
         }
 
-        public String eventName() {
-            return eventName;
-        }
-
-        public Object payload() {
-            return payload;
+        public List<Field> fields() {
+            return fields;
         }
     }
 
