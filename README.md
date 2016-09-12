@@ -1,3 +1,5 @@
+[![Build Status][ci-img]][ci] [![Coverage Status][cov-img]][cov] [![Released Version][maven-img]][maven]
+
 # OpenTracing API for Java
 
 This library is a Java platform API for OpenTracing.
@@ -30,3 +32,10 @@ Execute `./mvnw clean install` to build, run tests, and create jars.
 
 See [Contributing](CONTRIBUTING.md) for matters such as license headers.
 
+
+  [ci-img]: https://travis-ci.org/opentracing/opentracing-java.svg?branch=master
+  [ci]: https://travis-ci.org/opentracing/opentracing-java
+  [cov-img]: https://coveralls.io/repos/github/opentracing/opentracing-java/badge.svg?branch=master
+  [cov]: https://coveralls.io/github/opentracing/opentracing-java?branch=master
+  [maven-img]: https://img.shields.io/maven-central/v/io.opentracing/opentracing-api.svg?maxAge=2592000
+  [maven]: http://search.maven.org/#search%7Cga%7C1%7Copentracing-api
