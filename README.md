@@ -10,10 +10,11 @@ the [OpenTracing project](http://opentracing.io) and
 
 ## Status
 
-This project has a working design of interfaces for the OpenTracing API. It does
-not have a test harness or any implementation, yet.
+This project has a working design of interfaces for the OpenTracing API. There
+is a [MockTracer](https://github.com/opentracing/opentracing-java/tree/master/opentracing-mock)
+to facilitate unit-testing of OpenTracing Java instrumentation.
 
-Packages are not yet deployed to Maven Central, but work is in progress.
+Packages are deployed to Maven Central under the `io.opentracing` group.
 
 # Development
 
