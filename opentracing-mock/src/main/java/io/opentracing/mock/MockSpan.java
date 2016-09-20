@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
-import io.opentracing.log.Field;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -123,12 +122,12 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public final Span log(Field... fields) {
+    public final Span log(Map<String, Object> fields) {
         long nowMicros = System.nanoTime() / 1000;
         return log(nowMicros, fields);
     }
     @Override
-    public final Span log(long timestampMicros, Field... fields) {
+    public final Span log(long timestampMicros, Map<String, Object> fields) {
         this.logEntries.add(new LogEntry(timestampMicros, fields));
         return this;
     }
@@ -140,11 +139,12 @@ public final class MockSpan implements Span {
 
     @Override
     public synchronized Span log(long timestampMicroseconds, String eventName, Object payload) {
-        if (payload == null) {
-            return this.log(timestampMicroseconds, Field.of("event", eventName));
-        } else {
-            return this.log(timestampMicroseconds, Field.of("event", eventName), Field.of("payload", payload));
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("event", eventName);
+        if (payload != null) {
+            fields.put("payload", payload);
         }
+        return this.log(timestampMicroseconds, fields);
     }
 
     @Override
@@ -204,18 +204,18 @@ public final class MockSpan implements Span {
 
     public static final class LogEntry {
         private final long timestampMicros;
-        private final List<Field> fields;
+        private final Map<String, Object> fields;
 
-        public LogEntry(long timestampMicros, Field... fields) {
+        public LogEntry(long timestampMicros, Map<String, Object> fields) {
             this.timestampMicros = timestampMicros;
-            this.fields = Arrays.asList(fields);
+            this.fields = fields;
         }
 
         public long timestampMicros() {
             return timestampMicros;
         }
 
-        public List<Field> fields() {
+        public Map<String, Object> fields() {
             return fields;
         }
     }

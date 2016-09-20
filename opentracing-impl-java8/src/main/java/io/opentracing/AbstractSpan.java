@@ -13,8 +13,6 @@
  */
 package io.opentracing;
 
-import io.opentracing.log.Field;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -125,35 +123,36 @@ abstract class AbstractSpan implements Span, SpanContext {
     }
 
     @Override
-    public final Span log(Field... fields) {
+    public final Span log(Map<String, Object> fields) {
         return log(System.nanoTime() / 1000, fields);
     }
 
     @Override
-    public final Span log(long timestampMicros, Field... fields) {
+    public final Span log(long timestampMicros, Map<String, Object> fields) {
         Instant timestamp = Instant.ofEpochSecond(timestampMicros / 1000000, (timestampMicros % 1000000) * 1000);
         logs.add(new LogData(timestamp, fields));
         return this;
     }
 
     @Override
-    public final Span log(String message, /* @Nullable */ Object payload) {
+    public final Span log(String event, /* @Nullable */ Object payload) {
         Instant now = Instant.now();
 
         return log(
                 TimeUnit.SECONDS.toMicros(now.getEpochSecond()) + TimeUnit.NANOSECONDS.toMicros(now.getNano()),
-                message,
+                event,
                 payload);
     }
 
     @Override
-    public final Span log(long timestampMicros, String message, /* @Nullable */ Object payload) {
+    public final Span log(long timestampMicros, String event, /* @Nullable */ Object payload) {
         Instant timestamp = Instant.ofEpochSecond(timestampMicros / 1000000, (timestampMicros % 1000000) * 1000);
-        if (payload == null) {
-            logs.add(new LogData(timestamp, Field.of("message", message)));
-        } else {
-            logs.add(new LogData(timestamp, Field.of("message", message), Field.of("payload", payload)));
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("event", event);
+        if (payload != null) {
+            fields.put("payload", payload);
         }
+        logs.add(new LogData(timestamp, fields));
         return this;
     }
 
@@ -163,11 +162,11 @@ abstract class AbstractSpan implements Span, SpanContext {
 
     final class LogData {
         private final Instant time;
-        private final List<Field> fields;
+        private final Map<String, Object> fields;
 
-        LogData(Instant time, Field... fields) {
+        LogData(Instant time, Map<String, Object> fields) {
             this.time = time;
-            this.fields = Arrays.asList(fields);
+            this.fields = fields;
         }
     }
 }

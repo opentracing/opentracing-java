@@ -13,7 +13,7 @@
  */
 package io.opentracing;
 
-import io.opentracing.log.Field;
+import java.util.Map;
 
 /**
  * Represents an in-flight span in the opentracing system.
@@ -69,29 +69,32 @@ public interface Span extends AutoCloseable {
     /**
      * Log key:value pairs to the Span with the current walltime timestamp.
      *
-     * <p>A contrived example:
+     * <p>A contrived example (using Guava, which is not required):
      * <pre>{@code
      span.log(
-         Field.of("size", rpc.size()),  // numeric values
-         Field.of("URI", rpc.URI()),  // String values
-         Field.of("payload", rpc.payload()));  // Object values
+         ImmutableMap.Builder<String, Object>()
+             .put("event", "soft error")
+             .put("type", "cache timeout")
+             .put("waited.millis", 1500)
+             .build());
      }</pre>
      *
-     * @see io.opentracing.log.Field
-     * @param fields One or more Field instances
+     * @param fields key:value log fields. Tracer implementations are expected to support String, numeric, and boolean
+     *               values; some may also support arbitrary Objects.
      * @return the Span, for chaining
      */
-    Span log(Field<?>... fields);
+    Span log(Map<String, Object> fields);
+
     /**
-     * Like log(Field...), but with an explicit timestamp.
+     * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
      *
-     * @see io.opentracing.log.Field
      * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
      *                              Span's start timestamp.
-     * @param fields One or more Field instances
+     * @param fields key:value log fields. Tracer implementations are expected to support String, numeric, and boolean
+     *               values; some may also support arbitrary Objects.
      * @return the Span, for chaining
      */
-    Span log(long timestampMicroseconds, Field<?>... fields);
+    Span log(long timestampMicroseconds, Map<String, Object> fields);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
