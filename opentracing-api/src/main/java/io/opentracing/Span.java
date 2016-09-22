@@ -73,10 +73,15 @@ public interface Span extends AutoCloseable {
      * <pre>{@code
      span.log(
          ImmutableMap.Builder<String, Object>()
-             .put("event", "soft error")
-             .put("type", "cache timeout")
-             .put("waited.millis", 1500)
-             .build());
+         .put("event", "soft error")
+         .put("type", "cache timeout")
+         .put("waited.millis", 1500)
+         .build());
+     }</pre>
+     *
+     * <p>Also consider the @{link io.opentracing.Logs} helper:
+     * <pre>{@code
+     span.log(Logs.event("soft error"));
      }</pre>
      *
      * @param fields key:value log fields. Tracer implementations are expected to support String, numeric, and boolean
