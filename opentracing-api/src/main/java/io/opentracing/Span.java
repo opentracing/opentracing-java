@@ -124,11 +124,13 @@ public interface Span extends AutoCloseable {
     Span setOperationName(String operationName);
 
     /**
-     * DEPRECATED
+     * @deprecated use {@link #log(Map)} like this
+     * {@code span.log(Map.of("event", "timeout", "millis", 1500))}
      **/
     Span log(String eventName, /* @Nullable */ Object payload);
     /**
-     * DEPRECATED
+     * @deprecated use {@link #log(Map)} like this
+     * {@code span.log(timestampMicroseconds, Map.of("event", "timeout", "millis", 1500))}
      **/
     Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }
