@@ -83,7 +83,7 @@ public interface Span extends AutoCloseable {
      *               values; some may also support arbitrary Objects.
      * @return the Span, for chaining
      */
-    Span log(Map<String, Object> fields);
+    Span log(Map<String, ?> fields);
 
     /**
      * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
@@ -94,7 +94,7 @@ public interface Span extends AutoCloseable {
      *               values; some may also support arbitrary Objects.
      * @return the Span, for chaining
      */
-    Span log(long timestampMicroseconds, Map<String, Object> fields);
+    Span log(long timestampMicroseconds, Map<String, ?> fields);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
@@ -125,12 +125,16 @@ public interface Span extends AutoCloseable {
 
     /**
      * @deprecated use {@link #log(Map)} like this
-     * {@code span.log(Map.of("event", "timeout", "millis", 1500))}
+     * {@code span.log(Map.of("event", "timeout"))}
+     * or
+     * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
      **/
     Span log(String eventName, /* @Nullable */ Object payload);
     /**
      * @deprecated use {@link #log(Map)} like this
-     * {@code span.log(timestampMicroseconds, Map.of("event", "timeout", "millis", 1500))}
+     * {@code span.log(timestampMicroseconds, Map.of("event", "timeout"))}
+     * or
+     * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
      **/
     Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }

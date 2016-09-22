@@ -123,12 +123,12 @@ abstract class AbstractSpan implements Span, SpanContext {
     }
 
     @Override
-    public final Span log(Map<String, Object> fields) {
+    public final Span log(Map<String, ?> fields) {
         return log(System.nanoTime() / 1000, fields);
     }
 
     @Override
-    public final Span log(long timestampMicros, Map<String, Object> fields) {
+    public final Span log(long timestampMicros, Map<String, ?> fields) {
         Instant timestamp = Instant.ofEpochSecond(timestampMicros / 1000000, (timestampMicros % 1000000) * 1000);
         logs.add(new LogData(timestamp, fields));
         return this;
@@ -162,9 +162,9 @@ abstract class AbstractSpan implements Span, SpanContext {
 
     final class LogData {
         private final Instant time;
-        private final Map<String, Object> fields;
+        private final Map<String, ?> fields;
 
-        LogData(Instant time, Map<String, Object> fields) {
+        LogData(Instant time, Map<String, ?> fields) {
             this.time = time;
             this.fields = fields;
         }

@@ -122,12 +122,12 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public final Span log(Map<String, Object> fields) {
+    public final Span log(Map<String, ?> fields) {
         long nowMicros = System.nanoTime() / 1000;
         return log(nowMicros, fields);
     }
     @Override
-    public final Span log(long timestampMicros, Map<String, Object> fields) {
+    public final Span log(long timestampMicros, Map<String, ?> fields) {
         this.logEntries.add(new LogEntry(timestampMicros, fields));
         return this;
     }
@@ -204,9 +204,9 @@ public final class MockSpan implements Span {
 
     public static final class LogEntry {
         private final long timestampMicros;
-        private final Map<String, Object> fields;
+        private final Map<String, ?> fields;
 
-        public LogEntry(long timestampMicros, Map<String, Object> fields) {
+        public LogEntry(long timestampMicros, Map<String, ?> fields) {
             this.timestampMicros = timestampMicros;
             this.fields = fields;
         }
@@ -215,7 +215,7 @@ public final class MockSpan implements Span {
             return timestampMicros;
         }
 
-        public Map<String, Object> fields() {
+        public Map<String, ?> fields() {
             return fields;
         }
     }
