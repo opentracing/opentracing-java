@@ -69,7 +69,8 @@ public interface Span extends AutoCloseable {
     /**
      * Log key:value pairs to the Span with the current walltime timestamp.
      *
-     * CAUTIONARY NOTE: not all Tracer implementations support key:value log fields end-to-end. Caveat emptor.
+     * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
+     * Caveat emptor.
      *
      * <p>A contrived example (using Guava, which is not required):
      * <pre>{@code
@@ -91,7 +92,8 @@ public interface Span extends AutoCloseable {
     /**
      * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
      *
-     * CAUTIONARY NOTE: not all Tracer implementations support key:value log fields end-to-end. Caveat emptor.
+     * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
+     * Caveat emptor.
      *
      * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
      *                              Span's start timestamp.
