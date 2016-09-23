@@ -124,17 +124,17 @@ abstract class AbstractSpan implements Span, SpanContext {
 
     @Override
     public final Span log(String event) {
-        return log(System.nanoTime() / 1000, event);
+        return log(nowMicros(), event);
     }
 
     @Override
     public final Span log(long timestampMicros, String event) {
-        return log(System.nanoTime() / 1000, Collections.singletonMap("event", event));
+        return log(timestampMicros, Collections.singletonMap("event", event));
     }
 
     @Override
     public final Span log(Map<String, ?> fields) {
-        return log(System.nanoTime() / 1000, fields);
+        return log(nowMicros(), fields);
     }
 
     @Override
@@ -178,5 +178,10 @@ abstract class AbstractSpan implements Span, SpanContext {
             this.time = time;
             this.fields = fields;
         }
+    }
+
+    static long nowMicros() {
+        Instant now = Instant.now();
+        return (now.getEpochSecond() * 1000000) + (now.getNano() / 1000);
     }
 }

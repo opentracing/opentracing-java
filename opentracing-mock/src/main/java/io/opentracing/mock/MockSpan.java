@@ -89,7 +89,7 @@ public final class MockSpan implements Span {
 
     @Override
     public void finish() {
-        this.finish(System.nanoTime() / 1000);
+        this.finish(nowMicros());
     }
 
     @Override
@@ -123,8 +123,7 @@ public final class MockSpan implements Span {
 
     @Override
     public final Span log(Map<String, ?> fields) {
-        long nowMicros = System.nanoTime() / 1000;
-        return log(nowMicros, fields);
+        return log(nowMicros(), fields);
     }
     @Override
     public final Span log(long timestampMicros, Map<String, ?> fields) {
@@ -134,7 +133,7 @@ public final class MockSpan implements Span {
 
     @Override
     public Span log(String event) {
-        return this.log(System.nanoTime() / 1000, event);
+        return this.log(nowMicros(), event);
     }
 
     @Override
@@ -144,7 +143,7 @@ public final class MockSpan implements Span {
 
     @Override
     public Span log(String eventName, Object payload) {
-        return this.log(System.nanoTime() / 1000, eventName, payload);
+        return this.log(nowMicros(), eventName, payload);
     }
 
     @Override
@@ -252,5 +251,9 @@ public final class MockSpan implements Span {
 
     static long nextId() {
         return nextId.addAndGet(1);
+    }
+
+    static long nowMicros() {
+        return System.currentTimeMillis() * 1000;
     }
 }
