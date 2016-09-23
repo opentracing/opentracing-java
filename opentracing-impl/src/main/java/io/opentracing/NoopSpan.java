@@ -39,24 +39,16 @@ final class NoopSpan implements Span {
     public void finish(long finishMicros) {}
 
     @Override
-    public void close() {
-        finish();
-    }
+    public void close() { finish(); }
 
     @Override
-    public Span setTag(String key, String value) {
-        return this;
-    }
+    public Span setTag(String key, String value) { return this; }
 
     @Override
-    public Span setTag(String key, boolean value) {
-        return this;
-    }
+    public Span setTag(String key, boolean value) { return this; }
 
     @Override
-    public Span setTag(String key, Number value) {
-        return this;
-    }
+    public Span setTag(String key, Number value) { return this; }
 
     @Override
     public Span log(Map<String, ?> fields) { return this; }
@@ -65,14 +57,16 @@ final class NoopSpan implements Span {
     public Span log(long timestampMicroseconds, Map<String, ?> fields) { return this; }
 
     @Override
-    public Span log(String eventName, Object payload) {
-        return this;
-    }
+    public Span log(String event) { return this; }
 
     @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) {
-        return this;
-    }
+    public Span log(long timestampMicroseconds, String event) { return this; }
+
+    @Override
+    public Span log(String eventName, Object payload) { return this; }
+
+    @Override
+    public Span log(long timestampMicroseconds, String eventName, Object payload) { return this; }
 
     @Override
     public Span setBaggageItem(String key, String value) { return this; }
@@ -81,8 +75,6 @@ final class NoopSpan implements Span {
     public String getBaggageItem(String key) { return null; }
 
     @Override
-    public Span setOperationName(String operationName) {
-        return this;
-    }
+    public Span setOperationName(String operationName) { return this; }
 
 }

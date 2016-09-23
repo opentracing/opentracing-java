@@ -133,6 +133,16 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    public Span log(String event) {
+        return this.log(System.nanoTime() / 1000, event);
+    }
+
+    @Override
+    public Span log(long timestampMicroseconds, String event) {
+        return this.log(timestampMicroseconds, Collections.singletonMap("event", event));
+    }
+
+    @Override
     public Span log(String eventName, Object payload) {
         return this.log(System.nanoTime() / 1000, eventName, payload);
     }

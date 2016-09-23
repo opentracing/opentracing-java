@@ -69,6 +69,8 @@ public interface Span extends AutoCloseable {
     /**
      * Log key:value pairs to the Span with the current walltime timestamp.
      *
+     * CAUTIONARY NOTE: not all Tracer implementations support key:value log fields end-to-end. Caveat emptor.
+     *
      * <p>A contrived example (using Guava, which is not required):
      * <pre>{@code
      span.log(
@@ -79,27 +81,56 @@ public interface Span extends AutoCloseable {
          .build());
      }</pre>
      *
-     * <p>Also consider the @{link io.opentracing.Logs} helper:
-     * <pre>{@code
-     span.log(Logs.event("soft error"));
-     }</pre>
-     *
-     * @param fields key:value log fields. Tracer implementations are expected to support String, numeric, and boolean
-     *               values; some may also support arbitrary Objects.
+     * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
+     *               some may also support arbitrary Objects.
      * @return the Span, for chaining
+     * @see Span#log(String)
      */
     Span log(Map<String, ?> fields);
 
     /**
      * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
      *
+     * CAUTIONARY NOTE: not all Tracer implementations support key:value log fields end-to-end. Caveat emptor.
+     *
      * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
      *                              Span's start timestamp.
-     * @param fields key:value log fields. Tracer implementations are expected to support String, numeric, and boolean
-     *               values; some may also support arbitrary Objects.
+     * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
+     *               some may also support arbitrary Objects.
      * @return the Span, for chaining
+     * @see Span#log(long, String)
      */
     Span log(long timestampMicroseconds, Map<String, ?> fields);
+
+    /**
+     * Record an event at the current walltime timestamp.
+     *
+     * Shorthand for
+     *
+     * <pre>{@code
+     span.log(Collections.singletonMap("event", event));
+     }</pre>
+     *
+     * @param event the event value; often a stable identifier for a moment in the Span lifecycle
+     * @return the Span, for chaining
+     */
+    Span log(String event);
+
+    /**
+     * Record an event at a specific timestamp.
+     *
+     * Shorthand for
+     *
+     * <pre>{@code
+     span.log(timestampMicroseconds, Collections.singletonMap("event", event));
+     }</pre>
+     *
+     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
+     *                              Span's start timestamp.
+     * @param event the event value; often a stable identifier for a moment in the Span lifecycle
+     * @return the Span, for chaining
+     */
+    Span log(long timestampMicroseconds, String event);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.

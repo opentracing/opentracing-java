@@ -123,6 +123,16 @@ abstract class AbstractSpan implements Span, SpanContext {
     }
 
     @Override
+    public final Span log(String event) {
+        return log(System.nanoTime() / 1000, event);
+    }
+
+    @Override
+    public final Span log(long timestampMicros, String event) {
+        return log(System.nanoTime() / 1000, Collections.singletonMap("event", event));
+    }
+
+    @Override
     public final Span log(Map<String, ?> fields) {
         return log(System.nanoTime() / 1000, fields);
     }

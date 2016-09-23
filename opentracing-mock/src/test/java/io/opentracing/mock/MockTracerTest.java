@@ -39,6 +39,7 @@ public class MockTracerTest {
             fields.put("f1", 4);
             fields.put("f2", "two");
             span.log(1002, fields);
+            span.log(1003, "event name");
             span.finish(2000);
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
@@ -57,7 +58,7 @@ public class MockTracerTest {
         assertEquals(7, tags.get("int"));
         assertEquals("foo", tags.get("string"));
         List<MockSpan.LogEntry> logs = finishedSpan.logEntries();
-        assertEquals(2, logs.size());
+        assertEquals(3, logs.size());
         {
             MockSpan.LogEntry log = logs.get(0);
             assertEquals(1001, log.timestampMicros());
@@ -69,6 +70,11 @@ public class MockTracerTest {
             assertEquals(1002, log.timestampMicros());
             assertEquals(4, log.fields().get("f1"));
             assertEquals("two", log.fields().get("f2"));
+        }
+        {
+            MockSpan.LogEntry log = logs.get(2);
+            assertEquals(1003, log.timestampMicros());
+            assertEquals("event name", log.fields().get("event"));
         }
     }
 
