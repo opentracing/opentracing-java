@@ -13,10 +13,7 @@
  */
 package io.opentracing.mock;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.opentracing.Span;
@@ -92,7 +89,7 @@ public final class MockSpan implements Span {
 
     @Override
     public void finish() {
-        this.finish(System.nanoTime() / 1000);
+        this.finish(nowMicros());
     }
 
     @Override
@@ -125,14 +122,38 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    public final Span log(Map<String, ?> fields) {
+        return log(nowMicros(), fields);
+    }
+    @Override
+    public final Span log(long timestampMicros, Map<String, ?> fields) {
+        this.logEntries.add(new LogEntry(timestampMicros, fields));
+        return this;
+    }
+
+    @Override
+    public Span log(String event) {
+        return this.log(nowMicros(), event);
+    }
+
+    @Override
+    public Span log(long timestampMicroseconds, String event) {
+        return this.log(timestampMicroseconds, Collections.singletonMap("event", event));
+    }
+
+    @Override
     public Span log(String eventName, Object payload) {
-        return this.log(System.nanoTime() / 1000, eventName, payload);
+        return this.log(nowMicros(), eventName, payload);
     }
 
     @Override
     public synchronized Span log(long timestampMicroseconds, String eventName, Object payload) {
-        this.logEntries.add(new LogEntry(timestampMicroseconds, eventName, payload));
-        return this;
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("event", eventName);
+        if (payload != null) {
+            fields.put("payload", payload);
+        }
+        return this.log(timestampMicroseconds, fields);
     }
 
     @Override
@@ -192,25 +213,19 @@ public final class MockSpan implements Span {
 
     public static final class LogEntry {
         private final long timestampMicros;
-        private final String eventName;
-        private final Object payload;
+        private final Map<String, ?> fields;
 
-        public LogEntry(long timestampMicros, String eventName, Object payload) {
+        public LogEntry(long timestampMicros, Map<String, ?> fields) {
             this.timestampMicros = timestampMicros;
-            this.eventName = eventName;
-            this.payload = payload;
+            this.fields = fields;
         }
 
         public long timestampMicros() {
             return timestampMicros;
         }
 
-        public String eventName() {
-            return eventName;
-        }
-
-        public Object payload() {
-            return payload;
+        public Map<String, ?> fields() {
+            return fields;
         }
     }
 
@@ -236,5 +251,9 @@ public final class MockSpan implements Span {
 
     static long nextId() {
         return nextId.addAndGet(1);
+    }
+
+    static long nowMicros() {
+        return System.currentTimeMillis() * 1000;
     }
 }

@@ -13,6 +13,8 @@
  */
 package io.opentracing;
 
+import java.util.Map;
+
 /**
  * Represents an in-flight span in the opentracing system.
  *
@@ -65,25 +67,72 @@ public interface Span extends AutoCloseable {
     Span setTag(String key, Number value);
 
     /**
-     * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
+     * Log key:value pairs to the Span with the current walltime timestamp.
      *
-     * If specified, the payload argument may be of any type and arbitrary size, though implementations are not
-     * required to retain all payload arguments (or even all parts of all payload arguments).
+     * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
+     * Caveat emptor.
      *
-     * The timestamp of this log event is the current time.
-     **/
-    Span log(String eventName, /* @Nullable */ Object payload);
+     * <p>A contrived example (using Guava, which is not required):
+     * <pre>{@code
+     span.log(
+         ImmutableMap.Builder<String, Object>()
+         .put("event", "soft error")
+         .put("type", "cache timeout")
+         .put("waited.millis", 1500)
+         .build());
+     }</pre>
+     *
+     * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
+     *               some may also support arbitrary Objects.
+     * @return the Span, for chaining
+     * @see Span#log(String)
+     */
+    Span log(Map<String, ?> fields);
 
     /**
-     * Add a new log event to the Span, accepting an event name string and an optional structured payload argument.
+     * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
      *
-     * If specified, the payload argument may be of any type and arbitrary size, though implementations are not
-     * required to retain all payload arguments (or even all parts of all payload arguments).
+     * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
+     * Caveat emptor.
      *
-     * The timestamp is specified manually here to represent a past log event.
-     * The timestamp in microseconds in UTC time.
-     **/
-    Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
+     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
+     *                              Span's start timestamp.
+     * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
+     *               some may also support arbitrary Objects.
+     * @return the Span, for chaining
+     * @see Span#log(long, String)
+     */
+    Span log(long timestampMicroseconds, Map<String, ?> fields);
+
+    /**
+     * Record an event at the current walltime timestamp.
+     *
+     * Shorthand for
+     *
+     * <pre>{@code
+     span.log(Collections.singletonMap("event", event));
+     }</pre>
+     *
+     * @param event the event value; often a stable identifier for a moment in the Span lifecycle
+     * @return the Span, for chaining
+     */
+    Span log(String event);
+
+    /**
+     * Record an event at a specific timestamp.
+     *
+     * Shorthand for
+     *
+     * <pre>{@code
+     span.log(timestampMicroseconds, Collections.singletonMap("event", event));
+     }</pre>
+     *
+     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
+     *                              Span's start timestamp.
+     * @param event the event value; often a stable identifier for a moment in the Span lifecycle
+     * @return the Span, for chaining
+     */
+    Span log(long timestampMicroseconds, String event);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
@@ -111,4 +160,19 @@ public interface Span extends AutoCloseable {
      * @return this Span instance, for chaining
      */
     Span setOperationName(String operationName);
+
+    /**
+     * @deprecated use {@link #log(Map)} like this
+     * {@code span.log(Map.of("event", "timeout"))}
+     * or
+     * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
+     **/
+    Span log(String eventName, /* @Nullable */ Object payload);
+    /**
+     * @deprecated use {@link #log(Map)} like this
+     * {@code span.log(timestampMicroseconds, Map.of("event", "timeout"))}
+     * or
+     * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
+     **/
+    Span log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }
