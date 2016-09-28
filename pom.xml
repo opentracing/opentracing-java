@@ -19,13 +19,13 @@
 
     <groupId>io.opentracing</groupId>
     <artifactId>parent</artifactId>
-    <version>0.16.1-SNAPSHOT</version>
+    <version>0.17-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>opentracing-api</module>
+        <module>opentracing-noop</module>
         <module>opentracing-impl</module>
-        <module>opentracing-impl-java8</module>
         <module>opentracing-mock</module>
     </modules>
 
@@ -83,19 +83,6 @@
         <tag>HEAD</tag>
     </scm>
 
-    <developers>
-        <developer>
-            <id>bensigelman</id>
-            <name>Ben Sigelman</name>
-            <email>bhs@resonancelabs.com</email>
-        </developer>
-        <developer>
-            <id>adriancole</id>
-            <name>Adrian Cole</name>
-            <email>acole@pivotal.io</email>
-        </developer>
-    </developers>
-
     <distributionManagement>
         <repository>
             <id>bintray</id>
@@ -123,6 +110,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>opentracing-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>opentracing-noop</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

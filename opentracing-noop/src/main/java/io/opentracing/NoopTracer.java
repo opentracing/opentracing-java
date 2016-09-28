@@ -13,12 +13,22 @@
  */
 package io.opentracing;
 
-import io.opentracing.propagation.Injector;
-import io.opentracing.propagation.TextMap;
+import io.opentracing.propagation.Format;
 
-final class TestTextMapInjectorImpl implements Injector<TextMap> {
-    @Override
-    public void inject(SpanContext spanContext, TextMap carrier) {
-        carrier.put("test-marker", ((AbstractSpan)spanContext).getOperationName());
-    }
+public interface NoopTracer extends Tracer {
 }
+
+final class NoopTracerImpl implements NoopTracer {
+    final static NoopTracer INSTANCE = new NoopTracerImpl();
+
+    @Override
+    public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
+
+    @Override
+    public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}
+
+    @Override
+    public <C> SpanContext extract(Format<C> format, C carrier) { return NoopSpanBuilderImpl.INSTANCE; }
+
+}
+

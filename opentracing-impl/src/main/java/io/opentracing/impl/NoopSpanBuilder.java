@@ -11,23 +11,30 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing;
+package io.opentracing.impl;
 
-import io.opentracing.propagation.Format;
+import io.opentracing.NoopSpanContext;
 
-public final class NoopTracer implements Tracer {
+final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracing.NoopSpanBuilder, NoopSpanContext {
 
-    public final static NoopTracer INSTANCE = new NoopTracer();
+    static final NoopSpanBuilder INSTANCE = new NoopSpanBuilder("noop");
 
-    @Override
-    public SpanBuilder buildSpan(String operationName) {
-        return NoopSpanBuilder.INSTANCE;
+    public NoopSpanBuilder(String operationName) {
+        super(operationName);
     }
 
     @Override
-    public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}
+    protected AbstractSpan createSpan() {
+        return NoopSpan.INSTANCE;
+    }
 
     @Override
-    public <C> SpanBuilder extract(Format<C> format, C carrier) { return NoopSpanBuilder.INSTANCE; }
+    AbstractSpanBuilder withStateItem(String key, Object value) {
+        return this;
+    }
 
+    @Override
+    boolean isTraceState(String key, Object value) {
+        return false;
+    }
 }

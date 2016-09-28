@@ -11,33 +11,25 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing;
+package io.opentracing.impl;
 
-import java.util.Map;
-
+import io.opentracing.Tracer.SpanBuilder;
 import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.TextMap;
 
-final class TextMapExtractorImpl implements Extractor<TextMap> {
+import java.util.Map;
 
-    private final AbstractTracer tracer;
-
-    TextMapExtractorImpl(AbstractTracer tracer) {
-        this.tracer = tracer;
-    }
+final class TestTextMapExtractorImpl implements Extractor<TextMap> {
 
     @Override
-    public Tracer.SpanBuilder extract(TextMap carrier) {
-
-        AbstractSpanBuilder builder = tracer.createSpanBuilder("extracted");
-        for (Map.Entry<String, String> entry : carrier) {
-            if (builder.isTraceState(entry.getKey(), entry.getValue())) {
-                builder.withStateItem(entry.getKey(), entry.getValue());
-            } else {
-                builder.withBaggageItem(entry.getKey(), entry.getValue());
+    public SpanBuilder extract(TextMap carrier) {
+        String marker = null;
+        for (Map.Entry<String,String> entry : carrier) {
+            if (entry.getKey().equals("test-marker")) {
+                marker = entry.getValue();
             }
         }
-        return builder;
-    }
 
+        return null != marker ? new TestSpanBuilder(marker) : NoopSpanBuilder.INSTANCE;
+    }
 }

@@ -11,8 +11,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing;
+package io.opentracing.impl;
 
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
 import io.opentracing.Tracer.SpanBuilder;
 import io.opentracing.propagation.*;
 import org.junit.Test;
@@ -87,6 +90,23 @@ public final class AbstractTracerTest {
         TextMap carrier = new TextMapExtractAdapter(map);
         SpanBuilder result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
         assertEquals("Should find the marker", "whatever", ((TestSpanBuilder)result).operationName);
+    }
+
+    @Test
+    public void testExtractAsParent() throws Exception {
+        Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
+        TextMapExtractAdapter adapter = new TextMapExtractAdapter(map);
+        AbstractTracer tracer = new TestTracerImpl();
+        SpanContext parent = tracer.extract(Format.Builtin.TEXT_MAP, adapter);
+        assert NoopSpan.INSTANCE != tracer.buildSpan("child").asChildOf(parent).start();
+    }
+
+    @Test
+    public void testExtractOfNoParent() throws Exception {
+        AbstractTracer tracer = new TestTracerImpl();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((Span)NoopSpan.INSTANCE).start();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((SpanContext)NoopSpan.INSTANCE).start();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf(NoopSpanBuilder.INSTANCE).start();
     }
 
     final class TestTracerImpl extends AbstractTracer {
