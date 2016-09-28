@@ -89,6 +89,23 @@ public final class AbstractTracerTest {
         assertEquals("Should find the marker", "whatever", ((TestSpanBuilder)result).operationName);
     }
 
+    @Test
+    public void testExtractAsParent() throws Exception {
+        Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
+        TextMapExtractAdapter adapter = new TextMapExtractAdapter(map);
+        AbstractTracer tracer = new TestTracerImpl();
+        SpanContext parent = tracer.extract(Format.Builtin.TEXT_MAP, adapter);
+        assert NoopSpan.INSTANCE != tracer.buildSpan("child").asChildOf(parent).start();
+    }
+
+    @Test
+    public void testExtractOfNoParent() throws Exception {
+        AbstractTracer tracer = new TestTracerImpl();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf(NoopSpan.INSTANCE).start();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf(NoopSpan.CONTEXT).start();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf(NoopSpanBuilder.INSTANCE).start();
+    }
+
     final class TestTracerImpl extends AbstractTracer {
 
         static final String OPERATION_NAME = "operation-name";
