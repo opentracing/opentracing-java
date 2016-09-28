@@ -11,37 +11,34 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing;
+package io.opentracing.impl;
 
+import io.opentracing.Tracer;
 import java.util.Map;
 
-import io.opentracing.propagation.Injector;
+import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.TextMap;
 
-final class TextMapInjectorImpl implements Injector<TextMap> {
+final class TextMapExtractorImpl implements Extractor<TextMap> {
 
     private final AbstractTracer tracer;
-    private boolean baggageEnabled = AbstractTracer.BAGGAGE_ENABLED;
 
-    TextMapInjectorImpl(AbstractTracer tracer) {
+    TextMapExtractorImpl(AbstractTracer tracer) {
         this.tracer = tracer;
     }
 
     @Override
-    public void inject(SpanContext spanContext, TextMap carrier) {
+    public Tracer.SpanBuilder extract(TextMap carrier) {
 
-        for (Map.Entry<String,Object> entry : tracer.getTraceState(spanContext).entrySet()) {
-            carrier.put(entry.getKey(), entry.getValue().toString());
-        }
-        if (baggageEnabled) {
-            for (Map.Entry<String,String> entry : ((AbstractSpan)spanContext).baggageItems()) {
-                carrier.put(entry.getKey(), entry.getValue());
+        AbstractSpanBuilder builder = tracer.createSpanBuilder("extracted");
+        for (Map.Entry<String, String> entry : carrier) {
+            if (builder.isTraceState(entry.getKey(), entry.getValue())) {
+                builder.withStateItem(entry.getKey(), entry.getValue());
+            } else {
+                builder.withBaggageItem(entry.getKey(), entry.getValue());
             }
         }
-    }
-
-    void setBaggageEnabled(boolean baggageEnabled) {
-        this.baggageEnabled = baggageEnabled;
+        return builder;
     }
 
 }

@@ -13,9 +13,19 @@
  */
 package io.opentracing;
 
-public class TestSpanImpl extends AbstractSpan {
+import java.util.Collections;
+import java.util.Map;
 
-    TestSpanImpl(String operationName) {
-        super(operationName);
+
+public interface NoopSpanContext extends SpanContext {
+}
+
+final class NoopSpanContextImpl implements NoopSpanContext {
+    static final NoopSpanContextImpl INSTANCE = new NoopSpanContextImpl();
+
+    @Override
+    public Iterable<Map.Entry<String, String>> baggageItems() {
+        return Collections.emptyList();
     }
+
 }

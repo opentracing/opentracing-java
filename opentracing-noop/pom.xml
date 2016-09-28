@@ -20,23 +20,21 @@
     <parent>
         <groupId>io.opentracing</groupId>
         <artifactId>parent</artifactId>
-        <version>0.16.1-SNAPSHOT</version>
+        <version>0.17-SNAPSHOT</version>
     </parent>
 
-    <artifactId>opentracing-impl-java8</artifactId>
-    <name>OpenTracing-impl-java8</name>
-    <description>OpenTracing Java8 implementation</description>
+    <artifactId>opentracing-noop</artifactId>
+    <name>OpenTracing-noop</name>
+    <description>OpenTracing NoOp</description>
 
     <properties>
         <main.basedir>${project.basedir}/..</main.basedir>
-        <main.java.version>1.8</main.java.version>
-        <main.signature.artifact>java18</main.signature.artifact>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>opentracing-impl</artifactId>
+            <artifactId>opentracing-api</artifactId>
         </dependency>
     </dependencies>
 </project>

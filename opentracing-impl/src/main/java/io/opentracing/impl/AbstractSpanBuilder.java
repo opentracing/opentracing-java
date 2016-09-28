@@ -11,8 +11,12 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing;
+package io.opentracing.impl;
 
+import io.opentracing.References;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,12 +56,16 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public final AbstractSpanBuilder asChildOf(SpanContext parent) {
-        return this.addReference(References.CHILD_OF, parent);
+        return io.opentracing.NoopSpanContext.class.isAssignableFrom(parent.getClass())
+                ? NoopSpanBuilder.INSTANCE
+                : this.addReference(References.CHILD_OF, parent);
     }
 
     @Override
     public final AbstractSpanBuilder asChildOf(Span parent) {
-        return this.addReference(References.CHILD_OF, parent.context());
+        return io.opentracing.NoopSpan.class.isAssignableFrom(parent.getClass())
+                ? NoopSpanBuilder.INSTANCE
+                : this.addReference(References.CHILD_OF, parent.context());
     }
 
     @Override
