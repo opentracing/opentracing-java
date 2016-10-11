@@ -8,7 +8,7 @@ This library is a Java platform API for OpenTracing.
 
 In order to understand the Java platform API, one must first be familiar with
 the [OpenTracing project](http://opentracing.io) and
-[terminology](http://opentracing.io/spec/) more generally.
+[terminology](http://opentracing.io/documentation/pages/spec.html) more specifically.
 
 ## Status
 
