@@ -13,6 +13,7 @@
  */
 package io.opentracing;
 
+import io.opentracing.Tracer.SpanBuilder;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,12 +52,18 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     @Override
-    public final AbstractSpanBuilder asChildOf(SpanContext parent) {
+    public final SpanBuilder asChildOf(SpanContext parent) {
+        if (NoopSpanBuilder.INSTANCE == parent || NoopSpan.INSTANCE.context() == parent) {
+            return NoopSpanBuilder.INSTANCE;
+        }
         return this.addReference(References.CHILD_OF, parent);
     }
 
     @Override
-    public final AbstractSpanBuilder asChildOf(Span parent) {
+    public final SpanBuilder asChildOf(Span parent) {
+        if (NoopSpan.INSTANCE == parent) {
+            return NoopSpanBuilder.INSTANCE;
+        }
         return this.addReference(References.CHILD_OF, parent.context());
     }
 
