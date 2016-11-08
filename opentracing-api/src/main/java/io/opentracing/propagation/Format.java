@@ -46,7 +46,7 @@ public interface Format<C> {
          * @see Format
          * @see Builtin#HTTP_HEADERS
          */
-        public final static Format<TextMap> TEXT_MAP = new Builtin<>();
+        public final static Format<TextMap> TEXT_MAP = new Builtin<TextMap>();
 
         /**
          * The HTTP_HEADERS format allows for HTTP-header-compatible String->String map encoding of SpanContext state
@@ -60,7 +60,7 @@ public interface Format<C> {
          * @see Format
          * @see Builtin#TEXT_MAP
          */
-        public final static Format<TextMap> HTTP_HEADERS = new Builtin<>();
+        public final static Format<TextMap> HTTP_HEADERS = new Builtin<TextMap>();
 
         /**
          * The BINARY format allows for unconstrained binary encoding of SpanContext state for Tracer.inject and
@@ -70,6 +70,6 @@ public interface Format<C> {
          * @see io.opentracing.Tracer#extract(Format, Object)
          * @see Format
          */
-        public final static Format<ByteBuffer> BINARY = new Builtin<>();
+        public final static Format<ByteBuffer> BINARY = new Builtin<ByteBuffer>();
     }
 }
