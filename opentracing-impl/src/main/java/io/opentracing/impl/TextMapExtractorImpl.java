@@ -13,11 +13,10 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.Tracer;
-import java.util.Map;
-
+import io.opentracing.SpanContext;
 import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.TextMap;
+import java.util.Map;
 
 final class TextMapExtractorImpl implements Extractor<TextMap> {
 
@@ -28,8 +27,7 @@ final class TextMapExtractorImpl implements Extractor<TextMap> {
     }
 
     @Override
-    public Tracer.SpanBuilder extract(TextMap carrier) {
-
+    public SpanContext extract(TextMap carrier) {
         AbstractSpanBuilder builder = tracer.createSpanBuilder("extracted");
         for (Map.Entry<String, String> entry : carrier) {
             if (builder.isTraceState(entry.getKey(), entry.getValue())) {
@@ -38,7 +36,6 @@ final class TextMapExtractorImpl implements Extractor<TextMap> {
                 builder.withBaggageItem(entry.getKey(), entry.getValue());
             }
         }
-        return builder;
+        return builder.createSpan().context();
     }
-
 }

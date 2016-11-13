@@ -18,7 +18,6 @@ import io.opentracing.Tracer;
 import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.Injector;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -47,7 +46,7 @@ abstract class AbstractTracer implements Tracer {
     }
 
      @Override
-    public <C> SpanBuilder extract(Format<C> format, C carrier) {
+    public <C> SpanContext extract(Format<C> format, C carrier) {
         return registry.getExtractor(format).extract(carrier);
     }
 

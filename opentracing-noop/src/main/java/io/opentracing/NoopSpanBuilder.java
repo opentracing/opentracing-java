@@ -61,9 +61,4 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     public Span start() {
         return NoopSpanImpl.INSTANCE;
     }
-
-    @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return Collections.EMPTY_MAP.entrySet();
-    }
 }

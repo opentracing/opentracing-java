@@ -101,11 +101,6 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     @Override
-    public final Iterable<Map.Entry<String, String>> baggageItems() {
-        return baggage.entrySet();
-    }
-
-    @Override
     public final Span start() {
         AbstractSpan span = createSpan();
         stringTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });

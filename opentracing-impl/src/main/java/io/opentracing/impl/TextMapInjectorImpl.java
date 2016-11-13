@@ -14,10 +14,9 @@
 package io.opentracing.impl;
 
 import io.opentracing.SpanContext;
-import java.util.Map;
-
 import io.opentracing.propagation.Injector;
 import io.opentracing.propagation.TextMap;
+import java.util.Map;
 
 final class TextMapInjectorImpl implements Injector<TextMap> {
 

@@ -13,9 +13,7 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.NoopSpanContext;
-
-final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracing.NoopSpanBuilder, NoopSpanContext {
+final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracing.NoopSpanBuilder {
 
     static final NoopSpanBuilder INSTANCE = new NoopSpanBuilder("noop");
 

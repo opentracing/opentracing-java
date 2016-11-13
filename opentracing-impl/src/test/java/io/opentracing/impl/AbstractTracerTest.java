@@ -16,15 +16,17 @@ package io.opentracing.impl;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.Tracer.SpanBuilder;
-import io.opentracing.propagation.*;
-import org.junit.Test;
-
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMap;
+import io.opentracing.propagation.TextMapExtractAdapter;
+import io.opentracing.propagation.TextMapInjectAdapter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 
 public final class AbstractTracerTest {
@@ -73,8 +75,8 @@ public final class AbstractTracerTest {
 
         Map<String,String> map = Collections.singletonMap("garbageEntry", "garbageVal");
         TextMap carrier = new TextMapExtractAdapter(map);
-        SpanBuilder emptyResult = instance.extract(Format.Builtin.TEXT_MAP, carrier);
-        assertEquals("Should be nothing to extract", NoopSpanBuilder.INSTANCE, emptyResult);
+        SpanContext emptyResult = instance.extract(Format.Builtin.TEXT_MAP, carrier);
+        assertEquals("Should be nothing to extract", NoopSpan.INSTANCE, emptyResult);
     }
 
     /**
@@ -88,8 +90,8 @@ public final class AbstractTracerTest {
 
         Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
         TextMap carrier = new TextMapExtractAdapter(map);
-        SpanBuilder result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
-        assertEquals("Should find the marker", "whatever", ((TestSpanBuilder)result).operationName);
+        SpanContext result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
+        assertEquals("Should find the marker", "whatever", ((AbstractSpan) result).getOperationName());
     }
 
     @Test
@@ -106,7 +108,7 @@ public final class AbstractTracerTest {
         AbstractTracer tracer = new TestTracerImpl();
         assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((Span)NoopSpan.INSTANCE).start();
         assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((SpanContext)NoopSpan.INSTANCE).start();
-        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf(NoopSpanBuilder.INSTANCE).start();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((Span) NoopSpan.INSTANCE).start();
     }
 
     final class TestTracerImpl extends AbstractTracer {

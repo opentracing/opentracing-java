@@ -26,8 +26,8 @@ final class NoopTracer extends AbstractTracer implements io.opentracing.NoopTrac
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}
 
     @Override
-    public <C> SpanBuilder extract(Format<C> format, C carrier) {
-        return io.opentracing.NoopSpanBuilder.INSTANCE;
+    public <C> SpanContext extract(Format<C> format, C carrier) {
+        return NoopSpan.INSTANCE;
     }
 
     @Override
