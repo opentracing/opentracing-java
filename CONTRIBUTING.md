@@ -2,8 +2,6 @@
 
 If you would like to contribute code you can do so through GitHub by forking the repository and sending a pull request (on a branch other than `master` or `gh-pages`).
 
-When submitting code, please apply [Square Code Style](https://github.com/square/java-code-styles).
-* If the settings import correctly, CodeStyle/Java will be named Square and use 2 space tab and indent, with 4 space continuation indent.
 
 ## License
 
