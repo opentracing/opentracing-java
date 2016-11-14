@@ -10,10 +10,6 @@ cache:
 
 language: java
 
-jdk:
-  - oraclejdk8
-
-
 before_install:
   # Parameters used during release
   - git config user.name "$GH_USER"
