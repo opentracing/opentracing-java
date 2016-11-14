@@ -16,7 +16,7 @@ package io.opentracing;
 import java.util.Collections;
 import java.util.Map;
 
-public interface NoopSpanBuilder extends Tracer.SpanBuilder {
+public interface NoopSpanBuilder extends Tracer.SpanBuilder, NoopSpanContext {
     static final NoopSpanBuilder INSTANCE = new NoopSpanBuilderImpl();
 }
 
