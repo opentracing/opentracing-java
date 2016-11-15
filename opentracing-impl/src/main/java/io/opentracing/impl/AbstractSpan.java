@@ -25,19 +25,17 @@ abstract class AbstractSpan implements Span {
 
     private String operationName;
 
-    private final Map<String,String> baggage = new HashMap<>();
-
     private final Instant start;
     private Duration duration;
     private final Map<String,Object> tags = new HashMap<>();
     private final List<LogData> logs = new ArrayList<>();
-    private SpanContext context;
+    private AbstractSpanContext context;
 
-    AbstractSpan(String operationName, SpanContext context) {
+    AbstractSpan(String operationName, AbstractSpanContext context) {
         this(operationName, Instant.now(), context);
     }
 
-    AbstractSpan(String operationName, Instant start, SpanContext context) {
+    AbstractSpan(String operationName, Instant start, AbstractSpanContext context) {
         this.operationName = operationName;
         this.start = start;
         this.context = context;
@@ -109,22 +107,17 @@ abstract class AbstractSpan implements Span {
 
     @Override
     public AbstractSpan setBaggageItem(String key, String value) {
-        baggage.put(key, value);
+        context = context.setBaggageItem(key, value);
         return this;
     }
 
     @Override
     public String getBaggageItem(String key) {
-        return baggage.get(key);
-    }
-
-    // TOOD remove
-    public final Iterable<Map.Entry<String,String>> baggageItems() {
-        return baggage.entrySet();
+        return context.getBaggageItem(key);
     }
 
     public final Map<String,String> getBaggage() {
-    	return Collections.unmodifiableMap(baggage);
+    	return context.baggage;
     }
 
     @Override

@@ -44,4 +44,14 @@ public class AbstractSpanContext implements SpanContext {
     SpanContext withBaggage(Map<String, String> baggage) {
         return new AbstractSpanContext(traceState, baggage, tracer);
     }
+
+    public AbstractSpanContext setBaggageItem(String key, String value) {
+        Map<String, String> newBaggage = new HashMap<>(baggage);
+        newBaggage.put(key, value);
+        return new AbstractSpanContext(traceState, newBaggage, tracer);
+    }
+
+    public String getBaggageItem(String key) {
+        return baggage.get(key);
+    }
 }

@@ -13,7 +13,6 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.NoopSpanContext;
 import io.opentracing.Span;
 
 final class NoopSpan extends AbstractSpan implements io.opentracing.NoopSpan {

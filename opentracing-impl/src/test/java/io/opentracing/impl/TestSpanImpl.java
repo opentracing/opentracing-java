@@ -13,11 +13,9 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.SpanContext;
-
 public class TestSpanImpl extends AbstractSpan {
 
-    TestSpanImpl(String operationName, SpanContext ctx) {
+    TestSpanImpl(String operationName, AbstractSpanContext ctx) {
         super(operationName, ctx);
     }
 }

@@ -13,10 +13,12 @@
  */
 package io.opentracing.impl;
 
+import java.util.Collections;
+
 public class NoopSpanContext extends AbstractSpanContext {
     public static final NoopSpanContext INSTANCE = new NoopSpanContext();
     
     private NoopSpanContext() {
-        super(null, null);
+        super(Collections.emptyMap(), NoopTracer.INSTANCE);
     }
 }
