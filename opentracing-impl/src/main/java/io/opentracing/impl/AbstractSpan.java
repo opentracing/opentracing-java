@@ -15,16 +15,13 @@ package io.opentracing.impl;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-abstract class AbstractSpan implements Span, SpanContext {
+abstract class AbstractSpan implements Span {
 
     private String operationName;
 
@@ -34,21 +31,21 @@ abstract class AbstractSpan implements Span, SpanContext {
     private Duration duration;
     private final Map<String,Object> tags = new HashMap<>();
     private final List<LogData> logs = new ArrayList<>();
+    private SpanContext context;
 
-    AbstractSpan(String operationName ) {
-        this(operationName, Instant.now());
+    AbstractSpan(String operationName, SpanContext context) {
+        this(operationName, Instant.now(), context);
     }
 
-    AbstractSpan(String operationName, Instant start) {
+    AbstractSpan(String operationName, Instant start, SpanContext context) {
         this.operationName = operationName;
         this.start = start;
-        // TODO delegate baggage operations to context instead of holding a direct reference to underlying map
-        // this.baggage = context.baggage;
+        this.context = context;
     }
 
     @Override
     public final SpanContext context() {
-        return this;
+        return context;
     }
 
     @Override
@@ -121,7 +118,7 @@ abstract class AbstractSpan implements Span, SpanContext {
         return baggage.get(key);
     }
 
-    @Override
+    // TOOD remove
     public final Iterable<Map.Entry<String,String>> baggageItems() {
         return baggage.entrySet();
     }

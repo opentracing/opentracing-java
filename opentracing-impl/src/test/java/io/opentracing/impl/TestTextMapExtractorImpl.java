@@ -13,13 +13,19 @@
  */
 package io.opentracing.impl;
 
+import io.opentracing.NoopSpanContext;
 import io.opentracing.SpanContext;
 import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.TextMap;
+
+import java.util.Collections;
 import java.util.Map;
 
 final class TestTextMapExtractorImpl implements Extractor<TextMap> {
-
+    private AbstractTracer tracer;
+    public TestTextMapExtractorImpl(AbstractTracer tracer) {
+        this.tracer = tracer;
+    }
     @Override
     public SpanContext extract(TextMap carrier) {
         String marker = null;
@@ -29,6 +35,6 @@ final class TestTextMapExtractorImpl implements Extractor<TextMap> {
             }
         }
 
-        return null != marker ? new TestSpanBuilder(marker).createSpan().context() : NoopSpan.INSTANCE;
+        return null != marker ? tracer.createSpanContext(Collections.emptyMap()) : NoopSpanContext.INSTANCE;
     }
 }

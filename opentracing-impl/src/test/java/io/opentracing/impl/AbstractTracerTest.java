@@ -13,6 +13,7 @@
  */
 package io.opentracing.impl;
 
+import io.opentracing.NoopSpanContext;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -20,13 +21,14 @@ import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
+import org.junit.Test;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static java.util.Collections.emptyMap;
+import static org.junit.Assert.*;
 
 
 public final class AbstractTracerTest {
@@ -54,7 +56,8 @@ public final class AbstractTracerTest {
         AbstractTracer instance = new TestTracerImpl();
         instance.register(Format.Builtin.TEXT_MAP, new TestTextMapInjectorImpl());
 
-        Span span = new TestSpanImpl("test-inject-span");
+        AbstractSpanContext ctx = instance.createSpanContext(Collections.singletonMap("opname", "test-inject-span"));
+        Span span = new TestSpanImpl("test-inject-span", ctx);
         Map<String,String> map = new HashMap<>();
         TextMap carrier = new TextMapInjectAdapter(map);
         instance.inject(span.context(), Format.Builtin.TEXT_MAP, carrier);
@@ -71,12 +74,12 @@ public final class AbstractTracerTest {
     public void testEmptyExtract() {
         System.out.println("empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(Format.Builtin.TEXT_MAP, new TestTextMapExtractorImpl());
+        instance.register(Format.Builtin.TEXT_MAP, new TestTextMapExtractorImpl(instance));
 
         Map<String,String> map = Collections.singletonMap("garbageEntry", "garbageVal");
         TextMap carrier = new TextMapExtractAdapter(map);
         SpanContext emptyResult = instance.extract(Format.Builtin.TEXT_MAP, carrier);
-        assertEquals("Should be nothing to extract", NoopSpan.INSTANCE, emptyResult);
+        assertTrue("Should extract NoopSpanContext", emptyResult == NoopSpanContext.INSTANCE);
     }
 
     /**
@@ -86,12 +89,12 @@ public final class AbstractTracerTest {
     public void testNonEmptyExtract() {
         System.out.println("non-empty extract");
         AbstractTracer instance = new TestTracerImpl();
-        instance.register(Format.Builtin.TEXT_MAP, new TestTextMapExtractorImpl());
+        instance.register(Format.Builtin.TEXT_MAP, new TestTextMapExtractorImpl(instance));
 
         Map<String,String> map = Collections.singletonMap("test-marker", "whatever");
         TextMap carrier = new TextMapExtractAdapter(map);
         SpanContext result = instance.extract(Format.Builtin.TEXT_MAP, carrier);
-        assertEquals("Should find the marker", "whatever", ((AbstractSpan) result).getOperationName());
+        assertTrue("Should NOT extract NoopSpanContext", result != NoopSpanContext.INSTANCE);
     }
 
     @Test
@@ -107,7 +110,7 @@ public final class AbstractTracerTest {
     public void testExtractOfNoParent() throws Exception {
         AbstractTracer tracer = new TestTracerImpl();
         assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((Span)NoopSpan.INSTANCE).start();
-        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((SpanContext)NoopSpan.INSTANCE).start();
+        assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf(NoopSpanContext.INSTANCE).start();
         assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((Span) NoopSpan.INSTANCE).start();
     }
 
@@ -120,7 +123,7 @@ public final class AbstractTracerTest {
             return new AbstractSpanBuilder(operationName) {
                 @Override
                 protected AbstractSpan createSpan() {
-                    return new TestSpanImpl(this.operationName);
+                    return new TestSpanImpl(this.operationName, createSpanContext(emptyMap()));
                 }
             };
         }

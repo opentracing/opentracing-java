@@ -13,21 +13,23 @@
  */
 package io.opentracing.impl;
 
+import io.opentracing.NoopSpanContext;
 import io.opentracing.SpanContext;
 import io.opentracing.propagation.Format;
+
 import java.util.Collections;
 import java.util.Map;
 
 final class NoopTracer extends AbstractTracer implements io.opentracing.NoopTracer {
 
-    private static final NoopTracer INSTANCE = new NoopTracer();
+    static final NoopTracer INSTANCE = new NoopTracer();
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}
 
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
-        return NoopSpan.INSTANCE;
+        return NoopSpanContext.INSTANCE;
     }
 
     @Override
@@ -37,7 +39,10 @@ final class NoopTracer extends AbstractTracer implements io.opentracing.NoopTrac
     
     @Override
     AbstractSpanContext createSpanContext(Map<String, Object> traceState) {
-        return NoopSpanContext.INSTANCE;
+        // TODO Noop tracer must not fail. But NoopSpanContext is in a separate module and it cannot extend AbstractSpanContext.
+        // The best solution would be to use NoopTracer implementation which does not extend AbstractTracer - the one from
+        // opentracing-noop - and remove this one.
+        throw new UnsupportedOperationException("NoopTracer cannot create SpanContexts");
     }
 
     @Override

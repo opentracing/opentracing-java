@@ -13,15 +13,20 @@
  */
 package io.opentracing.impl;
 
+import java.util.Collections;
+
 final class TestSpanBuilder extends AbstractSpanBuilder {
 
-    public TestSpanBuilder(String operationName) {
+    private AbstractTracer tracer;
+
+    public TestSpanBuilder(String operationName, AbstractTracer tracer) {
         super(operationName);
+        this.tracer = tracer;
     }
 
     @Override
     protected AbstractSpan createSpan() {
-        return new AbstractSpan(operationName) {
+        return new AbstractSpan(operationName, tracer.createSpanContext(Collections.emptyMap())) {
             @Override
             public AbstractSpan setBaggageItem(String key, String value) {
                 return this;

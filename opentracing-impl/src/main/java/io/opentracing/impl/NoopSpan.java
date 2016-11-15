@@ -16,12 +16,12 @@ package io.opentracing.impl;
 import io.opentracing.NoopSpanContext;
 import io.opentracing.Span;
 
-final class NoopSpan extends AbstractSpan implements io.opentracing.NoopSpan, NoopSpanContext {
+final class NoopSpan extends AbstractSpan implements io.opentracing.NoopSpan {
 
     static final NoopSpan INSTANCE = new NoopSpan("noop");
 
     public NoopSpan(String operationName) {
-        super(operationName);
+        super(operationName, NoopSpanContext.INSTANCE);
     }
 
     @Override
