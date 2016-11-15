@@ -41,13 +41,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
     /** Create a Span, using the builder fields. */
     protected abstract AbstractSpan createSpan();
-
-    /** Adds an entry of the minimal set of properties required to propagate this span */
-    abstract AbstractSpanBuilder withStateItem(String key, Object value);
-
-    /** Returns true if this key+value belongs in a Span's required propagation set, otherwise it is baggage. */
-    abstract boolean isTraceState(String key, Object value);
-
+    
     @Override
     public final AbstractSpanBuilder addReference(String referenceType, SpanContext referredTo) {
         this.references.add(new Reference(referenceType, referredTo));
@@ -95,7 +89,6 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     public final AbstractSpanBuilder withBaggageItem(String key, String value) {
-        assert !isTraceState(key, value);
         baggage.put(key, value);
         return this;
     }

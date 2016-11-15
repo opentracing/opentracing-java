@@ -34,6 +34,8 @@ abstract class AbstractTracer implements Tracer {
     }
 
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
+    
+    abstract AbstractSpanContext createSpanContext(Map<String, Object> traceState);
 
     @Override
     public SpanBuilder buildSpan(String operationName){
@@ -60,6 +62,9 @@ abstract class AbstractTracer implements Tracer {
 
     /** @return the minimal set of properties required to propagate this span */
     abstract Map<String,Object> getTraceState(SpanContext spanContext);
+    
+    /** Returns true if this key+value belongs in a Span's required propagation set, otherwise it is baggage. */
+    abstract boolean isTraceState(String key, Object value);
 
     private static class PropagationRegistry {
 

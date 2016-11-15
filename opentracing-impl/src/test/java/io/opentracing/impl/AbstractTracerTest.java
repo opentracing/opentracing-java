@@ -122,21 +122,22 @@ public final class AbstractTracerTest {
                 protected AbstractSpan createSpan() {
                     return new TestSpanImpl(this.operationName);
                 }
-                @Override
-                boolean isTraceState(String key, Object value) {
-                    return false;
-                }
-
-                @Override
-                AbstractSpanBuilder withStateItem(String key, Object value) {
-                    throw new AssertionError("no trace state is possible");
-                }
             };
+        }
+        
+        @Override
+        boolean isTraceState(String key, Object value) {
+            return false;
         }
 
         @Override
         Map<String, Object> getTraceState(SpanContext spanContext) {
             return new HashMap<>(((AbstractSpan)spanContext).getBaggage());
+        }
+
+        @Override
+        AbstractSpanContext createSpanContext(Map<String, Object> traceState) {
+            return new AbstractSpanContext(traceState, this) {};
         }
     }
 

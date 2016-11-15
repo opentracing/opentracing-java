@@ -42,6 +42,8 @@ abstract class AbstractSpan implements Span, SpanContext {
     AbstractSpan(String operationName, Instant start) {
         this.operationName = operationName;
         this.start = start;
+        // TODO delegate baggage operations to context instead of holding a direct reference to underlying map
+        // this.baggage = context.baggage;
     }
 
     @Override

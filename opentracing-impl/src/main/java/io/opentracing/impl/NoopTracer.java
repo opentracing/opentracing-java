@@ -34,11 +34,19 @@ final class NoopTracer extends AbstractTracer implements io.opentracing.NoopTrac
     AbstractSpanBuilder createSpanBuilder(String operationName) {
         return NoopSpanBuilder.INSTANCE;
     }
+    
+    @Override
+    AbstractSpanContext createSpanContext(Map<String, Object> traceState) {
+        return NoopSpanContext.INSTANCE;
+    }
 
     @Override
     Map<String, Object> getTraceState(SpanContext spanContext) {
         return Collections.emptyMap();
     }
 
-
+    @Override
+    boolean isTraceState(String key, Object value) {
+        return false;
+    }
 }

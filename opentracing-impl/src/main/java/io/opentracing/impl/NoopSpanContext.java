@@ -13,19 +13,10 @@
  */
 package io.opentracing.impl;
 
-final class TestSpanBuilder extends AbstractSpanBuilder {
-
-    public TestSpanBuilder(String operationName) {
-        super(operationName);
-    }
-
-    @Override
-    protected AbstractSpan createSpan() {
-        return new AbstractSpan(operationName) {
-            @Override
-            public AbstractSpan setBaggageItem(String key, String value) {
-                return this;
-            }
-        };
+public class NoopSpanContext extends AbstractSpanContext {
+    public static final NoopSpanContext INSTANCE = new NoopSpanContext();
+    
+    private NoopSpanContext() {
+        super(null, null);
     }
 }

@@ -25,14 +25,4 @@ final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracin
     protected AbstractSpan createSpan() {
         return NoopSpan.INSTANCE;
     }
-
-    @Override
-    AbstractSpanBuilder withStateItem(String key, Object value) {
-        return this;
-    }
-
-    @Override
-    boolean isTraceState(String key, Object value) {
-        return false;
-    }
 }
