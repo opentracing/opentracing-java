@@ -83,6 +83,19 @@
         <tag>HEAD</tag>
     </scm>
 
+    <developers>
+        <developer>
+            <id>bensigelman</id>
+            <name>Ben Sigelman</name>
+            <email>bhs@resonancelabs.com</email>
+        </developer>
+        <developer>
+            <id>adriancole</id>
+            <name>Adrian Cole</name>
+            <email>acole@pivotal.io</email>
+        </developer>
+    </developers>
+
     <distributionManagement>
         <repository>
             <id>bintray</id>
