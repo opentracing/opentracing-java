@@ -19,7 +19,7 @@
 
     <groupId>io.opentracing</groupId>
     <artifactId>parent</artifactId>
-    <version>0.19.1-SNAPSHOT</version>
+    <version>0.20.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -80,7 +80,7 @@
         <url>https://github.com/opentracing/opentracing-java</url>
         <connection>scm:git:https://github.com/opentracing/opentracing-java.git</connection>
         <developerConnection>scm:git:https://github.com/opentracing/opentracing-java.git</developerConnection>
-        <tag>0.17</tag>
+        <tag>0.20.0</tag>
     </scm>
 
     <distributionManagement>
