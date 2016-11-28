@@ -19,7 +19,7 @@
 
     <groupId>io.opentracing</groupId>
     <artifactId>parent</artifactId>
-    <version>0.19.1-SNAPSHOT</version>
+    <version>0.20.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -80,8 +80,21 @@
         <url>https://github.com/opentracing/opentracing-java</url>
         <connection>scm:git:https://github.com/opentracing/opentracing-java.git</connection>
         <developerConnection>scm:git:https://github.com/opentracing/opentracing-java.git</developerConnection>
-        <tag>0.17</tag>
+        <tag>HEAD</tag>
     </scm>
+
+    <developers>
+        <developer>
+            <id>bensigelman</id>
+            <name>Ben Sigelman</name>
+            <email>bhs@resonancelabs.com</email>
+        </developer>
+        <developer>
+            <id>adriancole</id>
+            <name>Adrian Cole</name>
+            <email>acole@pivotal.io</email>
+        </developer>
+    </developers>
 
     <distributionManagement>
         <repository>

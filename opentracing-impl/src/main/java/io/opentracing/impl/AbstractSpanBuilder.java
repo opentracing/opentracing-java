@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
@@ -50,16 +51,22 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public final AbstractSpanBuilder asChildOf(SpanContext parent) {
-        return io.opentracing.NoopSpanContext.class.isAssignableFrom(parent.getClass())
-                ? NoopSpanBuilder.INSTANCE
-                : this.addReference(References.CHILD_OF, parent);
+        if (io.opentracing.NoopSpanContext.class.isAssignableFrom(parent.getClass())) {
+            return NoopSpanBuilder.INSTANCE;
+        } else {
+            withBaggageFrom(parent);
+            return this.addReference(References.CHILD_OF, parent);
+        }
     }
 
     @Override
     public final AbstractSpanBuilder asChildOf(Span parent) {
-        return io.opentracing.NoopSpan.class.isAssignableFrom(parent.getClass())
-                ? NoopSpanBuilder.INSTANCE
-                : this.addReference(References.CHILD_OF, parent.context());
+        if (io.opentracing.NoopSpan.class.isAssignableFrom(parent.getClass())) {
+            return NoopSpanBuilder.INSTANCE;
+        } else {
+            withBaggageFrom(parent.context());
+            return this.addReference(References.CHILD_OF, parent.context());
+        }
     }
 
     @Override
@@ -101,6 +108,12 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
         numberTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
         baggage.entrySet().stream().forEach((entry) -> { span.setBaggageItem(entry.getKey(), entry.getValue()); });
         return span;
+    }
+
+    private void withBaggageFrom(SpanContext from) {
+        for (Entry<String, String> baggageItem : from.baggageItems()) {
+            this.withBaggageItem(baggageItem.getKey(), baggageItem.getValue());
+        }
     }
 
     public static final class Reference {

@@ -1,7 +1,7 @@
 # Run `travis lint` when changing this file to avoid breaking the build.
 # Default JDK is really old: 1.8.0_31; Trusty's is less old: 1.8.0_51
 # https://docs.travis-ci.com/user/ci-environment/#Virtualization-environments
-sudo: required
+sudo: false
 dist: trusty
 
 cache:
@@ -9,6 +9,14 @@ cache:
   - $HOME/.m2
 
 language: java
+
+jdk:
+  - oraclejdk8
+
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 
 before_install:
   # Parameters used during release
@@ -47,5 +55,3 @@ env:
   - secure: "oE16AjpS/aabLRNkQN6SmyfYJwCwBqYOvqyhPPZCYDYfZpBtJHugUXdds9GYc6BXfgPKF3QJQ727dPqXrmbh9UPkSyE1LYv1De/HbGsPmwBn+S2fg1Id2BrV3qVPg7aYaO8EX0zIxfh5BxY0woC4Lj9Wl5EbTYf00h/JhCaKr1ZYR9/gzG8Ngyexr+FLlKFCKhka+3iEcwCz8feyxcPCsgGo3TiNI42Q9cLGpqGAuStQcwUZe2296qQd1Zn9khZYpP5bm7+mOCI62xXI+PEIES+ss/kB8b9pfUiHgfxtKS6gs4I3oDEelJw3fjrHdsgMs6YfLTPp9yKMMqSIzcp4dmqOf5zxadCKQ+eETervLJEngZAwzuAvdeh8/9Az8eN96FDfKWrf8tkbkdzY9Ajqk5qra4vx87ChQ/u6Am9OV6dqwIBU4i7sBUa55jXQns8gE2nT+R0xAM57Arolr768QriPAiUlom8AmeUryUWj1S8JC+jjNhw0v9wFk2JEkrY1WBrCStnCYAPZ3CP5uoNGsQS42t0Cd05TtjHjnJE8EHfHHFiWSF1+ov7GkAQQXqH473T1Be7HPJo9EQ5PRsea5li2AtTU80dBuCaeqBnE6Tm1kuiVDrDo3kO/+C5fjF065z1Xvl42pcJhlYH/uNItQbGiFfcBP6hT3szVIDeSElc="
   # Ex. travis encrypt SONATYPE_PASSWORD=your_sonatype_password
   - secure: "jWfEmREf5VjjJwvlAA+11a8DYQa4ZZzhfUOkUObO0do1fG+aQtMKndesa0h8xETGggySEc5nn0e7THJ5EjBlppNtH7LqK1bfgTF4PlkMwHOkhGjLaoxCpT0HVyAaWUEZdD8uGwiY+NkLc3AC06fhB3MjpMbM82tOWXOpWLxnLpLgqP9L1DM/9uWiD36T3k6vkVABHGoGmQPgyXiTL6NHhNLVlI44L++ddXHGxrCEOs4oFhP7MXtR5T+51Bdalpj6eko4nP4/mve+5KMH8mzays04YX0F2TxtCXmgqLAeHE5AWm/A++85bJqnIwyApdT0A1NQR2GAJN6FyeA/zTCslbIMt2sqg0auXikCRbkwhom56E6KDbnyXoE9VfViMmaTT9FF/d3vIV29BiCitfbVmUMXcsFQEljhPigbva3ayHHdOsBbI2KTvH+rbzPHv6Jqp0TQJlE9qU2qTVS2bWHPyOltbyx2KiSJUwx5zqsC20J7lnPgqWCYXEVzyS2wwzFm752bxIRGAeghgVVdTnPST1Lu7Z/LQ3Vt827juk1qAU9HzVPu+OmJS6os0EIzAWZoC9KksYvslv0mUlmc5IbEDqdqK5MA/bw72Vv8KOlVbJPQ5XC26utF/44Gn35nx8OI/yg1Qkdoj/iISnk4b/oCOLr9l39xsTZUj7HhrnlLbbM="
-
-

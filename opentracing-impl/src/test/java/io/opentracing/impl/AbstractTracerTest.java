@@ -21,11 +21,10 @@ import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Test;
 
 import static java.util.Collections.emptyMap;
 import static org.junit.Assert.*;
@@ -112,6 +111,24 @@ public final class AbstractTracerTest {
         assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((Span)NoopSpan.INSTANCE).start();
         assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf(NoopSpanContext.INSTANCE).start();
         assert NoopSpan.INSTANCE == tracer.buildSpan("child").asChildOf((Span) NoopSpan.INSTANCE).start();
+    }
+
+    @Test
+    public void propagatesBaggageFromSpan() {
+        AbstractTracer tracer = new TestTracerImpl();
+        Span parent = tracer.createSpanBuilder("op1").withBaggageItem("bag", "val").start();
+        Span child = tracer.createSpanBuilder("op2").asChildOf(parent).start();
+
+        assertEquals("val", child.getBaggageItem("bag"));
+    }
+
+    @Test
+    public void propagatesBaggageFromSpanContext() {
+        AbstractTracer tracer = new TestTracerImpl();
+        Span parent = tracer.createSpanBuilder("op1").withBaggageItem("bag", "val").start();
+        Span child = tracer.createSpanBuilder("op2").asChildOf(parent.context()).start();
+
+        assertEquals("val", child.getBaggageItem("bag"));
     }
 
     final class TestTracerImpl extends AbstractTracer {
