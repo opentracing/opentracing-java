@@ -27,14 +27,14 @@ import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
-    protected String operationName = null;
     protected final List<Reference> references = new ArrayList<>();
+    protected final Map<String, String> baggage = new HashMap<>();
+    protected String operationName = null;
     protected Instant start = Instant.now();
 
     private final Map<String, String> stringTags = new HashMap<>();
     private final Map<String, Boolean> booleanTags = new HashMap<>();
     private final Map<String, Number> numberTags = new HashMap<>();
-    private final Map<String, String> baggage = new HashMap<>();
 
     AbstractSpanBuilder(String operationName) {
         this.operationName = operationName;

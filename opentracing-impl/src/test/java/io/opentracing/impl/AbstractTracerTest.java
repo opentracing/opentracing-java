@@ -55,7 +55,7 @@ public final class AbstractTracerTest {
         AbstractTracer instance = new TestTracerImpl();
         instance.register(Format.Builtin.TEXT_MAP, new TestTextMapInjectorImpl());
 
-        AbstractSpanContext ctx = instance.createSpanContext(Collections.singletonMap("opname", "test-inject-span"));
+        AbstractSpanContext ctx = instance.createSpanContext(Collections.singletonMap("opname", "test-inject-span"), Collections.emptyMap());
         Span span = new TestSpanImpl("test-inject-span", ctx);
         Map<String,String> map = new HashMap<>();
         TextMap carrier = new TextMapInjectAdapter(map);
@@ -140,7 +140,7 @@ public final class AbstractTracerTest {
             return new AbstractSpanBuilder(operationName) {
                 @Override
                 protected AbstractSpan createSpan() {
-                    return new TestSpanImpl(this.operationName, createSpanContext(emptyMap()));
+                    return new TestSpanImpl(this.operationName, createSpanContext(emptyMap(), baggage));
                 }
             };
         }
@@ -156,8 +156,8 @@ public final class AbstractTracerTest {
         }
 
         @Override
-        AbstractSpanContext createSpanContext(Map<String, Object> traceState) {
-            return new AbstractSpanContext(traceState, this) {};
+        AbstractSpanContext createSpanContext(Map<String, Object> traceState, Map<String, String> baggage) {
+            return new AbstractSpanContext(traceState, baggage, this) {};
         }
     }
 

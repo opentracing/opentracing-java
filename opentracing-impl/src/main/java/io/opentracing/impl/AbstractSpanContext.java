@@ -21,7 +21,7 @@ import java.util.Map;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 
-public class AbstractSpanContext implements SpanContext {
+abstract class AbstractSpanContext implements SpanContext {
     private final AbstractTracer tracer;
     protected final Map<String, String> baggage;
     protected final Map<String, Object> traceState;
@@ -41,14 +41,10 @@ public class AbstractSpanContext implements SpanContext {
         return baggage.entrySet();
     }
 
-    SpanContext withBaggage(Map<String, String> baggage) {
-        return new AbstractSpanContext(traceState, baggage, tracer);
-    }
-
     public AbstractSpanContext setBaggageItem(String key, String value) {
         Map<String, String> newBaggage = new HashMap<>(baggage);
         newBaggage.put(key, value);
-        return new AbstractSpanContext(traceState, newBaggage, tracer);
+        return (AbstractSpanContext) tracer.createSpanContext(traceState, baggage);
     }
 
     public String getBaggageItem(String key) {

@@ -42,6 +42,6 @@ final class TextMapExtractorImpl implements Extractor<TextMap> {
             }
         }
         
-        return tracer.createSpanContext(traceState).withBaggage(baggage);
+        return tracer.createSpanContext(traceState, baggage);
     }
 }

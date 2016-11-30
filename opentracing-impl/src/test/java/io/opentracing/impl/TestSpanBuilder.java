@@ -26,7 +26,7 @@ final class TestSpanBuilder extends AbstractSpanBuilder {
 
     @Override
     protected AbstractSpan createSpan() {
-        return new AbstractSpan(operationName, tracer.createSpanContext(Collections.emptyMap())) {
+        return new AbstractSpan(operationName, tracer.createSpanContext(Collections.emptyMap(), Collections.emptyMap())) {
             @Override
             public AbstractSpan setBaggageItem(String key, String value) {
                 return this;

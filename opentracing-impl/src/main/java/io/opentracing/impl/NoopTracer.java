@@ -38,7 +38,7 @@ final class NoopTracer extends AbstractTracer implements io.opentracing.NoopTrac
     }
     
     @Override
-    AbstractSpanContext createSpanContext(Map<String, Object> traceState) {
+    AbstractSpanContext createSpanContext(Map<String, Object> traceState, Map<String, String> baggage) {
         // TODO Noop tracer must not fail. But NoopSpanContext is in a separate module and it cannot extend AbstractSpanContext.
         // The best solution would be to use NoopTracer implementation which does not extend AbstractTracer - the one from
         // opentracing-noop - and remove this one.

@@ -35,7 +35,7 @@ abstract class AbstractTracer implements Tracer {
 
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
     
-    abstract AbstractSpanContext createSpanContext(Map<String, Object> traceState);
+    abstract AbstractSpanContext createSpanContext(Map<String, Object> traceState, Map<String, String> baggage);
 
     @Override
     public SpanBuilder buildSpan(String operationName){

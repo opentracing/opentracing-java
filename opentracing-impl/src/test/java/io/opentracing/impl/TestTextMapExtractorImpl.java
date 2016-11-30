@@ -35,6 +35,6 @@ final class TestTextMapExtractorImpl implements Extractor<TextMap> {
             }
         }
 
-        return null != marker ? tracer.createSpanContext(Collections.emptyMap()) : NoopSpanContext.INSTANCE;
+        return null != marker ? tracer.createSpanContext(Collections.emptyMap(), Collections.emptyMap()) : NoopSpanContext.INSTANCE;
     }
 }
