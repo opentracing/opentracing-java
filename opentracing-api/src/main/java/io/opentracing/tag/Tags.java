@@ -45,6 +45,11 @@ public final class Tags {
     public static final IntTag HTTP_STATUS = new IntTag("http.status_code");
 
     /**
+     *  HTTP_METHOD records the http method. Case-insensitive.
+     */
+    public static final StringTag HTTP_METHOD = new StringTag("http.method");
+
+    /**
      *  PEER_HOST_IPV4 records IPv4 host address of the peer.
      */
     public static final IntTag PEER_HOST_IPV4 = new IntTag("peer.ipv4");
