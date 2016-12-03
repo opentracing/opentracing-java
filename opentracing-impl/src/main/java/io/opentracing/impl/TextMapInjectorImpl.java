@@ -35,7 +35,7 @@ final class TextMapInjectorImpl implements Injector<TextMap> {
             carrier.put(entry.getKey(), entry.getValue().toString());
         }
         if (baggageEnabled) {
-            for (Map.Entry<String,String> entry : ((AbstractSpan)spanContext).baggageItems()) {
+            for (Map.Entry<String,String> entry : spanContext.baggageItems()) {
                 carrier.put(entry.getKey(), entry.getValue());
             }
         }
