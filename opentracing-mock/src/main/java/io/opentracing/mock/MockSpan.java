@@ -33,6 +33,7 @@ public final class MockSpan implements Span {
     private MockContext context;
     private final long parentId; // 0 if there's no parent.
     private final long startMicros;
+    private boolean finished;
     private long finishMicros;
     private final Map<String, Object> tags;
     private final List<LogEntry> logEntries = new ArrayList<>();
@@ -94,8 +95,13 @@ public final class MockSpan implements Span {
 
     @Override
     public synchronized void finish(long finishMicros) {
-        this.finishMicros = finishMicros;
-        this.mockTracer.appendFinishedSpan(this);
+        if (!finished) {
+            this.finishMicros = finishMicros;
+            this.mockTracer.appendFinishedSpan(this);
+            this.finished = true;
+        } else {
+            throw new IllegalStateException("Span.finish() should be called only once!");
+        }
     }
 
     @Override
