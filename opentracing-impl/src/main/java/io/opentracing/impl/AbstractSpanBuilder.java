@@ -70,7 +70,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
         if (io.opentracing.NoopSpan.class.isAssignableFrom(parent.getClass())) {
             return NoopSpanBuilder.INSTANCE;
         } else {
-            withBaggageFrom((AbstractSpan) parent);
+            withBaggageFrom(parent.context());
             return this.addReference(References.CHILD_OF, parent.context());
         }
     }
@@ -115,10 +115,10 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     @Override
     public final Span start() {
         AbstractSpan span = createSpan();
-        stringTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
-        booleanTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
-        numberTags.entrySet().stream().forEach((entry) -> { span.setTag(entry.getKey(), entry.getValue()); });
-        baggage.entrySet().stream().forEach((entry) -> { span.setBaggageItem(entry.getKey(), entry.getValue()); });
+        stringTags.entrySet().forEach((entry) -> span.setTag(entry.getKey(), entry.getValue()));
+        booleanTags.entrySet().forEach((entry) -> span.setTag(entry.getKey(), entry.getValue()));
+        numberTags.entrySet().forEach((entry) -> span.setTag(entry.getKey(), entry.getValue()));
+        baggage.entrySet().forEach((entry) -> span.setBaggageItem(entry.getKey(), entry.getValue()));
         return span;
     }
 
