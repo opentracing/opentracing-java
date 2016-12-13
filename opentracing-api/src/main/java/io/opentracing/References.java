@@ -18,7 +18,7 @@ package io.opentracing;
  *
  * References are used by Tracer.buildSpan() to describe the relationships between Spans.
  *
- * @see io.opentracing.Tracer.SpanBuilder#addReference(Object, SpanContext)
+ * @see Tracer.SpanBuilder#addReference(String, SpanContext)
  */
 public final class References {
     private References(){}

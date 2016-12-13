@@ -13,6 +13,7 @@
  */
 package io.opentracing;
 
+import java.io.Closeable;
 import java.util.Map;
 
 /**
@@ -20,7 +21,7 @@ import java.util.Map;
  *
  * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
-public interface Span extends AutoCloseable {
+public interface Span extends Closeable {
     /**
      * Retrieve the associated SpanContext.
      *
