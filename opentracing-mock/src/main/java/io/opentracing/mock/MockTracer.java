@@ -65,6 +65,12 @@ public final class MockTracer implements Tracer {
     }
 
     /**
+     * Noop method called on {@link Span#finish()}.
+     */
+    protected void onSpanFinished(MockSpan mockSpan) {
+    }
+
+    /**
      * Propagator allows the developer to intercept and verify any calls to inject() and/or extract().
      *
      * By default, MockTracer uses Propagator.PRINTER which simply logs such calls to System.out.
@@ -106,6 +112,7 @@ public final class MockTracer implements Tracer {
 
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
         this.finishedSpans.add(mockSpan);
+        this.onSpanFinished(mockSpan);
     }
 
     final class SpanBuilder implements Tracer.SpanBuilder {
