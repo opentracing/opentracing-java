@@ -13,23 +13,28 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.Tracer.SpanBuilder;
+import io.opentracing.NoopSpanContext;
+import io.opentracing.SpanContext;
 import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.TextMap;
 
+import java.util.Collections;
 import java.util.Map;
 
 final class TestTextMapExtractorImpl implements Extractor<TextMap> {
-
+    private AbstractTracer tracer;
+    public TestTextMapExtractorImpl(AbstractTracer tracer) {
+        this.tracer = tracer;
+    }
     @Override
-    public SpanBuilder extract(TextMap carrier) {
+    public SpanContext extract(TextMap carrier) {
         String marker = null;
-        for (Map.Entry<String,String> entry : carrier) {
+        for (Map.Entry<String, String> entry : carrier) {
             if (entry.getKey().equals("test-marker")) {
                 marker = entry.getValue();
             }
         }
 
-        return null != marker ? new TestSpanBuilder(marker) : NoopSpanBuilder.INSTANCE;
+        return null != marker ? tracer.createSpanContext(Collections.emptyMap(), Collections.emptyMap()) : NoopSpanContext.INSTANCE;
     }
 }

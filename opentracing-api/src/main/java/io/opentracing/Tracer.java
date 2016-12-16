@@ -89,7 +89,7 @@ public interface Tracer {
   <C> SpanContext extract(Format<C> format, C carrier);
 
 
-  interface SpanBuilder extends SpanContext {
+  interface SpanBuilder {
 
       /**
        * A shorthand for addReference(References.CHILD_OF, parent).

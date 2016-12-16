@@ -13,10 +13,7 @@
  */
 package io.opentracing;
 
-import java.util.Collections;
-import java.util.Map;
-
-public interface NoopSpanBuilder extends Tracer.SpanBuilder, NoopSpanContext {
+public interface NoopSpanBuilder extends Tracer.SpanBuilder{
     static final NoopSpanBuilder INSTANCE = new NoopSpanBuilderImpl();
 }
 
@@ -60,10 +57,5 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     @Override
     public Span start() {
         return NoopSpanImpl.INSTANCE;
-    }
-
-    @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return Collections.EMPTY_MAP.entrySet();
     }
 }

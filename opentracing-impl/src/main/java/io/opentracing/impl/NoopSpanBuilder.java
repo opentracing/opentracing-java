@@ -13,9 +13,7 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.NoopSpanContext;
-
-final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracing.NoopSpanBuilder, NoopSpanContext {
+final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracing.NoopSpanBuilder {
 
     static final NoopSpanBuilder INSTANCE = new NoopSpanBuilder("noop");
 
@@ -26,15 +24,5 @@ final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracin
     @Override
     protected AbstractSpan createSpan() {
         return NoopSpan.INSTANCE;
-    }
-
-    @Override
-    AbstractSpanBuilder withStateItem(String key, Object value) {
-        return this;
-    }
-
-    @Override
-    boolean isTraceState(String key, Object value) {
-        return false;
     }
 }

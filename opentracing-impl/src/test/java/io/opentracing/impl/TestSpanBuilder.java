@@ -13,34 +13,24 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.impl.AbstractSpan;
-import io.opentracing.impl.AbstractSpanBuilder;
-
+import java.util.Collections;
 
 final class TestSpanBuilder extends AbstractSpanBuilder {
 
-    public TestSpanBuilder(String operationName) {
+    private AbstractTracer tracer;
+
+    public TestSpanBuilder(String operationName, AbstractTracer tracer) {
         super(operationName);
+        this.tracer = tracer;
     }
 
     @Override
     protected AbstractSpan createSpan() {
-        return new AbstractSpan(operationName) {
+        return new AbstractSpan(operationName, tracer.createSpanContext(Collections.emptyMap(), Collections.emptyMap())) {
             @Override
             public AbstractSpan setBaggageItem(String key, String value) {
                 return this;
             }
         };
     }
-
-    @Override
-    boolean isTraceState(String key, Object value) {
-        return false;
-    }
-
-    @Override
-    AbstractSpanBuilder withStateItem(String key, Object value) {
-        throw new AssertionError("no trace state is possible");
-    }
-
 }

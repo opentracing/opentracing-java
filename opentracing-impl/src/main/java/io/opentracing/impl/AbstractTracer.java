@@ -18,7 +18,6 @@ import io.opentracing.Tracer;
 import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.Injector;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,6 +34,8 @@ abstract class AbstractTracer implements Tracer {
     }
 
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
+    
+    abstract AbstractSpanContext createSpanContext(Map<String, Object> traceState, Map<String, String> baggage);
 
     @Override
     public SpanBuilder buildSpan(String operationName){
@@ -47,7 +48,7 @@ abstract class AbstractTracer implements Tracer {
     }
 
      @Override
-    public <C> SpanBuilder extract(Format<C> format, C carrier) {
+    public <C> SpanContext extract(Format<C> format, C carrier) {
         return registry.getExtractor(format).extract(carrier);
     }
 
@@ -61,6 +62,9 @@ abstract class AbstractTracer implements Tracer {
 
     /** @return the minimal set of properties required to propagate this span */
     abstract Map<String,Object> getTraceState(SpanContext spanContext);
+    
+    /** Returns true if this key+value belongs in a Span's required propagation set, otherwise it is baggage. */
+    abstract boolean isTraceState(String key, Object value);
 
     private static class PropagationRegistry {
 

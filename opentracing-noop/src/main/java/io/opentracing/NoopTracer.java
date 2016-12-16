@@ -28,7 +28,7 @@ final class NoopTracerImpl implements NoopTracer {
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}
 
     @Override
-    public <C> SpanContext extract(Format<C> format, C carrier) { return NoopSpanBuilderImpl.INSTANCE; }
+    public <C> SpanContext extract(Format<C> format, C carrier) { return NoopSpanContextImpl.INSTANCE; }
 
 }
 

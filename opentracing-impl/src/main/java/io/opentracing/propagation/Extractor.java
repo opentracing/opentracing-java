@@ -13,8 +13,8 @@
  */
 package io.opentracing.propagation;
 
-import io.opentracing.Tracer;
+import io.opentracing.SpanContext;
 
 public interface Extractor<C> {
-    Tracer.SpanBuilder extract(C carrier);
+    SpanContext extract(C carrier);
 }

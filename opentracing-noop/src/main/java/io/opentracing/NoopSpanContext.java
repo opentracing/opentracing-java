@@ -18,10 +18,10 @@ import java.util.Map;
 
 
 public interface NoopSpanContext extends SpanContext {
+    public static final NoopSpanContextImpl INSTANCE = new NoopSpanContextImpl();
 }
 
 final class NoopSpanContextImpl implements NoopSpanContext {
-    static final NoopSpanContextImpl INSTANCE = new NoopSpanContextImpl();
 
     @Override
     public Iterable<Map.Entry<String, String>> baggageItems() {

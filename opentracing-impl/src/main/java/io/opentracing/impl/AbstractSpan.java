@@ -15,38 +15,35 @@ package io.opentracing.impl;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-abstract class AbstractSpan implements Span, SpanContext {
+abstract class AbstractSpan implements Span {
 
     private String operationName;
-
-    private final Map<String,String> baggage = new HashMap<>();
 
     private final Instant start;
     private Duration duration;
     private final Map<String,Object> tags = new HashMap<>();
     private final List<LogData> logs = new ArrayList<>();
+    private AbstractSpanContext context;
 
-    AbstractSpan(String operationName ) {
-        this(operationName, Instant.now());
+    AbstractSpan(String operationName, AbstractSpanContext context) {
+        this(operationName, Instant.now(), context);
     }
 
-    AbstractSpan(String operationName, Instant start) {
+    AbstractSpan(String operationName, Instant start, AbstractSpanContext context) {
         this.operationName = operationName;
         this.start = start;
+        this.context = context;
     }
 
     @Override
     public final SpanContext context() {
-        return this;
+        return context;
     }
 
     @Override
@@ -110,22 +107,17 @@ abstract class AbstractSpan implements Span, SpanContext {
 
     @Override
     public AbstractSpan setBaggageItem(String key, String value) {
-        baggage.put(key, value);
+        context = context.setBaggageItem(key, value);
         return this;
     }
 
     @Override
     public String getBaggageItem(String key) {
-        return baggage.get(key);
-    }
-
-    @Override
-    public final Iterable<Map.Entry<String,String>> baggageItems() {
-        return baggage.entrySet();
+        return context.getBaggageItem(key);
     }
 
     public final Map<String,String> getBaggage() {
-    	return Collections.unmodifiableMap(baggage);
+    	return context.baggage;
     }
 
     @Override

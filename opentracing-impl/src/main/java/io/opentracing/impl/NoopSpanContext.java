@@ -13,32 +13,12 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.Span;
+import java.util.Collections;
 
-final class NoopSpan extends AbstractSpan implements io.opentracing.NoopSpan {
-
-    static final NoopSpan INSTANCE = new NoopSpan("noop");
-
-    public NoopSpan(String operationName) {
-        super(operationName, NoopSpanContext.INSTANCE);
+public class NoopSpanContext extends AbstractSpanContext {
+    public static final NoopSpanContext INSTANCE = new NoopSpanContext();
+    
+    private NoopSpanContext() {
+        super(Collections.emptyMap(), NoopTracer.INSTANCE);
     }
-
-    @Override
-    public void finish() {
-    }
-
-    @Override
-    public void finish(long finishMicros) {
-    }
-
-    @Override
-    public String getBaggageItem(String key) {
-        return io.opentracing.NoopSpan.INSTANCE.getBaggageItem(key);
-    }
-
-    @Override
-    public Span setOperationName(String operationName) {
-        return this;
-    }
-
 }

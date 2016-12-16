@@ -27,14 +27,14 @@ import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
-    protected String operationName = null;
     protected final List<Reference> references = new ArrayList<>();
+    protected final Map<String, String> baggage = new HashMap<>();
+    protected String operationName = null;
     protected Instant start = Instant.now();
 
     private final Map<String, String> stringTags = new HashMap<>();
     private final Map<String, Boolean> booleanTags = new HashMap<>();
     private final Map<String, Number> numberTags = new HashMap<>();
-    private final Map<String, String> baggage = new HashMap<>();
 
     AbstractSpanBuilder(String operationName) {
         this.operationName = operationName;
@@ -42,13 +42,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
     /** Create a Span, using the builder fields. */
     protected abstract AbstractSpan createSpan();
-
-    /** Adds an entry of the minimal set of properties required to propagate this span */
-    abstract AbstractSpanBuilder withStateItem(String key, Object value);
-
-    /** Returns true if this key+value belongs in a Span's required propagation set, otherwise it is baggage. */
-    abstract boolean isTraceState(String key, Object value);
-
+    
     @Override
     public final AbstractSpanBuilder addReference(String referenceType, SpanContext referredTo) {
         this.references.add(new Reference(referenceType, referredTo));
@@ -102,14 +96,8 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     public final AbstractSpanBuilder withBaggageItem(String key, String value) {
-        assert !isTraceState(key, value);
         baggage.put(key, value);
         return this;
-    }
-
-    @Override
-    public final Iterable<Map.Entry<String, String>> baggageItems() {
-        return baggage.entrySet();
     }
 
     @Override
