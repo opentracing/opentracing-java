@@ -13,13 +13,17 @@
  */
 package io.opentracing.mock;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-
-import java.util.*;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -29,7 +33,7 @@ import java.util.*;
  *
  * The MockTracerTest has simple usage examples.
  */
-public final class MockTracer implements Tracer {
+public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
 
