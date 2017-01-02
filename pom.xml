@@ -254,6 +254,7 @@
                         <exclude>.gitignore</exclude>
                         <exclude>.mvn/**</exclude>
                         <exclude>mvnw*</exclude>
+			<exclude>**/pom.xml</exclude>
                         <exclude>etc/header.txt</exclude>
                         <exclude>**/.idea/**</exclude>
                         <exclude>LICENSE</exclude>
