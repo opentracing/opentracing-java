@@ -83,16 +83,12 @@
         <tag>HEAD</tag>
     </scm>
 
+    <!-- Developer section is needed for Maven Central, but doesn't need to include each person -->
     <developers>
         <developer>
-            <id>bensigelman</id>
-            <name>Ben Sigelman</name>
-            <email>bhs@resonancelabs.com</email>
-        </developer>
-        <developer>
-            <id>adriancole</id>
-            <name>Adrian Cole</name>
-            <email>acole@pivotal.io</email>
+            <id>opentracing</id>
+            <name>OpenTracing Gitter</name>
+            <url>https://gitter.im/opentracing/public</url>
         </developer>
     </developers>
 
