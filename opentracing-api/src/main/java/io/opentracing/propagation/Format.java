@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -71,5 +71,16 @@ public interface Format<C> {
          * @see Format
          */
         public final static Format<ByteBuffer> BINARY = new Builtin<ByteBuffer>();
+
+        /**
+         * @return Short name for built-in formats as they tend to show up in exception messages.
+         */
+        @Override
+        public String toString() {
+            return this == TEXT_MAP ? "Builtin.TEXT_MAP"
+                    : this == HTTP_HEADERS ? "Builtin.HTTP_HEADERS"
+                    : this == BINARY ? "Builtin.BINARY"
+                    : super.toString();
+        }
     }
 }
