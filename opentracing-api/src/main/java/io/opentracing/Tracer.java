@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -116,10 +116,10 @@ public interface Tracer {
       /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
       SpanBuilder withTag(String key, String value);
 
-      /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+      /** Same as {@link Span#setTag(String, boolean)}, but for the span being built. */
       SpanBuilder withTag(String key, boolean value);
 
-      /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
+      /** Same as {@link Span#setTag(String, Number)}, but for the span being built. */
       SpanBuilder withTag(String key, Number value);
 
       /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
