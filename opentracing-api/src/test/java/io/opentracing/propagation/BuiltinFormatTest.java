@@ -16,7 +16,6 @@ package io.opentracing.propagation;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class BuiltinFormatTest {
 
@@ -33,12 +32,6 @@ public class BuiltinFormatTest {
     @Test
     public void test_BINARY_toString() {
         assertEquals("Builtin.BINARY", Format.Builtin.BINARY.toString());
-    }
-
-    @Test
-    public void testDefaultToString() {
-        String defaultToString = new Format.Builtin<Object>().toString();
-        assertTrue(defaultToString, defaultToString.startsWith(Format.Builtin.class.getName() + "@"));
     }
 
 }
