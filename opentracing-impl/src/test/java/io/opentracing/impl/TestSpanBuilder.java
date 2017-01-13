@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -12,6 +12,8 @@
  * the License.
  */
 package io.opentracing.impl;
+
+import java.util.HashMap;
 
 import io.opentracing.impl.AbstractSpan;
 import io.opentracing.impl.AbstractSpanBuilder;
@@ -28,6 +30,10 @@ final class TestSpanBuilder extends AbstractSpanBuilder {
         return new AbstractSpan(operationName) {
             @Override
             public AbstractSpan setBaggageItem(String key, String value) {
+                if (baggage == null) {
+                  baggage = new HashMap<>();
+                }
+                baggage.put(key, value);
                 return this;
             }
         };

@@ -13,21 +13,20 @@
  */
 package io.opentracing.impl;
 
-import java.time.Instant;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import io.opentracing.impl.AbstractSpan;
+import org.assertj.core.util.Maps;
 
-public class TestSpanImpl extends AbstractSpan {
+import io.opentracing.SpanContext;
 
-    TestSpanImpl(String operationName) {
-        super(operationName);
-    }
-    
-    TestSpanImpl(String operationName, Instant start) {
-      super(operationName, start);
+public class TestSpanContext implements SpanContext {
+
+  protected Map<String, String> baggage = Maps.newHashMap();
+  
+  @Override
+  public Iterable<Entry<String, String>> baggageItems() {
+    return baggage.entrySet();
   }
-    
-    public void testBaggage(final String key, final String value) {
-        setBaggageItem(key, value);
-    }
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -26,20 +26,23 @@ import java.util.concurrent.TimeUnit;
 
 abstract class AbstractSpan implements Span, SpanContext {
 
-    private String operationName;
+    protected String operationName;
 
-    private final Map<String,String> baggage = new HashMap<>();
+    protected Map<String,String> baggage;
 
-    private final Instant start;
-    private Duration duration;
-    private final Map<String,Object> tags = new HashMap<>();
-    private final List<LogData> logs = new ArrayList<>();
+    protected final Instant start;
+    protected Duration duration;
+    protected Map<String,Object> tags;
+    protected List<LogData> logs;
 
-    AbstractSpan(String operationName ) {
+    AbstractSpan(String operationName) {
         this(operationName, Instant.now());
     }
 
     AbstractSpan(String operationName, Instant start) {
+        if (start == null) {
+          throw new IllegalArgumentException("Start time cannot be null");
+        }
         this.operationName = operationName;
         this.start = start;
     }
@@ -88,44 +91,58 @@ abstract class AbstractSpan implements Span, SpanContext {
 
     @Override
     public final Span setTag(String key, String value) {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
         tags.put(key, value);
         return this;
     }
 
     @Override
     public final Span setTag(String key, boolean value) {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
         tags.put(key, value);
         return this;
     }
 
     @Override
     public final Span setTag(String key, Number value) {
+        if (tags == null) {
+            tags = new HashMap<>();
+        }
         tags.put(key, value);
         return this;
     }
 
     public final Map<String,Object> getTags() {
-        return Collections.unmodifiableMap(tags);
+        return tags == null ? Collections.emptyMap() :
+          Collections.unmodifiableMap(tags);
     }
 
     @Override
     public AbstractSpan setBaggageItem(String key, String value) {
+        if (baggage == null) {
+            baggage = new HashMap<>();
+        }
         baggage.put(key, value);
         return this;
     }
 
     @Override
     public String getBaggageItem(String key) {
-        return baggage.get(key);
+        return baggage == null ? null : baggage.get(key);
     }
 
     @Override
     public final Iterable<Map.Entry<String,String>> baggageItems() {
-        return baggage.entrySet();
+        return baggage == null ? Collections.emptySet() : baggage.entrySet();
     }
 
     public final Map<String,String> getBaggage() {
-    	return Collections.unmodifiableMap(baggage);
+    	return baggage == null ? Collections.emptyMap() : 
+    	    Collections.unmodifiableMap(baggage);
     }
 
     @Override
@@ -146,6 +163,9 @@ abstract class AbstractSpan implements Span, SpanContext {
     @Override
     public final Span log(long timestampMicros, Map<String, ?> fields) {
         Instant timestamp = Instant.ofEpochSecond(timestampMicros / 1000000, (timestampMicros % 1000000) * 1000);
+        if (logs == null) {
+            logs = new ArrayList<>();
+        }
         logs.add(new LogData(timestamp, fields));
         return this;
     }
@@ -168,21 +188,32 @@ abstract class AbstractSpan implements Span, SpanContext {
         if (payload != null) {
             fields.put("payload", payload);
         }
+        if (logs == null) {
+            logs = new ArrayList<>();
+        }
         logs.add(new LogData(timestamp, fields));
         return this;
     }
 
     public final List<LogData> getLogs() {
-        return Collections.unmodifiableList(logs);
+        return logs == null ? Collections.emptyList() : Collections.unmodifiableList(logs);
     }
 
-    final class LogData {
+    public static final class LogData {
         private final Instant time;
         private final Map<String, ?> fields;
 
         LogData(Instant time, Map<String, ?> fields) {
             this.time = time;
             this.fields = fields;
+        }
+        
+        public Instant getTime() {
+          return time;
+        }
+        
+        public Map<String, ?> getFields() {
+          return fields == null ? Collections.emptyMap() : Collections.unmodifiableMap(fields);
         }
     }
 
