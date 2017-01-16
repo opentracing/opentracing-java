@@ -100,7 +100,7 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public SpanBuilder buildSpan(String operationName) {
+    public Tracer.SpanBuilder buildSpan(String operationName) {
         return new SpanBuilder(operationName);
     }
 
