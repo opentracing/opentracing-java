@@ -25,6 +25,10 @@ import org.junit.Test;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.SpanContext;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMapExtractAdapter;
+import io.opentracing.propagation.TextMapInjectAdapter;
 
 public class MockTracerTest {
     @Test
@@ -136,5 +140,57 @@ public class MockTracerTest {
 
         Assert.assertEquals(1, finishedSpans.size());
         Assert.assertEquals(startMicros, finishedSpans.get(0).startMicros());
+    }
+
+    @Test
+    public void testTextMapPropagatorTextMap() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        {
+            Span parentSpan = tracer.buildSpan("foo")
+                    .start();
+            parentSpan.finish();
+
+            HashMap<String, String> injectMap = new HashMap<>();
+            tracer.inject(parentSpan.context(), Format.Builtin.TEXT_MAP,
+                    new TextMapInjectAdapter(injectMap));
+
+            SpanContext extract = tracer.extract(Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(injectMap));
+
+            tracer.buildSpan("bar")
+                    .asChildOf(extract)
+                    .start()
+                    .finish();
+        }
+        List<MockSpan> finishedSpans = tracer.finishedSpans();
+
+        Assert.assertEquals(2, finishedSpans.size());
+        Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
+        Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+    }
+
+    @Test
+    public void testTextMapPropagatorHttpHeaders() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        {
+            Span parentSpan = tracer.buildSpan("foo")
+                    .start();
+            parentSpan.finish();
+
+            HashMap<String, String> injectMap = new HashMap<>();
+            tracer.inject(parentSpan.context(), Format.Builtin.HTTP_HEADERS,
+                    new TextMapInjectAdapter(injectMap));
+
+            SpanContext extract = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(injectMap));
+
+            tracer.buildSpan("bar")
+                    .asChildOf(extract)
+                    .start()
+                    .finish();
+        }
+        List<MockSpan> finishedSpans = tracer.finishedSpans();
+
+        Assert.assertEquals(2, finishedSpans.size());
+        Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
+        Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
     }
 }
