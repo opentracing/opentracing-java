@@ -39,6 +39,11 @@ Please add the following to your .travis.yml file:
   secure: "mQnECL+dXc5l9wCYl/wUz+AaYFGt/1G31NAZcTLf2RbhKo8mUenc4hZNjHCEv+4ZvfYLd/NoTNMhTCxmtBMz1q4CahPKLWCZLoRD1ExeXwRymJPIhxZUPzx9yHPHc5dmgrSYOCJLJKJmHiOl9/bJi123456="
 ```
 
+Make sure to encrypt against the public key of the main repository!  
+Each repo has its own keypair in travis, _including forks_.
+This can be tested issuing `travis pubkey` vs. `travis pubkey -r opentracing/opentracing-java`.
+If these differ, add the `-r` option to the encrypt command.
+
 ## First release of the year
 
 The license plugin verifies license headers of files include a copyright notice indicating the years a file was affected.
