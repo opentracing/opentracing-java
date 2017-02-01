@@ -192,7 +192,7 @@ public final class MockSpan implements Span {
          *
          * @see MockContext#withBaggageItem(String, String)
          */
-        MockContext(long traceId, long spanId, Map<String, String> baggage) {
+        public MockContext(long traceId, long spanId, Map<String, String> baggage) {
             this.baggage = baggage;
             this.traceId = traceId;
             this.spanId = spanId;

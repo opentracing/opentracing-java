@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.opentracing.Span;
+import io.opentracing.Tracer;
 
 public class MockTracerTest {
     @Test
@@ -100,6 +101,7 @@ public class MockTracerTest {
         assertEquals("parent", parent.operationName());
         assertEquals(parent.context().spanId(), child.parentId());
         assertEquals(parent.context().traceId(), child.context().traceId());
+
     }
 
     @Test
@@ -107,7 +109,7 @@ public class MockTracerTest {
         MockTracer tracer = new MockTracer();
         long startMicros;
         {
-            MockTracer.SpanBuilder fooSpan = tracer.buildSpan("foo");
+            Tracer.SpanBuilder fooSpan = tracer.buildSpan("foo");
             Thread.sleep(2);
             startMicros = System.currentTimeMillis() * 1000;
             fooSpan.start().finish();
