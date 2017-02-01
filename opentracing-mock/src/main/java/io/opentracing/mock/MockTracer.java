@@ -16,6 +16,7 @@ package io.opentracing.mock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMap;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -94,6 +96,49 @@ public class MockTracer implements Tracer {
             @Override
             public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
                 System.out.println("extract(" + format + ", " + carrier + ")");
+                return null;
+            }
+        };
+
+        Propagator TEXT_MAP = new Propagator() {
+            public static final String SPAN_ID_KEY = "spanid";
+            public static final String TRACE_ID_KEY = "traceid";
+
+            @Override
+            public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
+                if (carrier instanceof TextMap) {
+                    TextMap textMap = (TextMap) carrier;
+                    textMap.put(SPAN_ID_KEY, String.valueOf(ctx.spanId()));
+                    textMap.put(TRACE_ID_KEY, String.valueOf(ctx.traceId()));
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+            }
+
+            @Override
+            public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
+                Long traceId = null;
+                Long spanId = null;
+
+                if (carrier instanceof TextMap) {
+                    TextMap textMap = (TextMap) carrier;
+                    Iterator<Map.Entry<String, String>> iterator = textMap.iterator();
+                    while (iterator.hasNext()) {
+                        Map.Entry<String, String> entry = iterator.next();
+                        if (TRACE_ID_KEY.equals(entry.getKey())) {
+                            traceId = Long.valueOf(entry.getValue());
+                        } else if (SPAN_ID_KEY.equals(entry.getKey())) {
+                            spanId = Long.valueOf(entry.getValue());
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+
+                if (traceId != null && spanId != null) {
+                    return new MockSpan.MockContext(traceId, spanId, Collections.<String, String>emptyMap());
+                }
+
                 return null;
             }
         };
