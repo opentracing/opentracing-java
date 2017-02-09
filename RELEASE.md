@@ -26,7 +26,7 @@ Ex You'll see comments like this:
 ```yaml
 env:
   global:
-  # Ex. travis encrypt BINTRAY_USER=your_github_account
+  # Ex. travis encrypt -r org/repo BINTRAY_USER=your_github_account
   - secure: "VeTO...
 ```
 
