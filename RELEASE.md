@@ -26,7 +26,7 @@ Ex You'll see comments like this:
 ```yaml
 env:
   global:
-  # Ex. travis encrypt BINTRAY_USER=your_github_account
+  # Ex. travis encrypt -r org/repo BINTRAY_USER=your_github_account
   - secure: "VeTO...
 ```
 
@@ -37,6 +37,28 @@ $ travis encrypt BINTRAY_USER=adrianmole
 Please add the following to your .travis.yml file:
 
   secure: "mQnECL+dXc5l9wCYl/wUz+AaYFGt/1G31NAZcTLf2RbhKo8mUenc4hZNjHCEv+4ZvfYLd/NoTNMhTCxmtBMz1q4CahPKLWCZLoRD1ExeXwRymJPIhxZUPzx9yHPHc5dmgrSYOCJLJKJmHiOl9/bJi123456="
+```
+
+## Troubleshooting
+
+Release automation doesn't tend to fail. When it does, it is usually..
+* The build failed due to a unit test failure
+* Someone pushed a tag with incorrect syntax
+* The configured credentials are incorrect
+
+### Troubleshooting invalid credentials
+
+If you receive a '401 unauthorized' failure from jCenter or Bintray, it is
+likely `BINTRAY_USER` or `BINTRAY_KEY` entries are invalid, or possibly the user
+associated with them does not have rights to upload.
+
+The least destructive test is to try to publish a snapshot manually. By passing
+the values Travis would use, you can kick off a snapshot from your laptop. This
+is a good way to validate that your unencrypted credentials are authorized.
+
+Here's an example of a snapshot deploy with specified credentials.
+```bash
+$ BINTRAY_USER=adrianmole BINTRAY_KEY=ed6f20bde9123bbb2312b221 TRAVIS_PULL_REQUEST=false TRAVIS_TAG= TRAVIS_BRANCH=master travis/publish.sh
 ```
 
 ## First release of the year

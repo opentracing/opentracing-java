@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -33,6 +33,7 @@ public final class MockSpan implements Span {
     private MockContext context;
     private final long parentId; // 0 if there's no parent.
     private final long startMicros;
+    private boolean finished;
     private long finishMicros;
     private final Map<String, Object> tags;
     private final List<LogEntry> logEntries = new ArrayList<>();
@@ -94,8 +95,13 @@ public final class MockSpan implements Span {
 
     @Override
     public synchronized void finish(long finishMicros) {
-        this.finishMicros = finishMicros;
-        this.mockTracer.appendFinishedSpan(this);
+        if (!finished) {
+            this.finishMicros = finishMicros;
+            this.mockTracer.appendFinishedSpan(this);
+            this.finished = true;
+        } else {
+            throw new IllegalStateException("Span.finish() should be called only once!");
+        }
     }
 
     @Override
@@ -186,7 +192,7 @@ public final class MockSpan implements Span {
          *
          * @see MockContext#withBaggageItem(String, String)
          */
-        MockContext(long traceId, long spanId, Map<String, String> baggage) {
+        public MockContext(long traceId, long spanId, Map<String, String> baggage) {
             this.baggage = baggage;
             this.traceId = traceId;
             this.spanId = spanId;
