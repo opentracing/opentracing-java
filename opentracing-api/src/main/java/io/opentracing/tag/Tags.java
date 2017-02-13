@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package io.opentracing.tag;
  * semantic information about the spans. Tracers may expose additional features based on these
  * standardized data points. Tag names follow a general structure of namespacing.
  *
- * @see http://opentracing.io/data-semantics/
+ * @see <a href="https://github.com/opentracing/specification/blob/master/data_conventions.yaml">https://github.com/opentracing/specification/blob/master/data_conventions.yaml</a>
  */
 
 public final class Tags {
