@@ -83,7 +83,7 @@ public interface Format<C> {
          */
         @Override
         public String toString() {
-            return "Builtin." + name;
+            return Builtin.class.getSimpleName() + "." + name;
         }
     }
 }
