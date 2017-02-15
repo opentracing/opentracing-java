@@ -39,12 +39,15 @@ public final class MockSpan implements Span {
     private final List<LogEntry> logEntries = new ArrayList<>();
     private String operationName;
 
+    private final List<RuntimeException> errors = new ArrayList<>();
+
     public String operationName() {
         return this.operationName;
     }
 
     @Override
     public Span setOperationName(String operationName) {
+        finishedCheck("Setting operationName {%s} on already finished span", operationName);
         this.operationName = operationName;
         return this;
     }
@@ -83,6 +86,13 @@ public final class MockSpan implements Span {
         return new ArrayList<>(this.logEntries);
     }
 
+    /**
+     * @return a copy of exceptions thrown by this class (e.g. adding a tag after span is finished).
+     */
+    public List<RuntimeException> generatedErrors() {
+        return new ArrayList<>(errors);
+    }
+
     @Override
     public synchronized MockContext context() {
         return this.context;
@@ -95,13 +105,10 @@ public final class MockSpan implements Span {
 
     @Override
     public synchronized void finish(long finishMicros) {
-        if (!finished) {
-            this.finishMicros = finishMicros;
-            this.mockTracer.appendFinishedSpan(this);
-            this.finished = true;
-        } else {
-            throw new IllegalStateException("Span.finish() should be called only once!");
-        }
+        finishedCheck("Finishing already finished span");
+        this.finishMicros = finishMicros;
+        this.mockTracer.appendFinishedSpan(this);
+        this.finished = true;
     }
 
     @Override
@@ -110,20 +117,23 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public synchronized Span setTag(String key, String value) {
-        this.tags.put(key, value);
-        return this;
+    public Span setTag(String key, String value) {
+        return setObjectTag(key, value);
     }
 
     @Override
-    public synchronized Span setTag(String key, boolean value) {
-        this.tags.put(key, value);
-        return this;
+    public Span setTag(String key, boolean value) {
+        return setObjectTag(key, value);
     }
 
     @Override
-    public synchronized Span setTag(String key, Number value) {
-        this.tags.put(key, value);
+    public Span setTag(String key, Number value) {
+        return setObjectTag(key, value);
+    }
+
+    private synchronized Span setObjectTag(String key, Object value) {
+        finishedCheck("Adding tag {%s:%s} to already finished span", key, value);
+        tags.put(key, value);
         return this;
     }
 
@@ -131,8 +141,10 @@ public final class MockSpan implements Span {
     public final Span log(Map<String, ?> fields) {
         return log(nowMicros(), fields);
     }
+
     @Override
-    public final Span log(long timestampMicros, Map<String, ?> fields) {
+    public final synchronized Span log(long timestampMicros, Map<String, ?> fields) {
+        finishedCheck("Adding logs %s at %d to already finished span", fields, timestampMicros);
         this.logEntries.add(new LogEntry(timestampMicros, fields));
         return this;
     }
@@ -153,7 +165,7 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public synchronized Span log(long timestampMicroseconds, String eventName, Object payload) {
+    public Span log(long timestampMicroseconds, String eventName, Object payload) {
         Map<String, Object> fields = new HashMap<>();
         fields.put("event", eventName);
         if (payload != null) {
@@ -164,6 +176,7 @@ public final class MockSpan implements Span {
 
     @Override
     public synchronized Span setBaggageItem(String key, String value) {
+        finishedCheck("Adding baggage {%s:%s} to already finished span", key, value);
         this.context = this.context.withBaggageItem(key, value);
         return this;
     }
@@ -261,5 +274,13 @@ public final class MockSpan implements Span {
 
     static long nowMicros() {
         return System.currentTimeMillis() * 1000;
+    }
+
+    private synchronized void finishedCheck(String format, Object... args) {
+        if (finished) {
+            RuntimeException ex = new IllegalStateException(String.format(format, args));
+            errors.add(ex);
+            throw ex;
+        }
     }
 }
