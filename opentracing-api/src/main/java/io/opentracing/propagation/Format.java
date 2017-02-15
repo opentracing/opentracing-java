@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -71,5 +71,15 @@ public interface Format<C> {
          * @see Format
          */
         public final static Format<ByteBuffer> BINARY = new Builtin<ByteBuffer>();
+
+        /**
+         * The BINARY_HOLDER format allows for variable binary encoding of SpanContext state for Tracer.inject and
+         * Tracer.extract.
+         *
+         * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
+         * @see io.opentracing.Tracer#extract(Format, Object)
+         * @see Format
+         */
+        public final static Format<BinaryHolder> BINARY_HOLDER = new Builtin<BinaryHolder>();
     }
 }
