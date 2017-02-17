@@ -145,7 +145,7 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public Tracer.SpanBuilder buildSpan(String operationName) {
+    public SpanBuilder buildSpan(String operationName) {
         return new SpanBuilder(operationName);
     }
 
@@ -164,7 +164,7 @@ public class MockTracer implements Tracer {
         this.onSpanFinished(mockSpan);
     }
 
-    final class SpanBuilder implements Tracer.SpanBuilder {
+    public final class SpanBuilder implements Tracer.SpanBuilder {
         private final String operationName;
         private long startMicros;
         private MockSpan.MockContext firstParent;
@@ -174,17 +174,17 @@ public class MockTracer implements Tracer {
             this.operationName = operationName;
         }
         @Override
-        public Tracer.SpanBuilder asChildOf(SpanContext parent) {
+        public SpanBuilder asChildOf(SpanContext parent) {
             return addReference(References.CHILD_OF, parent);
         }
 
         @Override
-        public Tracer.SpanBuilder asChildOf(Span parent) {
+        public SpanBuilder asChildOf(Span parent) {
             return addReference(References.CHILD_OF, parent.context());
         }
 
         @Override
-        public Tracer.SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
+        public SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
             if (firstParent == null && (
                     referenceType.equals(References.CHILD_OF) || referenceType.equals(References.FOLLOWS_FROM))) {
                 this.firstParent = (MockSpan.MockContext)referencedContext;
@@ -193,31 +193,31 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public Tracer.SpanBuilder withTag(String key, String value) {
+        public SpanBuilder withTag(String key, String value) {
             this.initialTags.put(key, value);
             return this;
         }
 
         @Override
-        public Tracer.SpanBuilder withTag(String key, boolean value) {
+        public SpanBuilder withTag(String key, boolean value) {
             this.initialTags.put(key, value);
             return this;
         }
 
         @Override
-        public Tracer.SpanBuilder withTag(String key, Number value) {
+        public SpanBuilder withTag(String key, Number value) {
             this.initialTags.put(key, value);
             return this;
         }
 
         @Override
-        public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
+        public SpanBuilder withStartTimestamp(long microseconds) {
             this.startMicros = microseconds;
             return this;
         }
 
         @Override
-        public Span start() {
+        public MockSpan start() {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
             }
