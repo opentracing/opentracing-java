@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -35,6 +35,12 @@ import java.nio.ByteBuffer;
  */
 public interface Format<C> {
     final class Builtin<C> implements Format<C> {
+        private final String name;
+
+        private Builtin(String name) {
+            this.name = name;
+        }
+
         /**
          * The TEXT_MAP format allows for arbitrary String->String map encoding of SpanContext state for Tracer.inject
          * and Tracer.extract.
@@ -46,7 +52,7 @@ public interface Format<C> {
          * @see Format
          * @see Builtin#HTTP_HEADERS
          */
-        public final static Format<TextMap> TEXT_MAP = new Builtin<TextMap>();
+        public final static Format<TextMap> TEXT_MAP = new Builtin<TextMap>("TEXT_MAP");
 
         /**
          * The HTTP_HEADERS format allows for HTTP-header-compatible String->String map encoding of SpanContext state
@@ -60,7 +66,7 @@ public interface Format<C> {
          * @see Format
          * @see Builtin#TEXT_MAP
          */
-        public final static Format<TextMap> HTTP_HEADERS = new Builtin<TextMap>();
+        public final static Format<TextMap> HTTP_HEADERS = new Builtin<TextMap>("HTTP_HEADERS");
 
         /**
          * The BINARY format allows for unconstrained binary encoding of SpanContext state for Tracer.inject and
@@ -70,6 +76,14 @@ public interface Format<C> {
          * @see io.opentracing.Tracer#extract(Format, Object)
          * @see Format
          */
-        public final static Format<ByteBuffer> BINARY = new Builtin<ByteBuffer>();
+        public final static Format<ByteBuffer> BINARY = new Builtin<ByteBuffer>("BINARY");
+
+        /**
+         * @return Short name for built-in formats as they tend to show up in exception messages.
+         */
+        @Override
+        public String toString() {
+            return Builtin.class.getSimpleName() + "." + name;
+        }
     }
 }
