@@ -117,4 +117,11 @@ public final class Tags {
      * For db.type="SQL", "SELECT * FROM wuser_table". For db.type="redis", "SET mykey "WuValue".
      */
     public static final StringTag DB_STATEMENT = new StringTag("db.statement");
+
+    /**
+     * MESSAGE_BUS_DESTINATION records an address at which messages can be exchanged.
+     * E.g. A Kafka record has an associated "topic name" that can be extracted by the instrumented
+     * producer or consumer and stored using this tag.
+     */
+    public static final StringTag MESSAGE_BUS_DESTINATION = new StringTag("message_bus.destination");
 }
