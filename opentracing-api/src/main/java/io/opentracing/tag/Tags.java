@@ -22,11 +22,12 @@ package io.opentracing.tag;
  */
 
 public final class Tags {
-    private Tags(){}
+    private Tags() {
+    }
 
     /**
-    * A constant for setting the span kind to indicate that it represents a server span.
-    */
+     * A constant for setting the span kind to indicate that it represents a server span.
+     */
     public static final String SPAN_KIND_SERVER = "server";
 
     /**
@@ -35,32 +36,32 @@ public final class Tags {
     public static final String SPAN_KIND_CLIENT = "client";
 
     /**
-     *  HTTP_URL records the url of the incoming request.
+     * HTTP_URL records the url of the incoming request.
      */
     public static final StringTag HTTP_URL = new StringTag("http.url");
 
     /**
-     *  HTTP_STATUS records the http status code of the response.
+     * HTTP_STATUS records the http status code of the response.
      */
     public static final IntTag HTTP_STATUS = new IntTag("http.status_code");
 
     /**
-     *  HTTP_METHOD records the http method. Case-insensitive.
+     * HTTP_METHOD records the http method. Case-insensitive.
      */
     public static final StringTag HTTP_METHOD = new StringTag("http.method");
 
     /**
-     *  PEER_HOST_IPV4 records IPv4 host address of the peer.
+     * PEER_HOST_IPV4 records IPv4 host address of the peer.
      */
     public static final IntTag PEER_HOST_IPV4 = new IntTag("peer.ipv4");
 
     /**
-     *  PEER_HOST_IPV6 records the IPv6 host address of the peer.
+     * PEER_HOST_IPV6 records the IPv6 host address of the peer.
      */
     public static final StringTag PEER_HOST_IPV6 = new StringTag("peer.ipv6");
 
     /**
-     *  PEER_SERVICE records the service name of the peer.
+     * PEER_SERVICE records the service name of the peer.
      */
     public static final StringTag PEER_SERVICE = new StringTag("peer.service");
 
@@ -70,27 +71,50 @@ public final class Tags {
     public static final StringTag PEER_HOSTNAME = new StringTag("peer.hostname");
 
     /**
-     *  PEER_PORT records the port number of the peer.
+     * PEER_PORT records the port number of the peer.
      */
     public static final ShortTag PEER_PORT = new ShortTag("peer.port");
 
     /**
-     *  SAMPLING_PRIORITY determines the priority of sampling this Span.
+     * SAMPLING_PRIORITY determines the priority of sampling this Span.
      */
     public static final ShortTag SAMPLING_PRIORITY = new ShortTag("sampling.priority");
 
     /**
-     *  SPAN_KIND hints at the relationship between spans, e.g. client/server.
+     * SPAN_KIND hints at the relationship between spans, e.g. client/server.
      */
     public static final StringTag SPAN_KIND = new StringTag("span.kind");
 
     /**
-     *  COMPONENT is a low-cardinality identifier of the module, library, or package that is instrumented.
+     * COMPONENT is a low-cardinality identifier of the module, library, or package that is instrumented.
      */
-    public static final StringTag COMPONENT  = new StringTag("component");
+    public static final StringTag COMPONENT = new StringTag("component");
 
     /**
      * ERROR indicates whether a Span ended in an error state.
      */
     public static final BooleanTag ERROR = new BooleanTag("error");
+
+    /**
+     * DB_TYPE indicates the type of Database.
+     * For any SQL database, "sql". For others, the lower-case database category, e.g. "cassandra", "hbase", or "redis"
+     */
+    public static final StringTag DB_TYPE = new StringTag("db.type");
+
+    /**
+     * DB_INSTANCE indicates the instance name of Database.
+     * If the jdbc.url="jdbc:mysql://127.0.0.1:3306/customers", instance name is "customers".
+     */
+    public static final StringTag DB_INSTANCE = new StringTag("db.instance");
+
+    /**
+     * DB_USER indicates the user name of Database, e.g. "readonly_user" or "reporting_user"
+     */
+    public static final StringTag DB_USER = new StringTag("db.user");
+
+    /**
+     * DB_STATEMENT records a database statement for the given database type.
+     * For db.type="SQL", "SELECT * FROM wuser_table". For db.type="redis", "SET mykey "WuValue".
+     */
+    public static final StringTag DB_STATEMENT = new StringTag("db.statement");
 }
