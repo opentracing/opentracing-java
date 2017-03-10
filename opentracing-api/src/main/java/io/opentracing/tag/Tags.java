@@ -36,6 +36,16 @@ public final class Tags {
     public static final String SPAN_KIND_CLIENT = "client";
 
     /**
+     * A constant for setting the span kind to indicate that it represents a producer span.
+     */
+    public static final String SPAN_KIND_PRODUCER = "producer";
+
+    /**
+     * A constant for setting the span kind to indicate that it represents a consumer span.
+     */
+    public static final String SPAN_KIND_CONSUMER = "consumer";
+
+    /**
      * HTTP_URL records the url of the incoming request.
      */
     public static final StringTag HTTP_URL = new StringTag("http.url");
