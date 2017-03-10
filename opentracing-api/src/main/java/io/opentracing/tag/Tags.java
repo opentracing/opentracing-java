@@ -37,15 +37,11 @@ public final class Tags {
 
     /**
      * A constant for setting the span kind to indicate that it represents a producer span, in a messaging scenario.
-     *
-     * @see <a href="https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus">https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus</a>
      */
     public static final String SPAN_KIND_PRODUCER = "producer";
 
     /**
      * A constant for setting the span kind to indicate that it represents a consumer span, in a messaging scenario.
-     *
-     * @see <a href="https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus">https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus</a>
      */
     public static final String SPAN_KIND_CONSUMER = "consumer";
 
