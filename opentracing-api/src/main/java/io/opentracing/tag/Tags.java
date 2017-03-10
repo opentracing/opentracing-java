@@ -18,7 +18,7 @@ package io.opentracing.tag;
  * semantic information about the spans. Tracers may expose additional features based on these
  * standardized data points. Tag names follow a general structure of namespacing.
  *
- * @see <a href="https://github.com/opentracing/specification/blob/master/data_conventions.yaml">https://github.com/opentracing/specification/blob/master/data_conventions.yaml</a>
+ * @see <a href="https://github.com/opentracing/specification/blob/master/semantic_conventions.md">https://github.com/opentracing/specification/blob/master/semantic_conventions.md</a>
  */
 
 public final class Tags {
@@ -36,12 +36,16 @@ public final class Tags {
     public static final String SPAN_KIND_CLIENT = "client";
 
     /**
-     * A constant for setting the span kind to indicate that it represents a producer span.
+     * A constant for setting the span kind to indicate that it represents a producer span, in a messaging scenario.
+     *
+     * @see <a href="https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus">https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus</a>
      */
     public static final String SPAN_KIND_PRODUCER = "producer";
 
     /**
-     * A constant for setting the span kind to indicate that it represents a consumer span.
+     * A constant for setting the span kind to indicate that it represents a consumer span, in a messaging scenario.
+     *
+     * @see <a href="https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus">https://github.com/opentracing/specification/blob/master/semantic_conventions.md#message-bus</a>
      */
     public static final String SPAN_KIND_CONSUMER = "consumer";
 
