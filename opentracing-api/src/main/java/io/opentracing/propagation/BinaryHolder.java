@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
  * @see io.opentracing.Tracer#extract(Format, Object)
  */
 public final class BinaryHolder {
-    private ByteBuffer carrier;
+    private ByteBuffer payload;
 
     /**
      * Creates a BinaryHolder with no initial size allocation.
@@ -39,25 +39,25 @@ public final class BinaryHolder {
      * Creates a BinaryHolder with provided ByteBuffer.
      * Useful for ensuring wrapped ByteBuffer has particular properties prior to Tracer.inject().
      *
-     * @param carrier The ByteBuffer to wrap within the BinaryHolder.
+     * @param payload The ByteBuffer to wrap within the BinaryHolder.
      *
      * @see Format.Builtin#BINARY_HOLDER
      */
-    public BinaryHolder(ByteBuffer carrier) {
-        this.carrier = carrier;
+    public BinaryHolder(ByteBuffer payload) {
+        this.payload = payload;
     }
 
     /**
      * If no initial ByteBuffer was allocated for the BinaryHolder, the payload becomes the wrapped ByteBuffer.
-     * Otherwise, the payload is placed in existent ByteBuffer.
+     * Otherwise, the payload is placed in existing ByteBuffer.
      *
      * @param payload a ByteBuffer.
      */
     public void addPayload(ByteBuffer payload) {
-        if (carrier == null) {
-            carrier = payload;
+        if (this.payload == null) {
+            this.payload = payload;
         } else {
-            carrier.put(payload);
+            this.payload.put(payload);
         }
     }
 
@@ -71,7 +71,7 @@ public final class BinaryHolder {
      * @see ByteBuffer#limit()
      * @see ByteBuffer#capacity()
      */
-    public ByteBuffer getCarrier() {
-        return carrier;
+    public ByteBuffer getPayload() {
+        return payload;
     }
 }

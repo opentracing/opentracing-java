@@ -79,7 +79,7 @@ public interface Format<C> {
         public final static Format<ByteBuffer> BINARY = new Builtin<ByteBuffer>("BINARY");
 
         /**
-         * The BINARY_HOLDER format allows for variable binary encoding of SpanContext state for Tracer.inject and
+         * The BINARY_HOLDER format allows for variable-length binary encoding of SpanContext state for Tracer.inject and
          * Tracer.extract.
          *
          * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)

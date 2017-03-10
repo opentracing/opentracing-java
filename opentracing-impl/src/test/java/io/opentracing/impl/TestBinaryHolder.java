@@ -14,11 +14,12 @@
 package io.opentracing.impl;
 
 import io.opentracing.propagation.BinaryHolder;
-import org.junit.Test;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.Random;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -51,7 +52,7 @@ public final class TestBinaryHolder {
         byte[] randomBytes51 = randomPayload(51);
         binaryHolder.addPayload(ByteBuffer.wrap(randomBytes51));
 
-        ByteBuffer carrier = binaryHolder.getCarrier();
+        ByteBuffer carrier = binaryHolder.getPayload();
         byte[] actual = new byte[51];
         carrier.rewind();
         carrier.get(actual);
@@ -65,6 +66,6 @@ public final class TestBinaryHolder {
         BinaryHolder binaryHolder = new BinaryHolder();
         ByteBuffer randomBytes51 = ByteBuffer.wrap(randomPayload(51));
         binaryHolder.addPayload(randomBytes51);
-        assertEquals(randomBytes51, binaryHolder.getCarrier());
+        assertEquals(randomBytes51, binaryHolder.getPayload());
     }
 }
