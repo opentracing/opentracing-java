@@ -283,4 +283,13 @@ public final class MockSpan implements Span {
             throw ex;
         }
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "traceId:" + context.traceId() +
+                ", spanId:" + context.spanId() +
+                ", parentId:" + parentId +
+                ", operationName:\"" + operationName + "\"}";
+    }
 }
