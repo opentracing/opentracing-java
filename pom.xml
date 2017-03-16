@@ -27,6 +27,7 @@
         <module>opentracing-noop</module>
         <module>opentracing-impl</module>
         <module>opentracing-mock</module>
+        <module>opentracing-globaltracer</module>
     </modules>
 
     <properties>
@@ -137,6 +138,12 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>opentracing-mock</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>opentracing-globaltracer</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
