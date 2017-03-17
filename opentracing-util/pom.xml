@@ -23,9 +23,9 @@
         <version>0.20.11-SNAPSHOT</version>
     </parent>
 
-    <artifactId>opentracing-globaltracer</artifactId>
-    <name>OpenTracing-globaltracer</name>
-    <description>Global tracer for java</description>
+    <artifactId>opentracing-util</artifactId>
+    <name>OpenTracing-util</name>
+    <description>OpenTracing utilities</description>
 
     <properties>
         <main.basedir>${project.basedir}/..</main.basedir>

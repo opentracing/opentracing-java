@@ -11,8 +11,11 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing;
+package io.opentracing.util;
 
+import io.opentracing.NoopSpanBuilder;
+import io.opentracing.NoopTracer;
+import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;
 import org.junit.After;
 import org.junit.Before;
