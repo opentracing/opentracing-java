@@ -17,8 +17,8 @@ import io.opentracing.propagation.Format;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,41 +81,24 @@ public final class GlobalTracer implements Tracer {
      * <p>
      * Access regulated by {@link #LOCK}.
      */
-    private static Tracer globalTracer = null;
-    private static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
+    private static volatile Tracer globalTracer = null;
+    private static final Lock LOCK = new ReentrantLock();
 
     private GlobalTracer() {
     }
 
-    // acquires read lock and returns the globalTracer
-    private static Tracer globalTracer() {
-        LOCK.readLock().lock();
-        try {
-            return globalTracer;
-        } finally {
-            LOCK.readLock().unlock();
-        }
-    }
-
     // lazily loading of the globalTracer
     private static Tracer lazyTracer() {
-        LOCK.readLock().lock();
-        try {
-            if (globalTracer == null) {
-                LOCK.readLock().unlock(); // Must release readLock before acquiring writeLock
-                LOCK.writeLock().lock();
-                try {
-                    if (globalTracer == null) globalTracer = loadSingleSpiImplementation();
-                    LOCK.readLock().lock(); // Downgrade by aquiring before releasing writeLock.
-                } finally {
-                    LOCK.writeLock().unlock();
-                }
-                LOGGER.log(Level.INFO, "Using GlobalTracer: {0}.", globalTracer);
+        if (globalTracer == null) {
+            LOCK.lock();
+            try {
+                if (globalTracer == null) globalTracer = loadSingleSpiImplementation();
+            } finally {
+                LOCK.unlock();
             }
-            return globalTracer;
-        } finally {
-            LOCK.readLock().unlock();
+            LOGGER.log(Level.INFO, "Using GlobalTracer: {0}.", globalTracer);
         }
+        return globalTracer;
     }
 
     /**
@@ -146,15 +129,15 @@ public final class GlobalTracer implements Tracer {
     public static Tracer register(final Tracer tracer) {
         if (tracer instanceof GlobalTracer) {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
-            return globalTracer(); // no-op, return 'previous' tracer.
+            return globalTracer; // no-op, return 'previous' tracer.
         }
         Tracer previous;
-        LOCK.writeLock().lock();
+        LOCK.lock();
         try {
             previous = globalTracer;
             globalTracer = tracer;
         } finally {
-            LOCK.writeLock().unlock();
+            LOCK.unlock();
         }
         LOGGER.log(Level.INFO, "Registered GlobalTracer {0} (previously {1}).", new Object[]{tracer, previous});
         return previous;
@@ -170,12 +153,12 @@ public final class GlobalTracer implements Tracer {
      */
     public static void update(UpdateFunction updateFunction) {
         if (updateFunction != null) {
-            LOCK.writeLock().lock();
+            LOCK.lock();
             try {
                 Tracer updated = updateFunction.apply(globalTracer);
                 register(requireNonNull(updated, "Updated tracer may not be <null>."));
             } finally {
-                LOCK.writeLock().unlock();
+                LOCK.unlock();
             }
         }
     }
