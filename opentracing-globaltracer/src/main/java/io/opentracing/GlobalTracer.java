@@ -17,7 +17,8 @@ import io.opentracing.propagation.Format;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,23 +78,44 @@ public final class GlobalTracer implements Tracer {
      * This can be either an {@link #register(Tracer) explicitly registered} or
      * the {@link #loadSingleSpiImplementation() automatically resolved} Tracer
      * (or <code>null</code> during initialization).
+     * <p>
+     * Access regulated by {@link #LOCK}.
      */
-    private final AtomicReference<Tracer> globalTracer = new AtomicReference<Tracer>();
+    private static Tracer globalTracer = null;
+    private static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
 
     private GlobalTracer() {
     }
 
-    private Tracer lazyTracer() {
-        Tracer tracer = globalTracer.get();
-        if (tracer == null) {
-            final Tracer resolved = loadSingleSpiImplementation();
-            while (tracer == null && resolved != null) { // handle rare race condition
-                globalTracer.compareAndSet(null, resolved);
-                tracer = globalTracer.get();
-            }
-            LOGGER.log(Level.INFO, "Using GlobalTracer: {0}.", tracer);
+    // acquires read lock and returns the globalTracer
+    private static Tracer globalTracer() {
+        LOCK.readLock().lock();
+        try {
+            return globalTracer;
+        } finally {
+            LOCK.readLock().unlock();
         }
-        return tracer;
+    }
+
+    // lazily loading of the globalTracer
+    private static Tracer lazyTracer() {
+        LOCK.readLock().lock();
+        try {
+            if (globalTracer == null) {
+                LOCK.readLock().unlock(); // Must release readLock before acquiring writeLock
+                LOCK.writeLock().lock();
+                try {
+                    if (globalTracer == null) globalTracer = loadSingleSpiImplementation();
+                    LOCK.readLock().lock(); // Downgrade by aquiring before releasing writeLock.
+                } finally {
+                    LOCK.writeLock().unlock();
+                }
+                LOGGER.log(Level.INFO, "Using GlobalTracer: {0}.", globalTracer);
+            }
+            return globalTracer;
+        } finally {
+            LOCK.readLock().unlock();
+        }
     }
 
     /**
@@ -124,9 +146,16 @@ public final class GlobalTracer implements Tracer {
     public static Tracer register(final Tracer tracer) {
         if (tracer instanceof GlobalTracer) {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
-            return INSTANCE.globalTracer.get(); // no-op, return 'previous' tracer.
+            return globalTracer(); // no-op, return 'previous' tracer.
         }
-        Tracer previous = INSTANCE.globalTracer.getAndSet(tracer);
+        Tracer previous;
+        LOCK.writeLock().lock();
+        try {
+            previous = globalTracer;
+            globalTracer = tracer;
+        } finally {
+            LOCK.writeLock().unlock();
+        }
         LOGGER.log(Level.INFO, "Registered GlobalTracer {0} (previously {1}).", new Object[]{tracer, previous});
         return previous;
     }
@@ -134,27 +163,20 @@ public final class GlobalTracer implements Tracer {
     /**
      * Updates the global tracer using the specified {@link UpdateFunction}.
      * <p>
-     * If the update encounters a race condition, the 'losing' update function is re-applied with the 'winning' tracer.
-     * To avoid concurrency 'hotspins', please make sure the {@linkplain UpdateFunction} is reasonably quick.
-     * <p>
-     * If there are concurrent modifications of the globaltracer (e.g. by a race-condition with a call to
-     * {@link #register(Tracer) register}, the update function will be)
+     * Access to the {@linkplain GlobalTracer} is locked during the function,
+     * so make sure the {@linkplain UpdateFunction} is reasonably quick.
      *
-     * @param updateFunction The function to update the globaltracer implementation with.
+     * @param updateFunction The function to update the globaltracer with.
      */
     public static void update(UpdateFunction updateFunction) {
         if (updateFunction != null) {
-            Tracer current, updated;
-            do {
-                current = INSTANCE.lazyTracer();
-                updated = updateFunction.apply(current);
-                if (updated == null) throw new NullPointerException("Updated tracer may not be <null>.");
-                else if (updated instanceof GlobalTracer) {
-                    LOGGER.log(Level.FINE, "Attempted to update the GlobalTracer with itself.");
-                    return;
-                }
-            } while (!INSTANCE.globalTracer.compareAndSet(current, updated)); // 'while' handles race condition.
-            LOGGER.log(Level.INFO, "Updated GlobalTracer {0} (previously {1}).", new Object[]{updated, current});
+            LOCK.writeLock().lock();
+            try {
+                Tracer updated = updateFunction.apply(globalTracer);
+                register(requireNonNull(updated, "Updated tracer may not be <null>."));
+            } finally {
+                LOCK.writeLock().unlock();
+            }
         }
     }
 
@@ -191,6 +213,12 @@ public final class GlobalTracer implements Tracer {
                     "Falling back to NoopTracer implementation.");
         }
         return NoopTracerFactory.create();
+    }
+
+    // Similar to java 7 Objects.requireNonNull
+    private static <T> T requireNonNull(T value, String message) {
+        if (value == null) throw new NullPointerException(message);
+        return value;
     }
 
 }
