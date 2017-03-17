@@ -148,9 +148,6 @@ public final class GlobalTracer implements Tracer {
 
     /**
      * Updates the global tracer using the specified {@link UpdateFunction}.
-     * <p>
-     * Access to the {@linkplain GlobalTracer} is locked during the function,
-     * so make sure the {@linkplain UpdateFunction} is reasonably quick.
      *
      * @param updateFunction The function to update the globaltracer with.
      */
@@ -158,7 +155,7 @@ public final class GlobalTracer implements Tracer {
         if (updateFunction != null) {
             LOCK.lock();
             try {
-                Tracer updated = updateFunction.apply(globalTracer);
+                Tracer updated = updateFunction.apply(lazyTracer());
                 register(requireNonNull(updated, "Updated tracer may not be <null>."));
             } finally {
                 LOCK.unlock();
