@@ -20,9 +20,13 @@ public interface NoopTracer extends Tracer {
 
 final class NoopTracerImpl implements NoopTracer {
     final static NoopTracer INSTANCE = new NoopTracerImpl();
+    final static ThreadLocalScheduler SCHEDULER = new ThreadLocalScheduler();
 
     @Override
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
+
+    @Override
+    public SpanScheduler spanScheduler() { return SCHEDULER; }
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}

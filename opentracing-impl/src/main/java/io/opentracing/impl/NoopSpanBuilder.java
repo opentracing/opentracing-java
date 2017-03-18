@@ -14,13 +14,15 @@
 package io.opentracing.impl;
 
 import io.opentracing.NoopSpanContext;
+import io.opentracing.SpanScheduler;
+import io.opentracing.ThreadLocalScheduler;
 
 final class NoopSpanBuilder extends AbstractSpanBuilder implements io.opentracing.NoopSpanBuilder, NoopSpanContext {
 
-    static final NoopSpanBuilder INSTANCE = new NoopSpanBuilder("noop");
+    static final NoopSpanBuilder INSTANCE = new NoopSpanBuilder("noop", new ThreadLocalScheduler());
 
-    public NoopSpanBuilder(String operationName) {
-        super(operationName);
+    public NoopSpanBuilder(String operationName, SpanScheduler scheduler) {
+        super(operationName, scheduler);
     }
 
     @Override

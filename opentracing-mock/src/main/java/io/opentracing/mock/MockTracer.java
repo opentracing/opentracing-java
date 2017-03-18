@@ -23,6 +23,7 @@ import java.util.Map;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.SpanScheduler;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
@@ -38,9 +39,15 @@ import io.opentracing.propagation.TextMap;
 public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
+    private SpanScheduler spanScheduler;
 
     public MockTracer() {
         this(Propagator.PRINTER);
+    }
+
+    public MockTracer(SpanScheduler scheduler) {
+        this(Propagator.PRINTER);
+        this.spanScheduler = scheduler;
     }
 
     /**
@@ -146,7 +153,16 @@ public class MockTracer implements Tracer {
 
     @Override
     public SpanBuilder buildSpan(String operationName) {
-        return new SpanBuilder(operationName);
+        SpanBuilder sb = new SpanBuilder(operationName);
+        if (this.spanScheduler != null) {
+            sb.asChildOf(this.spanScheduler.activeContext());
+        }
+        return sb;
+    }
+
+    @Override
+    public SpanScheduler spanScheduler() {
+        return spanScheduler;
     }
 
     @Override
@@ -221,7 +237,18 @@ public class MockTracer implements Tracer {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
             }
-            return new MockSpan(MockTracer.this, this.operationName, this.startMicros, initialTags, this.firstParent);
+            if (firstParent == null) {
+                firstParent = (MockSpan.MockContext)spanScheduler.activeContext();
+            }
+            return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
+        }
+
+        @Override
+        public SpanScheduler.Continuation startAndActivate(boolean finishOnDeactivate) {
+            MockSpan span = this.start();
+            SpanScheduler.Continuation rval = spanScheduler.capture(span);
+            rval.activate(finishOnDeactivate);
+            return rval;
         }
 
         @Override

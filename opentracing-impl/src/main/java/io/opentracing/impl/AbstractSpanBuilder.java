@@ -16,6 +16,7 @@ package io.opentracing.impl;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.SpanScheduler;
 import io.opentracing.Tracer;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,13 +32,15 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     protected final List<Reference> references = new ArrayList<>();
     protected Instant start = Instant.now();
 
+    private final SpanScheduler spanScheduler;
     private final Map<String, String> stringTags = new HashMap<>();
     private final Map<String, Boolean> booleanTags = new HashMap<>();
     private final Map<String, Number> numberTags = new HashMap<>();
     private final Map<String, String> baggage = new HashMap<>();
 
-    AbstractSpanBuilder(String operationName) {
+    AbstractSpanBuilder(String operationName, SpanScheduler scheduler) {
         this.operationName = operationName;
+        this.spanScheduler = scheduler;
     }
 
     /** Create a Span, using the builder fields. */
@@ -120,6 +123,11 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
         numberTags.entrySet().forEach((entry) -> span.setTag(entry.getKey(), entry.getValue()));
         baggage.entrySet().forEach((entry) -> span.setBaggageItem(entry.getKey(), entry.getValue()));
         return span;
+    }
+
+    @Override
+    public SpanScheduler.Continuation startAndActivate(boolean finishOnDeactivate) {
+        return spanScheduler.capture(start());
     }
 
     private void withBaggageFrom(SpanContext from) {
