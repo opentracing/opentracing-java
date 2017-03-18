@@ -23,33 +23,45 @@ public interface Tracer {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
+     * <p>If there is an active Span according to the {@link Tracer#spanScheduler()}'s
+     * {@link SpanScheduler#activeContext}, buildSpan will automatically build a {@link References#INFERRED_CHILD_OF}
+     * reference to same.
+     *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *
      * <p>A contrived example:
      * <pre>{@code
-      Tracer tracer = ...
-
-      Span parentSpan = tracer.buildSpan("DoWork")
-                              .start();
-
-      Span http = tracer.buildSpan("HandleHTTPRequest")
-                        .asChildOf(parentSpan.context())
-                        .withTag("user_agent", req.UserAgent)
-                        .withTag("lucky_number", 42)
-                        .start();
-      }</pre>
+     *   Tracer tracer = ...
+     *
+     *   // Note: if there is an {@link SpanScheduler#active()} Span, it will be treated as the parent of workSpan.
+     *   Span workSpan = tracer.buildSpan("DoWork")
+     *                         .start();
+     *
+     *   Span http = tracer.buildSpan("HandleHTTPRequest")
+     *                     .asChildOf(workSpan.context())
+     *                     .withTag("user_agent", req.UserAgent)
+     *                     .withTag("lucky_number", 42)
+     *                     .start();
+     * }</pre>
      */
     SpanBuilder buildSpan(String operationName);
+
+    /**
+     * @return the SpanScheduler associated with this Tracer. Must not be null.
+     * @see SpanScheduler
+     * @see ThreadLocalScheduler a simple built-in thread-local-storage SpanScheduler
+     */
+    SpanScheduler spanScheduler();
 
     /**
      * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
      *
      * <p>Example:
      * <pre>{@code
-     * Tracer tracer = ...
-     * Span clientSpan = ...
-     * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
-     * tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
+     *     Tracer tracer = ...
+     *     Span clientSpan = ...
+     *     TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
+     *     tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
      * }</pre>
      *
      * @param <C> the carrier type, which also parametrizes the Format.
@@ -67,10 +79,10 @@ public interface Tracer {
      *
      * <p>Example:
      * <pre>{@code
-     * Tracer tracer = ...
-     * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
-     * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
-     * tracer.buildSpan('...').asChildOf(spanCtx).start();
+     *     Tracer tracer = ...
+     *     TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
+     *     SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
+     *     tracer.buildSpan('...').asChildOf(spanCtx).start();
      * }</pre>
      *
      * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
@@ -88,7 +100,6 @@ public interface Tracer {
      */
     <C> SpanContext extract(Format<C> format, C carrier);
 
-
     interface SpanBuilder extends SpanContext {
 
         /**
@@ -104,6 +115,10 @@ public interface Tracer {
         /**
          * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to
          * represent multiple such References.
+         * <p>
+         * If no references are added manually before {@link SpanBuilder#start()} is invoked, an
+         * {@link References#INFERRED_CHILD_OF} reference is created to any {@link SpanScheduler#activeContext()}
+         * context.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
@@ -125,8 +140,22 @@ public interface Tracer {
         /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
         SpanBuilder withStartTimestamp(long microseconds);
 
-        /** Returns the started Span. */
+        /**
+         * @return the newly-started Span instance
+         */
         Span start();
+
+        /**
+         * Returns a newly started and {@linkshort SpanScheduler.Continuation#activate(boolean) activated}
+         * {@link SpanScheduler.Continuation}.
+         *
+         * @param finishOnDeactivate if true, the {@link Span} encapsulated by the {@link SpanScheduler.Continuation} will
+         *                   finish() upon invocation of {@link SpanScheduler.Continuation#deactivate()}.
+         * @return a pre-activated {@link SpanScheduler.Continuation}
+         *
+         * @see SpanScheduler.Continuation#activate(boolean)
+         */
+        SpanScheduler.Continuation startAndActivate(boolean finishOnDeactivate);
 
     }
 }
