@@ -4,7 +4,7 @@ package io.opentracing;
  * ThreadLocalScheduler is a trivial SpanScheduler implementation that relies on Java's thread-local storage primitives.
  *
  * @see SpanScheduler
- * @see Tracer#spanScheduler()
+ * @see Tracer#scheduler()
  */
 public class ThreadLocalScheduler implements SpanScheduler {
     ThreadLocal<Continuation> threadLocalActive = new ThreadLocal<>();

@@ -46,7 +46,7 @@ abstract class AbstractTracer implements Tracer {
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
 
     @Override
-    public SpanScheduler spanScheduler() {
+    public SpanScheduler scheduler() {
         return this.scheduler;
     }
 

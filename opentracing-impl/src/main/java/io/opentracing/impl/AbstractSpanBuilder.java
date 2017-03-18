@@ -32,7 +32,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     protected final List<Reference> references = new ArrayList<>();
     protected Instant start = Instant.now();
 
-    private final SpanScheduler spanScheduler;
+    private final SpanScheduler scheduler;
     private final Map<String, String> stringTags = new HashMap<>();
     private final Map<String, Boolean> booleanTags = new HashMap<>();
     private final Map<String, Number> numberTags = new HashMap<>();
@@ -40,7 +40,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
     AbstractSpanBuilder(String operationName, SpanScheduler scheduler) {
         this.operationName = operationName;
-        this.spanScheduler = scheduler;
+        this.scheduler = scheduler;
     }
 
     /** Create a Span, using the builder fields. */
@@ -127,7 +127,7 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
     @Override
     public SpanScheduler.Continuation startAndActivate(boolean finishOnDeactivate) {
-        return spanScheduler.capture(start());
+        return scheduler.capture(start());
     }
 
     private void withBaggageFrom(SpanContext from) {

@@ -23,7 +23,7 @@ public interface Tracer {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
-     * <p>If there is an active Span according to the {@link Tracer#spanScheduler()}'s
+     * <p>If there is an active Span according to the {@link Tracer#scheduler()}'s
      * {@link SpanScheduler#activeContext}, buildSpan will automatically build a {@link References#INFERRED_CHILD_OF}
      * reference to same.
      *
@@ -51,7 +51,7 @@ public interface Tracer {
      * @see SpanScheduler
      * @see ThreadLocalScheduler a simple built-in thread-local-storage SpanScheduler
      */
-    SpanScheduler spanScheduler();
+    SpanScheduler scheduler();
 
     /**
      * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
@@ -141,13 +141,19 @@ public interface Tracer {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * @return the newly-started Span instance
-         */
-        Span start();
-
-        /**
          * Returns a newly started and {@linkshort SpanScheduler.Continuation#activate(boolean) activated}
          * {@link SpanScheduler.Continuation}.
+         *
+         * <p>
+         *
+         * Note that the Continuation supports try-with-resources. For example:
+         * <pre>{@code
+           try (SpanScheduler.Continuation spanCont = tracer.buildSpan("...").startAndActivate(true)) {
+               // Do work
+               Span span = tracer.scheduler().active();
+               span.setTag( ... );  // etc, etc
+           }
+           }</pre>
          *
          * @param finishOnDeactivate if true, the {@link Span} encapsulated by the {@link SpanScheduler.Continuation} will
          *                   finish() upon invocation of {@link SpanScheduler.Continuation#deactivate()}.
@@ -156,6 +162,12 @@ public interface Tracer {
          * @see SpanScheduler.Continuation#activate(boolean)
          */
         SpanScheduler.Continuation startAndActivate(boolean finishOnDeactivate);
+
+        /**
+         * @return the newly-started Span instance, which will *not* be automatically activated by the
+         *         {@link SpanScheduler}
+         */
+        Span start();
 
     }
 }
