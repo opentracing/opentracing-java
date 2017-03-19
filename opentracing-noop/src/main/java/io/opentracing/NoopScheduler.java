@@ -32,6 +32,6 @@ public class NoopScheduler implements Scheduler {
         public void deactivate() {}
 
         @Override
-        public void close() throws Exception { deactivate(); }
+        public void close() { deactivate(); }
     }
 }

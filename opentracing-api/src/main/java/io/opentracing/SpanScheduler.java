@@ -1,8 +1,11 @@
 package io.opentracing;
 
+import java.io.Closeable;
+
 /**
  * Scheduler allows an existing (possibly thread-local-aware) execution context provider to also manage an
  * actively-scheduled OpenTracing Span.
+ *
  * <p>
  * In any execution context (or any thread, etc), there is at most one "active" Span primarily responsible for the
  * work accomplished by the surrounding application code. That active Span may be accessed via the
@@ -17,17 +20,22 @@ public interface Scheduler {
      * A Continuation can be used *once* to activate a Span and other execution context, then deactivate once the
      * active period has concluded. (In practice, this active period typically extends for the length of a deferred
      * async closure invocation.)
+     *
      * <p>
      * Most users do not directly interact with Continuation, activate(), or deactivate(), but rather use
      * Scheduler-aware Runnables/Callables/Executors. Those higher-level primitives need not be defined within the
      * OpenTracing core API.
      *
+     * <p>
+     * NOTE: We extend Closeable rather than AutoCloseable in order to keep support for JDK1.6.
+     *
      * @see Scheduler#capture(Span)
      */
-    interface Continuation extends AutoCloseable {
+    interface Continuation extends Closeable {
 
         /**
          * Make the Span (and other execution context) encapsulated by this Continuation active and return it.
+         *
          * <p>
          * NOTE: It is an error to call activate() more than once on a single Continuation instance.
          *
@@ -40,10 +48,11 @@ public interface Scheduler {
 
         /**
          * Mark the end of this active period for the Span previously returned by activate().
+         *
          * <p>
          * NOTE: It is an error to call deactivate() more than once on a single Continuation instance.
          *
-         * @see AutoCloseable#close()
+         * @see Closeable#close()
          */
         void deactivate();
 
