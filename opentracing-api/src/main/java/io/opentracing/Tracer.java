@@ -23,9 +23,8 @@ public interface Tracer {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
-     * <p>If there is an active Span according to the {@link Tracer#scheduler()}'s
-     * {@link Scheduler#activeContext}, buildSpan will automatically build a {@link References#INFERRED_CHILD_OF}
-     * reference to same.
+     * <p>If there is an active Span according to the {@link Tracer#scheduler()}'s {@link Scheduler#activeContext},
+     * buildSpan will automatically reference that active Span as a parent.
      *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *
@@ -37,6 +36,7 @@ public interface Tracer {
      *   Span workSpan = tracer.buildSpan("DoWork")
      *                         .start();
      *
+     *   // It's also possible to create Spans with explicit parent References and tags.
      *   Span http = tracer.buildSpan("HandleHTTPRequest")
      *                     .asChildOf(workSpan.context())  // an explicit parent
      *                     .withTag("user_agent", req.UserAgent)
@@ -142,19 +142,19 @@ public interface Tracer {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * Returns a newly started and {@linkshort Scheduler.Continuation#activate(boolean) activated}
+         * Returns a newly started and {@linkplain Scheduler.Continuation#activate(boolean) activated}
          * {@link Scheduler.Continuation}.
          *
          * <p>
          *
          * Note that the Continuation supports try-with-resources. For example:
          * <pre>{@code
-           try (Scheduler.Continuation spanCont = tracer.buildSpan("...").startAndActivate(true)) {
-               // Do work
-               Span span = tracer.scheduler().active();
-               span.setTag( ... );  // etc, etc
-           }
-           }</pre>
+         *     try (Scheduler.Continuation spanCont = tracer.buildSpan("...").startAndActivate(true)) {
+         *         // Do work
+         *         Span span = tracer.scheduler().active();
+         *         span.setTag( ... );  // etc, etc
+         *     }
+         * }</pre>
          *
          * @param finishOnDeactivate if true, the {@link Span} encapsulated by the {@link Scheduler.Continuation} will
          *                   finish() upon invocation of {@link Scheduler.Continuation#deactivate()}.

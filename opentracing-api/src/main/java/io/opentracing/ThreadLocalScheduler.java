@@ -37,12 +37,14 @@ public class ThreadLocalScheduler implements Scheduler {
         private boolean finishOnDeactivate;
         private Continuation toRestore = null;
 
+        private Continuation(Span span) { this.span = span; }
+
         @Override
         public Span activate(boolean finishOnDeactivate) {
             this.finishOnDeactivate = finishOnDeactivate;
             toRestore = threadLocalActive.get();
             threadLocalActive.set(this);
-            return null;
+            return span;
         }
 
         @Override
@@ -61,10 +63,6 @@ public class ThreadLocalScheduler implements Scheduler {
                 return;
             }
             threadLocalActive.set(toRestore);
-        }
-
-        private Continuation(Span span) {
-            this.span = span;
         }
     }
 }
