@@ -1,9 +1,9 @@
 package io.opentracing;
 
 /**
- * A noop (i.e., cheap-as-possible) implementation of a SpanScheduler.
+ * A noop (i.e., cheap-as-possible) implementation of a Scheduler.
  */
-public class NoopScheduler implements SpanScheduler {
+public class NoopScheduler implements Scheduler {
     public static final Continuation NOOP_CONTINUATION = new Continuation();
 
     @Override
@@ -24,7 +24,7 @@ public class NoopScheduler implements SpanScheduler {
     @Override
     public Continuation captureActive() { return NOOP_CONTINUATION; }
 
-    public static class Continuation implements SpanScheduler.Continuation {
+    public static class Continuation implements Scheduler.Continuation {
         @Override
         public Span activate(boolean finishOnDeactivate) { return null; }
 

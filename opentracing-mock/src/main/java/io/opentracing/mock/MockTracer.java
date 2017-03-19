@@ -20,11 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import io.opentracing.References;
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.SpanScheduler;
-import io.opentracing.Tracer;
+import io.opentracing.*;
+import io.opentracing.Scheduler;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 
@@ -39,13 +36,13 @@ import io.opentracing.propagation.TextMap;
 public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private SpanScheduler scheduler;
+    private Scheduler scheduler;
 
     public MockTracer() {
         this(Propagator.PRINTER);
     }
 
-    public MockTracer(SpanScheduler scheduler) {
+    public MockTracer(Scheduler scheduler) {
         this(Propagator.PRINTER);
         this.scheduler = scheduler;
     }
@@ -161,7 +158,7 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public SpanScheduler scheduler() {
+    public Scheduler scheduler() {
         return scheduler;
     }
 
@@ -244,9 +241,9 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanScheduler.Continuation startAndActivate(boolean finishOnDeactivate) {
+        public Scheduler.Continuation startAndActivate(boolean finishOnDeactivate) {
             MockSpan span = this.start();
-            SpanScheduler.Continuation rval = scheduler.capture(span);
+            Scheduler.Continuation rval = scheduler.capture(span);
             rval.activate(finishOnDeactivate);
             return rval;
         }

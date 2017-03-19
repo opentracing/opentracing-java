@@ -26,7 +26,7 @@ final class NoopTracerImpl implements NoopTracer {
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
 
     @Override
-    public SpanScheduler scheduler() { return SCHEDULER; }
+    public Scheduler scheduler() { return SCHEDULER; }
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}

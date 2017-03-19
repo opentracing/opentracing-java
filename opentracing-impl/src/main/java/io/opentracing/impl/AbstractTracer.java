@@ -13,7 +13,7 @@
  */
 package io.opentracing.impl;
 
-import io.opentracing.SpanScheduler;
+import io.opentracing.Scheduler;
 import io.opentracing.SpanContext;
 import io.opentracing.ThreadLocalScheduler;
 import io.opentracing.Tracer;
@@ -30,14 +30,14 @@ abstract class AbstractTracer implements Tracer {
     static final boolean BAGGAGE_ENABLED = !Boolean.getBoolean("opentracing.propagation.dropBaggage");
 
     private final PropagationRegistry registry = new PropagationRegistry();
-    private SpanScheduler scheduler;
+    private Scheduler scheduler;
 
 
     protected AbstractTracer() {
         this(new ThreadLocalScheduler());
     }
 
-    protected AbstractTracer(SpanScheduler scheduler) {
+    protected AbstractTracer(Scheduler scheduler) {
         this.scheduler = scheduler;
         registry.register(Format.Builtin.TEXT_MAP, new TextMapInjectorImpl(this));
         registry.register(Format.Builtin.TEXT_MAP, new TextMapExtractorImpl(this));
@@ -46,7 +46,7 @@ abstract class AbstractTracer implements Tracer {
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
 
     @Override
-    public SpanScheduler scheduler() {
+    public Scheduler scheduler() {
         return this.scheduler;
     }
 

@@ -34,11 +34,11 @@ the process which are (a) started, (b) not finished, yet (c) not "active": perha
 a child Span, or otherwise off the critical path.
  
 It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides a
-`SpanScheduler` abstraction to provide access to the active `Span` and to capture it for reactivation in other
+`Scheduler` abstraction to provide access to the active `Span` and to capture it for reactivation in other
 execution contexts (e.g., in an async callback).
 
-Every `Tracer` implementation _must_ provide access to a `SpanScheduler` (typically provided at `Tracer` initialization
-time). The `SpanScheduler` in turn exposes the active `Span`, like so:
+Every `Tracer` implementation _must_ provide access to a `Scheduler` (typically provided at `Tracer` initialization
+time). The `Scheduler` in turn exposes the active `Span`, like so:
 
 ```
     io.opentracing.Tracer tracer = ...;
@@ -59,7 +59,7 @@ The common case looks like this:
     Span span = tracer.buildSpan("someWork").start();
 ```
 
-*If there is an active `Span`, it will act as the parent to any newly started `Span`* unless the programmer provides
+**If there is an active `Span`, it will act as the parent to any newly started `Span`** unless the programmer provides
 an explicit reference at `buildSpan` time, like so:
 
 ```
@@ -83,13 +83,13 @@ instance, the intra-Span timing breakdown might look like this:
 The `Service Handler Span` is _active_ when it's running FunctionA and FunctionB, and inactive while it's waiting on an
 RPC (presumably modelled as its own Span, though that's not the concern here).
 
-**The `SpanScheduler` makes it easy to capture the Span and execution context in `FunctionA` and re-activate it in
+**The `Scheduler` makes it easy to capture the Span and execution context in `FunctionA` and re-activate it in
 `FunctionB`.** These are the steps:
 
-1. In the method/function that *allocates* the closure, `Runnable`/`Future`/etc, call `SpanScheduler.captureActive()`
-   to obtain a `SpanScheduler.Continuation`
-2. In the closure/`Runnable`/`Future`/etc itself, pair calls to `SpanScheduler.Continuation.activate` and
-   `SpanScheduler.Continuation.deactivate()`
+1. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `Scheduler#captureActive()`
+   to obtain a `Scheduler.Continuation`
+2. In the closure/`Runnable`/`Future`/etc itself, pair calls to `Scheduler.Continuation#activate` and
+   `Scheduler.Continuation#deactivate()`
 
 In practice, the latter is most fluently accomplished through the use of an OpenTracing-aware `ExecutorService` and/or
 `Runnable`/`Callable` adapter; they can factor all of the above.
