@@ -58,10 +58,10 @@ public interface Tracer {
      *
      * <p>Example:
      * <pre>{@code
-     *     Tracer tracer = ...
-     *     Span clientSpan = ...
-     *     TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
-     *     tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
+     * Tracer tracer = ...
+     * Span clientSpan = ...
+     * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
+     * tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
      * }</pre>
      *
      * @param <C> the carrier type, which also parametrizes the Format.
@@ -79,10 +79,10 @@ public interface Tracer {
      *
      * <p>Example:
      * <pre>{@code
-     *     Tracer tracer = ...
-     *     TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
-     *     SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
-     *     tracer.buildSpan('...').asChildOf(spanCtx).start();
+     * Tracer tracer = ...
+     * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
+     * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
+     * tracer.buildSpan('...').asChildOf(spanCtx).start();
      * }</pre>
      *
      * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
@@ -99,6 +99,7 @@ public interface Tracer {
      * @see io.opentracing.propagation.Format.Builtin
      */
     <C> SpanContext extract(Format<C> format, C carrier);
+
 
     interface SpanBuilder extends SpanContext {
 
