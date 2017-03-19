@@ -39,6 +39,7 @@ public class ThreadLocalScheduler implements SpanScheduler {
 
         @Override
         public Span activate(boolean finishOnDeactivate) {
+            this.finishOnDeactivate = finishOnDeactivate;
             toRestore = threadLocalActive.get();
             threadLocalActive.set(this);
             return null;
