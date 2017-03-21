@@ -43,7 +43,11 @@ public class MockTracer implements Tracer {
     }
 
     public MockTracer(Scheduler scheduler) {
-        this(Propagator.PRINTER);
+        this(scheduler, Propagator.PRINTER);
+    }
+
+    public MockTracer(Scheduler scheduler, Propagator propagator) {
+        this.propagator = propagator;
         this.scheduler = scheduler;
     }
 
@@ -51,7 +55,7 @@ public class MockTracer implements Tracer {
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this.propagator = propagator;
+        this(new ThreadLocalScheduler(), propagator);
     }
 
     /**

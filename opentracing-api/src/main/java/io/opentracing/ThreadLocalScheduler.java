@@ -7,7 +7,7 @@ package io.opentracing;
  * @see Tracer#scheduler()
  */
 public class ThreadLocalScheduler implements Scheduler {
-    ThreadLocal<Continuation> threadLocalActive = new ThreadLocal<Continuation>();
+    private final ThreadLocal<Continuation> threadLocalActive = new ThreadLocal<Continuation>();
 
     @Override
     public Span active() {

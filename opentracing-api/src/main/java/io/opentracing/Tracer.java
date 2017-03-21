@@ -117,9 +117,9 @@ public interface Tracer {
          * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to
          * represent multiple such References.
          * <p>
-         * If no references are added manually before {@link SpanBuilder#start()} is invoked, an
-         * {@link References#INFERRED_CHILD_OF} reference is created to any {@link Scheduler#activeContext()}
-         * context.
+         * If no references are added manually (and {@link SpanBuilder#asRoot()} is not invoked) before
+         * calling {@link SpanBuilder#start()}, an inferred reference is created to any
+         * {@link Scheduler#activeContext()} context.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
@@ -128,6 +128,17 @@ public interface Tracer {
          * @see io.opentracing.References
          */
         SpanBuilder addReference(String referenceType, SpanContext referencedContext);
+
+        /**
+         * Remove any explicit (e.g., via {@link SpanBuilder#addReference(String,SpanContext)}) or implicit (e.g., via
+         * {@link Scheduler#activeContext()}) references to parent / predecessor SpanContexts, thus making the built
+         * Span a "root" of a Trace tree/graph.
+         *
+         * <p>
+         * Subsequent calls to {@link SpanBuilder#addReference(String, SpanContext)} /
+         * {@link SpanBuilder#asChildOf(Span)} / etc are permitted and behave as per usual.
+         */
+        SpanBuilder asRoot();
 
         /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
         SpanBuilder withTag(String key, String value);

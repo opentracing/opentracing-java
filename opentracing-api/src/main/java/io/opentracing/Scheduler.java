@@ -39,6 +39,8 @@ public interface Scheduler {
          * <p>
          * NOTE: It is an error to call activate() more than once on a single Continuation instance.
          *
+         * XXX: try something different
+         *
          * @param finishOnDeactivate true if.f. the span should be finish()ed when the Continuation is deactivated
          *
          * @see Scheduler#capture(Span)
@@ -80,7 +82,7 @@ public interface Scheduler {
      *     Span active = this.active();
      *     if (active == null) return null;
      *     return active.context();
-     * }</pre>@code{}
+     * }</pre>
      * @return the currently active SpanContext, or null if there is no active Span
      */
     SpanContext activeContext();
@@ -88,7 +90,7 @@ public interface Scheduler {
     /**
      * A shorthand for <pre>{@code
      *     this.capture(this.active())
-     * }</pre>@code{}
+     * }</pre>
      *
      * @return a Continuation wrapped around this.active()
      */
