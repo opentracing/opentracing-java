@@ -201,6 +201,12 @@ public class MockTracer implements Tracer {
         }
 
         @Override
+        public SpanBuilder asRoot() {
+            firstParent = null;
+            return this;
+        }
+
+        @Override
         public SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
             if (firstParent == null && (
                     referenceType.equals(References.CHILD_OF) || referenceType.equals(References.FOLLOWS_FROM))) {

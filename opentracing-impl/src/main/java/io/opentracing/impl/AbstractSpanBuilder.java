@@ -67,6 +67,12 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     }
 
     @Override
+    public final AbstractSpanBuilder asRoot() {
+        this.references.clear();
+        return this;
+    }
+
+    @Override
     public final AbstractSpanBuilder asChildOf(Span parent) {
         if (io.opentracing.NoopSpan.class.isAssignableFrom(parent.getClass())) {
             return NoopSpanBuilder.INSTANCE;
