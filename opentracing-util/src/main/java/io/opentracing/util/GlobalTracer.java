@@ -57,7 +57,7 @@ public final class GlobalTracer implements Tracer {
          * <p>
          * This allows updating the {@linkplain GlobalTracer} with a {@linkplain Tracer}
          * that is 'based on' the current registered tracer, allowing delegation or wrapping
-         * tracers to be registered independently from underlying implementaitons.
+         * tracers to be registered independently from underlying implementations.
          *
          * @param current The current GlobalTracer implementation (never <code>null</code>).
          * @return The tracer to become the new GlobalTracer implementation, must be non-null.
