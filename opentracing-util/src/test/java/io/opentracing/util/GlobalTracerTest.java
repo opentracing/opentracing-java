@@ -14,6 +14,7 @@
 package io.opentracing.util;
 
 import io.opentracing.NoopSpanBuilder;
+import io.opentracing.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -46,7 +47,7 @@ public class GlobalTracerTest {
     @Before
     @After
     public void clearGlobalTracer() {
-        _setGlobal(null);
+        _setGlobal(NoopTracerFactory.create());
     }
 
     @Test
