@@ -1,11 +1,11 @@
 /**
  * Copyright 2016-2017 The OpenTracing Authors
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
@@ -13,6 +13,7 @@
  */
 package io.opentracing.util;
 
+import io.opentracing.NoopTracer;
 import io.opentracing.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -42,9 +43,10 @@ public final class GlobalTracer implements Tracer {
     private static final GlobalTracer INSTANCE = new GlobalTracer();
 
     /**
-     * The resolved {@link Tracer} to delegate to, or {@code null} if none was registered yet.
+     * The resolved {@link Tracer} to delegate to or the {@link NoopTracer} if none was registered yet.
+     * Never {@code null}.
      */
-    private static volatile Tracer globalTracer = null;
+    private static volatile Tracer globalTracer = NoopTracerFactory.create();
 
     private GlobalTracer() {
     }
@@ -75,32 +77,29 @@ public final class GlobalTracer implements Tracer {
      * @return The previous global tracer or <code>null</code> if there was none.
      */
     public static void register(final Tracer tracer) {
-        if (tracer instanceof GlobalTracer) {
+        if (tracer == null) throw new NullPointerException("Cannot register GlobalTracer <null>.");
+        else if (tracer instanceof GlobalTracer) {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
             return; // no-op
-        } else if (globalTracer != null && !globalTracer.equals(tracer)) {
+        } else if (!(globalTracer instanceof NoopTracer)) {
             throw new IllegalStateException("There is already a current globalTracer registered.");
         }
         globalTracer = tracer;
     }
 
-    private static Tracer globalOrNoopTracer() {
-        return globalTracer == null ? NoopTracerFactory.create() : globalTracer;
-    }
-
     @Override
     public SpanBuilder buildSpan(String operationName) {
-        return globalOrNoopTracer().buildSpan(operationName);
+        return globalTracer.buildSpan(operationName);
     }
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
-        globalOrNoopTracer().inject(spanContext, format, carrier);
+        globalTracer.inject(spanContext, format, carrier);
     }
 
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
-        return globalOrNoopTracer().extract(format, carrier);
+        return globalTracer.extract(format, carrier);
     }
 
     @Override
