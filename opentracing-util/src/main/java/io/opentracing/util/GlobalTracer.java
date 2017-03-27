@@ -26,8 +26,7 @@ import java.util.logging.Logger;
  * Forwards all methods to another tracer that can be configured by calling {@link #register(Tracer)}.
  * <p>
  * When the tracer is needed it delegates all tracing methods to
- * either the <em>registered</em> global tracer
- * or the {@link io.opentracing.NoopTracer NoopTracer}.
+ * either the <em>registered</em> global tracer or the {@link NoopTracer}.
  */
 public final class GlobalTracer implements Tracer {
     private static final Logger LOGGER = Logger.getLogger(GlobalTracer.class.getName());
@@ -82,7 +81,7 @@ public final class GlobalTracer implements Tracer {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
             return; // no-op
         } else if (!(globalTracer instanceof NoopTracer) && !globalTracer.equals(tracer)) {
-            throw new IllegalStateException("There is already a current globalTracer registered.");
+            throw new IllegalStateException("There is already a current global Tracer registered.");
         }
         globalTracer = tracer;
     }

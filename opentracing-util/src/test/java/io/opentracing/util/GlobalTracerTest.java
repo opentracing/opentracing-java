@@ -32,7 +32,6 @@ import static org.mockito.Mockito.*;
 
 public class GlobalTracerTest {
 
-    //    Tracer previousGlobalTracer;
     private static void _setGlobal(Tracer tracer) {
         try {
             Field globalTracerField = GlobalTracer.class.getDeclaredField("globalTracer");
