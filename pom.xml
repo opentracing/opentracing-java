@@ -131,19 +131,13 @@
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>opentracing-impl-java8</artifactId>
+                <artifactId>opentracing-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>opentracing-mock</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>opentracing-globaltracer</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
