@@ -75,6 +75,7 @@ public class GlobalTracerTest {
         Tracer mockTracer = mock(Tracer.class);
         GlobalTracer.register(mockTracer);
         GlobalTracer.register(mockTracer);
+        // 'test' that double registration of the same tracer does not throw exception
     }
 
     @Test
