@@ -14,15 +14,20 @@
 package io.opentracing;
 
 import io.opentracing.propagation.Format;
+import org.omg.PortableInterceptor.ACTIVE;
 
 public interface NoopTracer extends Tracer {
 }
 
 final class NoopTracerImpl implements NoopTracer {
     final static NoopTracer INSTANCE = new NoopTracerImpl();
+    final static ThreadLocalActiveSpanHolder ACTIVE_SPAN_HOLDER = new ThreadLocalActiveSpanHolder();
 
     @Override
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
+
+    @Override
+    public ActiveSpanHolder activeSpanHolder() { return ACTIVE_SPAN_HOLDER; }
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}

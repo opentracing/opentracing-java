@@ -18,6 +18,82 @@ to facilitate unit-testing of OpenTracing Java instrumentation.
 
 Packages are deployed to Maven Central under the `io.opentracing` group.
 
+## Usage
+
+### Initialization
+
+Initialization is OpenTracing-implementation-specific. Generally speaking, the pattern is to initialize a `Tracer` once
+for the entire process and to use that `Tracer` for the remainder of the process lifetime. The
+[GlobalTracer](https://github.com/opentracing-contrib/java-globaltracer) repository provides a helper for singleton
+access to the `Tracer` as well as `ServiceLoader` support for OpenTracing Java implementations.
+
+### Span Scheduling and the "active" Span
+
+For any execution context or Thread, at most one `Span` may be "active". Of course there may be many other `Spans` in
+the process which are (a) started, (b) not finished, yet (c) not "active": perhaps they are waiting for I/O, blocked on
+a child Span, or otherwise off the critical path.
+ 
+It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides a
+`ActiveSpanHolder` abstraction to provide access to the active `Span` and to capture it for reactivation in other
+execution contexts (e.g., in an async callback).
+
+Every `Tracer` implementation _must_ provide access to a `ActiveSpanHolder` (typically provided at `Tracer`
+initialization time). The `ActiveSpanHolder` in turn exposes the active `Span`, like so:
+
+```
+    io.opentracing.Tracer tracer = ...;
+    ...
+    Span active = tracer.activeSpanHolder().active();
+    if (active != null) {
+        active.log("...");
+    }
+```
+
+### Starting a new Span
+
+The common case looks like this:
+
+```
+    io.opentracing.Tracer tracer = ...;
+    ...
+    Span span = tracer.buildSpan("someWork").start();
+```
+
+**If there is an active `Span`, it will act as the parent to any newly started `Span`** unless the programmer provides
+an explicit reference at `buildSpan` time, like so:
+
+```
+    io.opentracing.Tracer tracer = ...;
+    ...
+    Span span = tracer.buildSpan("someWork").asChildOf(otherSpanContext).start();
+```
+
+### Deferring asynchronous work
+
+Consider the case where a `Span`'s lifetime logically starts in one execution context and ends in another. For
+instance, the intra-Span timing breakdown might look like this:
+
+```
+[ Service Handler Span                               ]
+|-FunctionA-|-----waiting on an RPC------|-FunctionB-|
+            
+------------------------------------------------> time
+```
+
+The `Service Handler Span` is _active_ when it's running FunctionA and FunctionB, and inactive while it's waiting on an
+RPC (presumably modelled as its own Span, though that's not the concern here).
+
+**The `ActiveSpanHolder` makes it easy to capture the Span and execution context in `FunctionA` and re-activate it in
+`FunctionB`.** These are the steps:
+
+1. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpanHolder#captureActive()`
+   to obtain a `ActiveSpanHolder.Continuation`
+2. In the closure/`Runnable`/`Future`/etc itself, pair calls to `ActiveSpanHolder.Continuation#activate` and
+   `ActiveSpanHolder.Continuation#deactivate`
+
+In practice, the latter is most fluently accomplished through the use of an OpenTracing-aware `ExecutorService` and/or
+`Runnable`/`Callable` adapter; they can factor all of the above.
+
 # Development
 
 This is a maven project, and provides a wrapper, `./mvnw` to pin a consistent
