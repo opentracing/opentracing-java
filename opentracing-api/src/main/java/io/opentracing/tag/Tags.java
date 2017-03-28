@@ -83,7 +83,7 @@ public final class Tags {
     /**
      * PEER_PORT records the port number of the peer.
      */
-    public static final ShortTag PEER_PORT = new ShortTag("peer.port");
+    public static final IntTag PEER_PORT = new IntTag("peer.port");
 
     /**
      * SAMPLING_PRIORITY determines the priority of sampling this Span.
