@@ -49,6 +49,7 @@ public class MDCDemo {
             // Create 10 async children.
             for (int i = 0; i < 10; i++) {
                 final int j = i;
+                MDC.put("parent number", new Integer(i).toString());
                 futures.add(otExecutor.submit(new Runnable() {
                     @Override
                     public void run() {
@@ -63,6 +64,7 @@ public class MDCDemo {
                                 public void run() {
                                     Span active = tracer.holder().activeSpan();
                                     active.log("awoke again");
+                                    System.out.println("MDC parent number: " + MDC.get("parent number"));
                                     // Create a grandchild for each child... note that we don't *need* to use the
                                     // Continuation mechanism.
                                     Span grandchild = tracer.buildSpan("grandchild_" + j).start();

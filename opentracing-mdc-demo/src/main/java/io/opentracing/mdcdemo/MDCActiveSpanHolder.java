@@ -30,6 +30,7 @@ public class MDCActiveSpanHolder extends ActiveSpanHolder {
         public void activate() {
             toRestore = tlsSnapshot.get();
             tlsSnapshot.set(this);
+            MDC.setContextMap(mdcContext);
         }
 
         @Override
