@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * ThreadLocalActiveSpanHolder is a trivial ActiveSpanHolder implementation that relies on Java's thread-local storage primitives.
  *
  * @see ActiveSpanHolder
- * @see Tracer#activeSpanHolder()
+ * @see Tracer#holder()
  */
 public class ThreadLocalActiveSpanHolder extends ActiveSpanHolder {
     private final ThreadLocal<Continuation> threadLocalActive = new ThreadLocal<Continuation>();

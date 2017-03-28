@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <ul>
  *
  *     <li>Accessing the active {@link ActiveSpanHolder.Continuation}/{@link Span}/{@link SpanContext}: first, call
- *     {@link Tracer#activeSpanHolder()}, then use {@link ActiveSpanHolder#active()} / {@link ActiveSpanHolder#activeSpan()} /
+ *     {@link Tracer#holder()}, then use {@link ActiveSpanHolder#active()} / {@link ActiveSpanHolder#activeSpan()} /
  *     {@link ActiveSpanHolder#activeContext()}
  *
  *     <li>Propagating the active {@link ActiveSpanHolder.Continuation}/{@link Span} to another (async) executor. First,
