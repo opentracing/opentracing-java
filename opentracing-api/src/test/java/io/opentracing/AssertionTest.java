@@ -29,5 +29,7 @@ public final class AssertionTest {
         if (!asserted) {
             throw new AssertionError("assertions are not enabled");
         }
+
+        return null != marker ? new TestSpanBuilder(marker, null) : NoopSpanBuilder.INSTANCE;
     }
 }
