@@ -162,7 +162,7 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public ActiveSpanHolder activeSpanHolder() {
+    public ActiveSpanHolder holder() {
         return activeSpanHolder;
     }
 

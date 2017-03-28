@@ -14,7 +14,6 @@
 package io.opentracing;
 
 import io.opentracing.propagation.Format;
-import org.omg.PortableInterceptor.ACTIVE;
 
 public interface NoopTracer extends Tracer {
 }
@@ -27,7 +26,7 @@ final class NoopTracerImpl implements NoopTracer {
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
 
     @Override
-    public ActiveSpanHolder activeSpanHolder() { return ACTIVE_SPAN_HOLDER; }
+    public ActiveSpanHolder holder() { return ACTIVE_SPAN_HOLDER; }
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {}

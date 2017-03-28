@@ -23,7 +23,7 @@ public interface Tracer {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
-     * <p>If there is an active Span according to the {@link Tracer#activeSpanHolder()}'s {@link ActiveSpanHolder#activeContext},
+     * <p>If there is an active Span according to the {@link Tracer#holder()}'s {@link ActiveSpanHolder#activeContext},
      * buildSpan will automatically reference that active Span as a parent.
      *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
@@ -51,7 +51,7 @@ public interface Tracer {
      * @see ActiveSpanHolder
      * @see ThreadLocalActiveSpanHolder a simple built-in thread-local-storage-based ActiveSpanHolder
      */
-    ActiveSpanHolder activeSpanHolder();
+    ActiveSpanHolder holder();
 
     /**
      * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
