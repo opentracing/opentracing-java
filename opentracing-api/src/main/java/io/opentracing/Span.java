@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,16 +22,21 @@ import java.util.Map;
  * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
 public interface Span extends Closeable {
+
+    SpanManager.Visibility visibility();
+
     /**
      * Retrieve the associated SpanContext.
      *
-     * This may be called at any time, including after calls to finish().
+     * This may be called at any time, including after calls to markAsFinished().
      *
      * @return the SpanContext that encapsulates Span state that should propagate across process boundaries.
      */
     SpanContext context();
 
     /**
+     * Deactivates spans from spanManager.
+     *
      * Sets the end timestamp to now and records the span.
      *
      * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
@@ -42,12 +47,14 @@ public interface Span extends Closeable {
     void finish();
 
     /**
+     * Deactivates spans from spanManager.
+     *
      * Sets an explicit end timestamp and records the span.
      *
      * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
      * do otherwise leads to undefined behavior.
      *
-     * @param finishMicros an explicit finish time, in microseconds since the epoch
+     * @param finishMicros an explicit markAsFinished time, in microseconds since the epoch
      *
      * @see Span#context()
      */

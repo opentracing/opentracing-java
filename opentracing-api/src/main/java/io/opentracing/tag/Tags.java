@@ -14,7 +14,7 @@
 package io.opentracing.tag;
 
 /**
- * The following span tags are recommended for instrumentors who are trying to capture more
+ * The following span tags are recommended for instrumentors who are trying to bundle more
  * semantic information about the spans. Tracers may expose additional features based on these
  * standardized data points. Tag names follow a general structure of namespacing.
  *

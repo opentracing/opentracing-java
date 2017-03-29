@@ -24,8 +24,8 @@
 
     <modules>
         <module>opentracing-api</module>
-        <module>opentracing-noop</module>
-        <module>opentracing-impl</module>
+        <!--<module>opentracing-noop</module>-->
+        <!--<module>opentracing-impl</module>-->
         <module>opentracing-mock</module>
     </modules>
 

@@ -33,7 +33,7 @@ import io.opentracing.propagation.TextMapInjectAdapter;
 public class MockTracerTest {
     @Test
     public void testRootSpan() {
-        // Create and finish a root Span.
+        // Create and markAsFinished a root Span.
         MockTracer tracer = new MockTracer();
         {
             Span span = tracer.buildSpan("tester").withStartTimestamp(1000).start();
@@ -87,7 +87,7 @@ public class MockTracerTest {
 
     @Test
     public void testChildSpan() {
-        // Create and finish a root Span.
+        // Create and markAsFinished a root Span.
         MockTracer tracer = new MockTracer();
         {
             Span parent = tracer.buildSpan("parent").withStartTimestamp(1000).start();
