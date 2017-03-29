@@ -46,7 +46,7 @@ public final class GlobalTracer implements Tracer {
      * The resolved {@link Tracer} to delegate to or the {@link NoopTracer} if none was registered yet.
      * Never {@code null}.
      */
-    private static volatile Tracer globalTracer = NoopTracerFactory.create();
+    private static Tracer globalTracer = NoopTracerFactory.create();
 
     private GlobalTracer() {
     }
@@ -76,7 +76,7 @@ public final class GlobalTracer implements Tracer {
      * @param tracer Tracer to use as global tracer.
      * @throws RuntimeException if there is already a current tracer registered
      */
-    public static void register(final Tracer tracer) {
+    public static synchronized void register(final Tracer tracer) {
         if (tracer == null) throw new NullPointerException("Cannot register GlobalTracer <null>.");
         else if (tracer instanceof GlobalTracer) {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");

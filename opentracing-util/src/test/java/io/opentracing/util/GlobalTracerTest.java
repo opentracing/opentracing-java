@@ -23,6 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -117,6 +120,58 @@ public class GlobalTracerTest {
 
         verify(mockTracer).extract(eq(mockFormat), eq(mockCarrier));
         verifyNoMoreInteractions(mockTracer, mockFormat, mockCarrier);
+    }
+
+    @Test
+    public void concurrencyTest() throws InterruptedException, ExecutionException {
+        final int threadCount = 10;
+        ExecutorService threadpool = Executors.newFixedThreadPool(2 * threadCount);
+        try {
+            // Try to do ten register() calls and ten buildSpan() calls concurrently.
+            List<Callable<Void>> registerCalls = new ArrayList<Callable<Void>>();
+            List<Callable<Tracer.SpanBuilder>> buildSpanCalls = new ArrayList<Callable<Tracer.SpanBuilder>>();
+            for (int i = 0; i < threadCount; i++) {
+                registerCalls.add(new Callable<Void>() {
+                    @Override
+                    public Void call() throws Exception {
+                        GlobalTracer.register(mock(Tracer.class));
+                        return null;
+                    }
+                });
+                buildSpanCalls.add(new Callable<Tracer.SpanBuilder>() {
+                    @Override
+                    public Tracer.SpanBuilder call() throws Exception {
+                        return GlobalTracer.get().buildSpan("my-operation");
+                    }
+                });
+            }
+
+            // Schedule the threads.
+            List<Future<Void>> registerResults = threadpool.invokeAll(registerCalls);
+            List<Future<Tracer.SpanBuilder>> buildSpanResults = threadpool.invokeAll(buildSpanCalls);
+
+            boolean registered = false; // there may only be one registration success.
+            int exceptions = 0;
+            for (Future<Void> result : registerResults) {
+                try {
+                    result.get(); // void, but should throw exception 9 times
+                    assertThat("previous registration", registered, is(false));
+                    registered = true;
+                } catch (ExecutionException expected) {
+                    exceptions++;
+                }
+            }
+            assertThat("Tracer registration", registered, is(true));
+            assertThat("Registration exceptions", exceptions, is(threadCount - 1));
+
+            for (Future<Tracer.SpanBuilder> result : buildSpanResults) {
+                // each spanbuilder must be either null (from registered mock tracer) or noop
+                assertThat("SpanBuilder", result.get(), anyOf(nullValue(), instanceOf(NoopSpanBuilder.class)));
+            }
+
+        } finally {
+            threadpool.shutdown();
+        }
     }
 
 }
