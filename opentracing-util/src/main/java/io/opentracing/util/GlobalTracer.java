@@ -23,9 +23,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Forwards all methods to another tracer that can be configured by calling {@link #register(Tracer)}.
+ * Global tracer that forwards all methods to another tracer
+ * that can be configured by calling {@link #register(Tracer)}.
  * <p>
- * The {@linkplain #register(Tracer) register} method should only be called once.<br>
+ * The {@linkplain #register(Tracer) register} method should only be called once
+ * during the application initialization phase.<br>
  * If the {@linkplain #register(Tracer) register} method is never called,
  * the default {@link NoopTracer} is used.
  */
@@ -77,8 +79,9 @@ public final class GlobalTracer implements Tracer {
      * @throws RuntimeException if there is already a current tracer registered
      */
     public static synchronized void register(final Tracer tracer) {
-        if (tracer == null) throw new NullPointerException("Cannot register GlobalTracer <null>.");
-        else if (tracer instanceof GlobalTracer) {
+        if (tracer == null) {
+            throw new NullPointerException("Cannot register GlobalTracer <null>.");
+        } else if (tracer instanceof GlobalTracer) {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
             return; // no-op
         } else if (!(globalTracer instanceof NoopTracer) && !globalTracer.equals(tracer)) {
