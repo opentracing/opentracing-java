@@ -20,6 +20,9 @@ import io.opentracing.propagation.Format;
  */
 public interface Tracer {
 
+    // span could be directly returned
+    SpanManager spanManager();
+
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
@@ -113,6 +116,8 @@ public interface Tracer {
          */
         SpanBuilder addReference(String referenceType, SpanContext referencedContext);
 
+        SpanBuilder asRoot();
+
         /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
         SpanBuilder withTag(String key, String value);
 
@@ -127,6 +132,5 @@ public interface Tracer {
 
         /** Returns the started Span. */
         Span start();
-
     }
 }

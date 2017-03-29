@@ -23,6 +23,8 @@ import java.util.Map;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.SpanManager;
+import io.opentracing.ThreadLocalSpanManager;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
@@ -38,16 +40,22 @@ import io.opentracing.propagation.TextMap;
 public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
+    private final SpanManager spanManager;
 
     public MockTracer() {
-        this(Propagator.PRINTER);
+        this(Propagator.PRINTER, new ThreadLocalSpanManager());
     }
 
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
+        this(propagator, new ThreadLocalSpanManager());
+    }
+
+    public MockTracer(Propagator propagator, SpanManager spanManager) {
         this.propagator = propagator;
+        this.spanManager = spanManager;
     }
 
     /**
@@ -145,8 +153,13 @@ public class MockTracer implements Tracer {
     }
 
     @Override
+    public SpanManager spanManager() {
+        return spanManager;
+    }
+
+    @Override
     public SpanBuilder buildSpan(String operationName) {
-        return new SpanBuilder(operationName);
+        return new SpanBuilder(operationName, spanManager);
     }
 
     @Override
@@ -170,8 +183,14 @@ public class MockTracer implements Tracer {
         private MockSpan.MockContext firstParent;
         private Map<String, Object> initialTags = new HashMap<>();
 
-        SpanBuilder(String operationName) {
+        SpanBuilder(String operationName, SpanManager spanManager) {
             this.operationName = operationName;
+
+            SpanManager.VisibilityContext inferredParent = spanManager.active();
+            if (inferredParent != null) {
+                addReference(inferredParent.visibility().span() == null ? References.FOLLOWS_FROM : References.CHILD_OF,
+                        inferredParent.visibility().span().context());
+            }
         }
         @Override
         public SpanBuilder asChildOf(SpanContext parent) {
@@ -189,6 +208,12 @@ public class MockTracer implements Tracer {
                     referenceType.equals(References.CHILD_OF) || referenceType.equals(References.FOLLOWS_FROM))) {
                 this.firstParent = (MockSpan.MockContext)referencedContext;
             }
+            return this;
+        }
+
+        @Override
+        public Tracer.SpanBuilder asRoot() {
+            firstParent = null;
             return this;
         }
 
@@ -221,7 +246,8 @@ public class MockTracer implements Tracer {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
             }
-            return new MockSpan(MockTracer.this, this.operationName, this.startMicros, initialTags, this.firstParent);
+            return new MockSpan(MockTracer.this, this.operationName, this.startMicros, initialTags,
+                    this.firstParent, false);
         }
 
         @Override
