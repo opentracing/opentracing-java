@@ -81,10 +81,12 @@ public final class GlobalTracer implements Tracer {
     public static synchronized void register(final Tracer tracer) {
         if (tracer == null) {
             throw new NullPointerException("Cannot register GlobalTracer <null>.");
-        } else if (tracer instanceof GlobalTracer) {
+        }
+        if (tracer instanceof GlobalTracer) {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
             return; // no-op
-        } else if (!(globalTracer instanceof NoopTracer) && !globalTracer.equals(tracer)) {
+        }
+        if (!(globalTracer instanceof NoopTracer) && !globalTracer.equals(tracer)) {
             throw new IllegalStateException("There is already a current global Tracer registered.");
         }
         globalTracer = tracer;
