@@ -68,7 +68,7 @@ public final class GlobalTracer implements Tracer {
     }
 
     /**
-     * Explicitly configures a {@link Tracer} to back the behaviour of the {@link #get() global tracer}.
+     * Register a {@link Tracer} to back the behaviour of the {@link #get() global tracer}.
      * <p>
      * Registration is a one-time operation, attempting to call it more often will result in a runtime exception.
      * <p>
