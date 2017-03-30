@@ -45,7 +45,7 @@ public final class GlobalTracer implements Tracer {
     private static final GlobalTracer INSTANCE = new GlobalTracer();
 
     /**
-     * The resolved {@link Tracer} to delegate to or the {@link NoopTracer} if none was registered yet.
+     * The registered {@link Tracer} delegate or the {@link NoopTracer} if none was registered yet.
      * Never {@code null}.
      */
     private static Tracer globalTracer = NoopTracerFactory.create();
