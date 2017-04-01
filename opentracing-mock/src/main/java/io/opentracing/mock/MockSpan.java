@@ -112,11 +112,6 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public void close() {
-        this.finish();
-    }
-
-    @Override
     public Span setTag(String key, String value) {
         return setObjectTag(key, value);
     }

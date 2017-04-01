@@ -32,9 +32,6 @@ final class NoopSpanImpl implements NoopSpan {
     public void finish(long finishMicros) {}
 
     @Override
-    public void close() { finish(); }
-
-    @Override
     public Span setTag(String key, String value) { return this; }
 
     @Override

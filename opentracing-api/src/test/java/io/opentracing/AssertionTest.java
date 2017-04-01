@@ -30,6 +30,7 @@ public final class AssertionTest {
             throw new AssertionError("assertions are not enabled");
         }
 
+        // XXX: We need to remove the bizarre inheritance relationship between SpanBuilder and SpanContext
         return null != marker ? new TestSpanBuilder(marker, null) : NoopSpanBuilder.INSTANCE;
     }
 }
