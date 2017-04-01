@@ -1,32 +1,31 @@
 package io.opentracing.mdcdemo;
 
-import io.opentracing.ActiveSpanHolder;
-import io.opentracing.Span;
+import io.opentracing.ActiveSpanSource;
+
+import java.io.IOException;
 
 
 public class TracedRunnable implements Runnable {
     private Runnable runnable;
-    private ActiveSpanHolder.Continuation continuation;
+    private ActiveSpanSource.Continuation continuation;
 
-    public TracedRunnable(Runnable runnable, ActiveSpanHolder holder) {
-        this(runnable, holder.active());
+    public TracedRunnable(Runnable runnable, ActiveSpanSource spanSource) {
+        this(runnable, spanSource.active());
     }
 
-    public TracedRunnable(Runnable runnable, ActiveSpanHolder.Continuation continuation) {
+    public TracedRunnable(Runnable runnable, ActiveSpanSource.Handle handle) {
         if (runnable == null) throw new NullPointerException("Runnable is <null>.");
         this.runnable = runnable;
-        this.continuation = continuation.capture();
+        this.continuation = handle.defer();
     }
 
     @Override
     public void run() {
         // NOTE: There's no way to be sure about the finishOnDeactivate parameter to activate(), so we play it safe.
-        this.continuation.activate();
-        final Span span = this.continuation.span();
-        try {
+        try (ActiveSpanSource.Handle handle = this.continuation.activate()) {
             runnable.run();
-        } finally {
-            this.continuation.deactivate();
+        } catch (IOException e) {
+            // Do nothing?
         }
     }
 }
