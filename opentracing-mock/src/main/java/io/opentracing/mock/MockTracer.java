@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.opentracing.*;
-import io.opentracing.ActiveSpanHolder;
+import io.opentracing.ActiveSpanSource;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 
@@ -36,26 +36,26 @@ import io.opentracing.propagation.TextMap;
 public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private ActiveSpanHolder activeSpanHolder;
+    private ActiveSpanSource activeSpanSource;
 
     public MockTracer() {
         this(Propagator.PRINTER);
     }
 
-    public MockTracer(ActiveSpanHolder activeSpanHolder) {
-        this(activeSpanHolder, Propagator.PRINTER);
+    public MockTracer(ActiveSpanSource activeSpanSource) {
+        this(activeSpanSource, Propagator.PRINTER);
     }
 
-    public MockTracer(ActiveSpanHolder activeSpanHolder, Propagator propagator) {
+    public MockTracer(ActiveSpanSource activeSpanSource, Propagator propagator) {
         this.propagator = propagator;
-        this.activeSpanHolder = activeSpanHolder;
+        this.activeSpanSource = activeSpanSource;
     }
 
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(new ThreadLocalActiveSpanHolder(), propagator);
+        this(new ThreadLocalActiveSpanSource(), propagator);
     }
 
     /**
@@ -155,15 +155,24 @@ public class MockTracer implements Tracer {
     @Override
     public SpanBuilder buildSpan(String operationName) {
         SpanBuilder sb = new SpanBuilder(operationName);
-        if (this.activeSpanHolder != null) {
-            sb.asChildOf(this.activeSpanHolder.activeContext());
+        if (this.activeSpanSource != null) {
+            sb.asChildOf(activeSpanContext());
         }
         return sb;
     }
 
+    private SpanContext activeSpanContext() {
+        ActiveSpanSource.Handle handle = this.activeSpanSource.active();
+        if (handle == null) {
+            return null;
+        }
+
+        return handle.span().context();
+    }
+
     @Override
-    public ActiveSpanHolder holder() {
-        return activeSpanHolder;
+    public ActiveSpanSource spanSource() {
+        return activeSpanSource;
     }
 
     @Override
@@ -244,18 +253,13 @@ public class MockTracer implements Tracer {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
             }
-            if (firstParent == null) {
-                firstParent = (MockSpan.MockContext) activeSpanHolder.activeContext();
-            }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }
 
         @Override
-        public ActiveSpanHolder.Continuation startAndActivate() {
+        public ActiveSpanSource.Handle startAndActivate() {
             MockSpan span = this.start();
-            ActiveSpanHolder.Continuation rval = activeSpanHolder.capture(span);
-            rval.activate();
-            return rval;
+            return activeSpanSource.adopt(span);
         }
 
     }
