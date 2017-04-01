@@ -1,6 +1,6 @@
 package io.opentracing.mdcdemo;
 
-import io.opentracing.ActiveSpanHolder;
+import io.opentracing.ActiveSpanSource;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,33 +9,33 @@ import java.util.concurrent.*;
 
 public class TracedExecutorService implements ExecutorService {
     private ExecutorService executor;
-    private ActiveSpanHolder activeSpanHolder;
+    private ActiveSpanSource activeSpanSource;
 
-    public TracedExecutorService(ExecutorService executor, ActiveSpanHolder activeSpanHolder) {
+    public TracedExecutorService(ExecutorService executor, ActiveSpanSource activeSpanSource) {
         if (executor == null) throw new NullPointerException("Executor is <null>.");
-        if (activeSpanHolder == null) throw new NullPointerException("ActiveSpanHolder is <null>.");
+        if (activeSpanSource == null) throw new NullPointerException("ActiveSpanSource is <null>.");
         this.executor = executor;
-        this.activeSpanHolder = activeSpanHolder;
+        this.activeSpanSource = activeSpanSource;
     }
 
     @Override
     public void execute(Runnable command) {
-        executor.execute(new TracedRunnable(command, activeSpanHolder));
+        executor.execute(new TracedRunnable(command, activeSpanSource));
     }
 
     @Override
     public Future<?> submit(Runnable task) {
-        return executor.submit(new TracedRunnable(task, activeSpanHolder));
+        return executor.submit(new TracedRunnable(task, activeSpanSource));
     }
 
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
-        return executor.submit(new TracedRunnable(task, activeSpanHolder), result);
+        return executor.submit(new TracedRunnable(task, activeSpanSource), result);
     }
 
     @Override
     public <T> Future<T> submit(Callable<T> task) {
-        return executor.submit(new TracedCallable(task, activeSpanHolder));
+        return executor.submit(new TracedCallable(task, activeSpanSource));
     }
 
     @Override
@@ -89,7 +89,7 @@ public class TracedExecutorService implements ExecutorService {
         Collection<? extends Callable<T>> tasks) {
         if (tasks == null) throw new NullPointerException("Collection of tasks is <null>.");
         Collection<Callable<T>> result = new ArrayList<Callable<T>>(tasks.size());
-        for (Callable<T> task : tasks) result.add(new TracedCallable(task, activeSpanHolder));
+        for (Callable<T> task : tasks) result.add(new TracedCallable(task, activeSpanSource));
         return result;
     }
 }
