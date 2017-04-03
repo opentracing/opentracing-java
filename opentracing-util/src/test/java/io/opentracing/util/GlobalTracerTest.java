@@ -37,7 +37,7 @@ public class GlobalTracerTest {
 
     private static void _setGlobal(Tracer tracer) {
         try {
-            Field globalTracerField = GlobalTracer.class.getDeclaredField("globalTracer");
+            Field globalTracerField = GlobalTracer.class.getDeclaredField("tracer");
             globalTracerField.setAccessible(true);
             globalTracerField.set(null, tracer);
             globalTracerField.setAccessible(false);

@@ -48,7 +48,7 @@ public final class GlobalTracer implements Tracer {
      * The registered {@link Tracer} delegate or the {@link NoopTracer} if none was registered yet.
      * Never {@code null}.
      */
-    private static Tracer globalTracer = NoopTracerFactory.create();
+    private static Tracer tracer = NoopTracerFactory.create();
 
     private GlobalTracer() {
     }
@@ -86,31 +86,31 @@ public final class GlobalTracer implements Tracer {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
             return; // no-op
         }
-        if (globalTracer instanceof NoopTracer) {
-            globalTracer = tracer;
-        } else if (!globalTracer.equals(tracer)) { // be lenient for re-registration of same tracer
+        if (GlobalTracer.tracer instanceof NoopTracer) {
+            GlobalTracer.tracer = tracer;
+        } else if (!GlobalTracer.tracer.equals(tracer)) { // be lenient for re-registration of same tracer
             throw new IllegalStateException("There is already a current global Tracer registered.");
         }
     }
 
     @Override
     public SpanBuilder buildSpan(String operationName) {
-        return globalTracer.buildSpan(operationName);
+        return tracer.buildSpan(operationName);
     }
 
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
-        globalTracer.inject(spanContext, format, carrier);
+        tracer.inject(spanContext, format, carrier);
     }
 
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
-        return globalTracer.extract(format, carrier);
+        return tracer.extract(format, carrier);
     }
 
     @Override
     public String toString() {
-        return GlobalTracer.class.getSimpleName() + '{' + globalTracer + '}';
+        return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
     }
 
 }
