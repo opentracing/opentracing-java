@@ -86,9 +86,9 @@ public final class GlobalTracer implements Tracer {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
             return; // no-op
         }
-        if (globalTracer instanceof NoopTracer || globalTracer.equals(tracer)) {
+        if (globalTracer instanceof NoopTracer) {
             globalTracer = tracer;
-        } else {
+        } else if (!globalTracer.equals(tracer)) { // be lenient for re-registration of same tracer
             throw new IllegalStateException("There is already a current global Tracer registered.");
         }
     }
