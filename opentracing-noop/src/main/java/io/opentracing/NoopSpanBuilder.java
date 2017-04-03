@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -66,4 +66,7 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     public Iterable<Map.Entry<String, String>> baggageItems() {
         return Collections.EMPTY_MAP.entrySet();
     }
+
+    @Override
+    public String toString() { return NoopSpanBuilder.class.getSimpleName(); }
 }
