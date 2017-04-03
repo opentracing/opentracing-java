@@ -110,7 +110,7 @@ public final class GlobalTracer implements Tracer {
 
     @Override
     public String toString() {
-        return GlobalTracer.class.getSimpleName();
+        return GlobalTracer.class.getSimpleName() + '{' + globalTracer + '}';
     }
 
 }
