@@ -1,6 +1,6 @@
 package io.opentracing.mdcdemo;
 
-import io.opentracing.ActiveSpanSource;
+import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockSpan;
@@ -10,7 +10,10 @@ import org.slf4j.MDC;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class MDCDemo {
     Tracer tracer;
@@ -25,7 +28,7 @@ public class MDCDemo {
     }
 
     public void trivialChild() throws Exception {
-        try (ActiveSpanSource.Handle c = this.tracer.buildSpan("trivialParent").startAndActivate()) {
+        try (ActiveSpan c = this.tracer.buildSpan("trivialParent").startAndActivate()) {
             // The child will automatically know about the parent.
             Span child = this.tracer.buildSpan("trivialChild").start();
             child.finish();
@@ -44,7 +47,7 @@ public class MDCDemo {
         final List<Future<?>> subfutures = new ArrayList<>();
 
         // Create a parent Continuation for all of the async activity.
-        try (final ActiveSpanSource.Handle parentHandle = tracer.buildSpan("parent").startAndActivate();) {
+        try (final ActiveSpan parentHandle = tracer.buildSpan("parent").startAndActivate();) {
 
             // Create 10 async children.
             for (int i = 0; i < 10; i++) {
@@ -55,14 +58,14 @@ public class MDCDemo {
                     public void run() {
                         // START child body
 
-                        try (final ActiveSpanSource.Handle childHandle =
+                        try (final ActiveSpan childHandle =
                                      tracer.buildSpan("child_" + j).startAndActivate();) {
                             Thread.currentThread().sleep(1000);
-                            tracer.spanSource().active().span().log("awoke");
+                            tracer.spanSource().active().log("awoke");
                             Runnable r = new Runnable() {
                                 @Override
                                 public void run() {
-                                    Span active = tracer.spanSource().active().span();
+                                    Span active = tracer.spanSource().active();
                                     active.log("awoke again");
                                     System.out.println("MDC parent number: " + MDC.get("parent number"));
                                     // Create a grandchild for each child... note that we don't *need* to use the
