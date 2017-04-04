@@ -32,8 +32,8 @@ public interface Tracer {
      * <pre>{@code
      *   Tracer tracer = ...
      *
-     *   // Note: if there is an {@link ActiveSpanSource#activeContext()}, it will be treated as the parent of workSpan.
-     *   try (ActiveSpanSource.Handle workHandle = tracer.buildSpan("DoWork").startAndActivate()) {
+     *   // Note: if there is an {@link ActiveSpanSource#active()}, it will be treated as the parent of workSpan.
+     *   try (Source.Handle workHandle = tracer.buildSpan("DoWork").startAndActivate()) {
      *       workHandle.span().setTag("...", "...");
      *       // etc, etc
      *   }
@@ -49,10 +49,10 @@ public interface Tracer {
     SpanBuilder buildSpan(String operationName);
 
     /**
-     * @return the ActiveSpanSource associated with this Tracer. Must not be null.
+     * @return the Source associated with this Tracer. Must not be null.
      *
      * @see ActiveSpanSource
-     * @see ThreadLocalActiveSpanSource a simple built-in thread-local-storage-based ActiveSpanSource
+     * @see ThreadLocalActiveSpanSource a simple built-in thread-local-storage-based Source
      */
     ActiveSpanSource spanSource();
 
@@ -162,18 +162,18 @@ public interface Tracer {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * Returns a newly started and {@linkplain ActiveSpanSource.Continuation#activate() activated}
-         * {@link ActiveSpanSource.Handle}.
+         * Returns a newly started and {@linkplain ActiveSpan.Continuation#activate() activated}
+         * {@link ActiveSpan}.
          *
          * <p>
          *
-         * The returned {@link ActiveSpanSource.Handle} supports try-with-resources. For example:
+         * The returned {@link ActiveSpan} supports try-with-resources. For example:
          * <pre>{@code
-         *     try (ActiveSpanSource.Handle handle = tracer.buildSpan("...").startAndActivate()) {
+         *     try (Source.Handle handle = tracer.buildSpan("...").startAndActivate()) {
          *         // Do work
          *         Span span = tracer.spanSource().activeSpan();
          *         span.setTag( ... );  // etc, etc
-         *     }  // Span finishes automatically unless pinned via {@link ActiveSpanSource.Handle#defer}
+         *     }  // Span finishes automatically unless pinned via {@link ActiveSpan#defer}
          * }</pre>
 	 *
          * <p>
@@ -191,13 +191,13 @@ public interface Tracer {
          * {@code tracer.spanSource().adopt(SpanBuilder.start()).activate()}
          * </p>
          *
-         * @return a pre-activated {@link ActiveSpanSource.Handle}
+         * @return a pre-activated {@link ActiveSpan}
          *
          * @see Tracer#spanSource()
-         * @see ActiveSpanSource.Continuation#activate()
+         * @see ActiveSpan.Continuation#activate()
          * @see ActiveSpanSource#adopt(Span)
          */
-        ActiveSpanSource.Handle startAndActivate();
+        ActiveSpan startAndActivate();
 
         /**
 	 * @see SpanBuilder#startAndActivate()
