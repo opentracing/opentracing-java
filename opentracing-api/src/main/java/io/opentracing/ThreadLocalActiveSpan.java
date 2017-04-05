@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ThreadLocalActiveSpan implements ActiveSpan {
     private ThreadLocalActiveSpanSource source;
     private final Span wrapped;
-    private ThreadLocalActiveSpan toRestore = null;
+    private final ThreadLocalActiveSpan toRestore;
     private final AtomicInteger refCount;
 
     ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, AtomicInteger refCount) {
@@ -120,7 +120,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
 
     @Override
     public void close() {
-
+        deactivate();
     }
 
     static class Continuation implements ActiveSpan.Continuation {
