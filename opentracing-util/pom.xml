@@ -23,14 +23,29 @@
         <version>0.20.11-SNAPSHOT</version>
     </parent>
 
-    <artifactId>opentracing-api</artifactId>
-    <name>OpenTracing API</name>
-    <description>OpenTracing Java API</description>
+    <artifactId>opentracing-util</artifactId>
+    <name>OpenTracing-util</name>
+    <description>OpenTracing utilities</description>
 
     <properties>
         <main.basedir>${project.basedir}/..</main.basedir>
         <main.java.version>1.6</main.java.version>
-        <main.signature.artifact>java16</main.signature.artifact>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>opentracing-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>opentracing-noop</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>opentracing-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
