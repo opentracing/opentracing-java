@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.SpanManager;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -28,6 +29,8 @@ import io.opentracing.SpanContext;
 public final class MockSpan implements Span {
     // A simple-as-possible (consecutive for repeatability) id generator.
     private static AtomicLong nextId = new AtomicLong(0);
+
+    private final SpanManager.Visibility visibility;
 
     private final MockTracer mockTracer;
     private MockContext context;
@@ -66,10 +69,10 @@ public final class MockSpan implements Span {
         return startMicros;
     }
     /**
-     * @return the finish time of the Span; only valid after a call to finish().
+     * @return the markAsFinished time of the Span; only valid after a call to markAsFinished().
      */
     public long finishMicros() {
-        assert finishMicros > 0 : "must call finish() before finishMicros()";
+        assert finishMicros > 0 : "must call markAsFinished() before finishMicros()";
         return finishMicros;
     }
 
@@ -94,6 +97,11 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    public SpanManager.Visibility visibility() {
+        return visibility;
+    }
+
+    @Override
     public synchronized MockContext context() {
         return this.context;
     }
@@ -107,6 +115,7 @@ public final class MockSpan implements Span {
     public synchronized void finish(long finishMicros) {
         finishedCheck("Finishing already finished span");
         this.finishMicros = finishMicros;
+        visibility.markAsFinished();
         this.mockTracer.appendFinishedSpan(this);
         this.finished = true;
     }
@@ -248,10 +257,17 @@ public final class MockSpan implements Span {
         }
     }
 
-    MockSpan(MockTracer tracer, String operationName, long startMicros, Map<String, Object> initialTags, MockContext parent) {
+    MockSpan(MockTracer tracer, String operationName, long startMicros, Map<String, Object> initialTags, MockContext
+            parent, boolean activate) {
         this.mockTracer = tracer;
         this.operationName = operationName;
         this.startMicros = startMicros;
+
+        this.visibility = tracer.spanManager().bundle(this);
+        if (activate) {
+            this.visibility.activate();
+        }
+
         if (initialTags == null) {
             this.tags = new HashMap<>();
         } else {
