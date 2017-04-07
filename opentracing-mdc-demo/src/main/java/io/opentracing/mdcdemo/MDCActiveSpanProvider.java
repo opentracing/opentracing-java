@@ -2,17 +2,15 @@ package io.opentracing.mdcdemo;
 
 import io.opentracing.Span;
 import io.opentracing.impl.AbstractActiveSpan;
-import io.opentracing.impl.AbstractActiveSpanSource;
-import org.slf4j.MDC;
+import io.opentracing.impl.AbstractActiveSpanProvider;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * MDCActiveSpanSource illustrates the core Source concepts and capabilities to a first approximation. Not
+ * MDCActiveSpanProvider illustrates the core Source concepts and capabilities to a first approximation. Not
  * production-quality code.
  */
-public class MDCActiveSpanSource extends AbstractActiveSpanSource {
+public class MDCActiveSpanProvider extends AbstractActiveSpanProvider {
     final ThreadLocal<MDCActiveSpan> tlsSnapshot = new ThreadLocal<MDCActiveSpan>();
 
     @Override

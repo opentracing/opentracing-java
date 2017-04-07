@@ -1,7 +1,7 @@
 package io.opentracing.mdcdemo;
 
 import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
+import io.opentracing.ActiveSpanProvider;
 
 import java.util.concurrent.Callable;
 
@@ -9,7 +9,7 @@ public class TracedCallable<T> implements Callable<T> {
     private ActiveSpan.Continuation continuation;
     private Callable<T> callable;
 
-    public TracedCallable(Callable<T> callable, ActiveSpanSource spanSource) {
+    public TracedCallable(Callable<T> callable, ActiveSpanProvider spanSource) {
         this(callable, spanSource.active());
     }
 

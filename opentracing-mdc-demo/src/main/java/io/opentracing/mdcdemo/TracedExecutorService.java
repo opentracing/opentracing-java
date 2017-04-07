@@ -1,6 +1,6 @@
 package io.opentracing.mdcdemo;
 
-import io.opentracing.ActiveSpanSource;
+import io.opentracing.ActiveSpanProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,9 +14,9 @@ import java.util.concurrent.TimeoutException;
 
 public class TracedExecutorService implements ExecutorService {
     private ExecutorService executor;
-    private ActiveSpanSource spanSource;
+    private ActiveSpanProvider spanSource;
 
-    public TracedExecutorService(ExecutorService executor, ActiveSpanSource spanSource) {
+    public TracedExecutorService(ExecutorService executor, ActiveSpanProvider spanSource) {
         if (executor == null) throw new NullPointerException("Executor is <null>.");
         if (spanSource == null) throw new NullPointerException("Source is <null>.");
         this.executor = executor;
