@@ -8,7 +8,7 @@ public class TracedRunnable implements Runnable {
     private ActiveSpan.Continuation continuation;
 
     public TracedRunnable(Runnable runnable, ActiveSpanSource spanSource) {
-        this(runnable, spanSource.active());
+        this(runnable, spanSource.activeSpan());
     }
 
     public TracedRunnable(Runnable runnable, ActiveSpan handle) {

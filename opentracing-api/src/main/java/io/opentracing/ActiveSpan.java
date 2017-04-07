@@ -3,9 +3,9 @@ package io.opentracing;
 import java.io.Closeable;
 
 /**
- * In any execution context (or any thread, etc), there is at most one "active" {@link Span} primarily responsible for
- * the work accomplished by the surrounding application code. That active Span may be accessed via the
- * {@link ActiveSpanSource#active()} method. If the application needs to defer work that should be part of the same Span, the
+ * In any execution context (or any thread, etc), there is at most one "activeSpan" {@link Span} primarily responsible for
+ * the work accomplished by the surrounding application code. That activeSpan Span may be accessed via the
+ * {@link ActiveSpanSource#activeSpan()} method. If the application needs to defer work that should be part of the same Span, the
  * Source provides a {@link ActiveSpan#defer} method that returns a {@link Continuation}; this continuation may be used
  * to re-activate and continue the {@link Span} in that other asynchronous executor and/or thread.
  *
@@ -17,7 +17,7 @@ import java.io.Closeable;
  */
 public interface ActiveSpan extends Closeable, Span {
     /**
-     * Mark the end of the active period for the {@link Span} pinned by this {@link ActiveSpan}. When the last
+     * Mark the end of the activeSpan period for the {@link Span} pinned by this {@link ActiveSpan}. When the last
      * {@link ActiveSpan} is deactivated for a given {@link Span}, it is automatically {@link Span#finish()}ed.
      * <p>
      * <p>
@@ -33,7 +33,7 @@ public interface ActiveSpan extends Closeable, Span {
      * <p>
      * <p>
      * The associated {@link Span} will not {@link Span#finish()} while a {@link Continuation} is outstanding; in
-     * this way, it provides a reference/pin just like an active @{Handle} does.
+     * this way, it provides a reference/pin just like an activeSpan @{Handle} does.
      *
      * @return a new {@link Continuation} to {@link Continuation#activate()} at the appropriate time.
      */
@@ -41,7 +41,7 @@ public interface ActiveSpan extends Closeable, Span {
 
     /**
      * A {@link Continuation} can be used *once* to activate a Span along with any non-OpenTracing execution context
-     * (e.g., MDC), then deactivate when processing activity moves on to another Span. (In practice, this active period
+     * (e.g., MDC), then deactivate when processing activity moves on to another Span. (In practice, this activeSpan period
      * typically extends for the length of a deferred async closure invocation.)
      *
      * <p>
@@ -57,7 +57,7 @@ public interface ActiveSpan extends Closeable, Span {
      */
     interface Continuation {
         /**
-         * Make the Span (and other execution context) encapsulated by this Continuation active and return it.
+         * Make the Span (and other execution context) encapsulated by this Continuation activeSpan and return it.
          *
          * <p>
          * NOTE: It is an error to call activate() more than once on a single Continuation instance.

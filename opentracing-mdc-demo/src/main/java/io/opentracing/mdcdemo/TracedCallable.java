@@ -10,7 +10,7 @@ public class TracedCallable<T> implements Callable<T> {
     private Callable<T> callable;
 
     public TracedCallable(Callable<T> callable, ActiveSpanSource spanSource) {
-        this(callable, spanSource.active());
+        this(callable, spanSource.activeSpan());
     }
 
     public TracedCallable(Callable<T> callable, ActiveSpan handle) {

@@ -22,7 +22,7 @@ public class MDCActiveSpanSource extends AbstractActiveSpanSource {
     }
 
     @Override
-    public MDCActiveSpan active() {
+    public MDCActiveSpan activeSpan() {
         return tlsSnapshot.get();
     }
 

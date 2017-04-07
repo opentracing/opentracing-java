@@ -3,7 +3,7 @@ package io.opentracing;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A trivial source for the {@linkplain #active active} {@link ActiveSpan}.
+ * A trivial source for the {@linkplain #activeSpan activeSpan} {@link ActiveSpan}.
  *
  * @see ThreadLocalActiveSpan
  * @see Tracer#spanSource()
@@ -16,7 +16,7 @@ public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
     }
 
     @Override
-    public ThreadLocalActiveSpan active() {
+    public ThreadLocalActiveSpan activeSpan() {
         return tlsSnapshot.get();
     }
 
