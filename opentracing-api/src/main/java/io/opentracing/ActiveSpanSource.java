@@ -16,10 +16,10 @@ public interface ActiveSpanSource {
 
     /**
      * Wrap and "adopt" a @{link Span} by encapsulating it – and any activeSpan state (e.g., MDC state) in the execution
-     * context – in a new @{link Handle}.
+     * context – in a new @{link ActiveSpan}.
      *
      * @param span the Span just started
-     * @return a @{link Handle} that encapsulates the given Span and any other Source-specific context (e.g.,
+     * @return an @{link ActiveSpan} that encapsulates the given Span and any other Source-specific context (e.g.,
      * MDC data)
      */
     ActiveSpan adopt(Span span);

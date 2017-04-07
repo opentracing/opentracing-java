@@ -28,7 +28,7 @@ public class MDCDemo {
     }
 
     public void trivialChild() throws Exception {
-        try (ActiveSpan c = this.tracer.buildSpan("trivialParent").startAndActivate()) {
+        try (ActiveSpan c = this.tracer.buildSpan("trivialParent").startActive()) {
             // The child will automatically know about the parent.
             Span child = this.tracer.buildSpan("trivialChild").start();
             child.finish();
@@ -47,7 +47,7 @@ public class MDCDemo {
         final List<Future<?>> subfutures = new ArrayList<>();
 
         // Create a parent Continuation for all of the async activity.
-        try (final ActiveSpan parentHandle = tracer.buildSpan("parent").startAndActivate();) {
+        try (final ActiveSpan parent = tracer.buildSpan("parent").startActive();) {
 
             // Create 10 async children.
             for (int i = 0; i < 10; i++) {
@@ -58,8 +58,8 @@ public class MDCDemo {
                     public void run() {
                         // START child body
 
-                        try (final ActiveSpan childHandle =
-                                     tracer.buildSpan("child_" + j).startAndActivate();) {
+                        try (final ActiveSpan child =
+                                     tracer.buildSpan("child_" + j).startActive();) {
                             Thread.currentThread().sleep(1000);
                             tracer.activeSpan().log("awoke");
                             Runnable r = new Runnable() {

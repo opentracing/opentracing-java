@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A trivial source for the {@linkplain #activeSpan activeSpan} {@link ActiveSpan}.
  *
  * @see ThreadLocalActiveSpan
- * @see Tracer#spanSource()
+ * @see Tracer#activeSpan()
  */
 public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
     final ThreadLocal<ThreadLocalActiveSpan> tlsSnapshot = new ThreadLocal<ThreadLocalActiveSpan>();

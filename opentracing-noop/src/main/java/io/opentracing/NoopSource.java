@@ -6,7 +6,7 @@ import java.util.Map;
  * A noop (i.e., cheap-as-possible) implementation of a Source.
  */
 public class NoopSource implements ActiveSpanSource {
-    public static final ActiveSpan NOOP_ACTIVE_SPAN = new NoopHandle();
+    public static final ActiveSpan NOOP_ACTIVE_SPAN = new NoopActiveSpan();
     public static final ActiveSpan.Continuation NOOP_CONTINUATION = new NoopContinuation();
 
     @Override
@@ -17,7 +17,7 @@ public class NoopSource implements ActiveSpanSource {
     @Override
     public ActiveSpan activeSpan() { return NOOP_ACTIVE_SPAN; }
 
-    public static class NoopHandle implements ActiveSpan {
+    public static class NoopActiveSpan implements ActiveSpan {
         @Override
         public void deactivate() {}
 

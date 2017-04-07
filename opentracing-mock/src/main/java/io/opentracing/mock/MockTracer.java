@@ -260,17 +260,21 @@ public class MockTracer implements Tracer {
 
         @Override
         public MockSpan start() {
+            return startManual();
+        }
+
+        @Override
+        public ActiveSpan startActive() {
+            MockSpan span = this.startManual();
+            return spanSource.adopt(span);
+        }
+
+        @Override
+        public MockSpan startManual() {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
             }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }
-
-        @Override
-        public ActiveSpan startAndActivate() {
-            MockSpan span = this.start();
-            return spanSource.adopt(span);
-        }
-
     }
 }

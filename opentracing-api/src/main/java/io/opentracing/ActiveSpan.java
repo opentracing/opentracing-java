@@ -10,7 +10,7 @@ import java.io.Closeable;
  * to re-activate and continue the {@link Span} in that other asynchronous executor and/or thread.
  *
  * <p>
- * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startAndActivate()} or {@link ActiveSpanSource#adopt}. They can
+ * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#adopt}. They can
  * be {@link ActiveSpan#defer()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d later.
  *
  * @see ActiveSpanSource
@@ -33,7 +33,7 @@ public interface ActiveSpan extends Closeable, Span {
      * <p>
      * <p>
      * The associated {@link Span} will not {@link Span#finish()} while a {@link Continuation} is outstanding; in
-     * this way, it provides a reference/pin just like an activeSpan @{Handle} does.
+     * this way, it provides a reference/pin just like an @{ActiveSpan} does.
      *
      * @return a new {@link Continuation} to {@link Continuation#activate()} at the appropriate time.
      */

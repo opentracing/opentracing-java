@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * storage primitive.
  *
  * @see ActiveSpanSource
- * @see Tracer#spanSource()
+ * @see Tracer#activeSpan()
  */
 public class ThreadLocalActiveSpan implements ActiveSpan {
     private ThreadLocalActiveSpanSource source;
