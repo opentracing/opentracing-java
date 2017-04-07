@@ -3,15 +3,16 @@ package io.opentracing;
 import java.io.Closeable;
 
 /**
- * In any execution context (or any thread, etc), there is at most one "activeSpan" {@link Span} primarily responsible for
- * the work accomplished by the surrounding application code. That activeSpan Span may be accessed via the
- * {@link ActiveSpanSource#activeSpan()} method. If the application needs to defer work that should be part of the same Span, the
- * Source provides a {@link ActiveSpan#defer} method that returns a {@link Continuation}; this continuation may be used
- * to re-activate and continue the {@link Span} in that other asynchronous executor and/or thread.
+ * In any execution context (or any thread, etc), there is at most one "activeSpan" {@link Span} primarily responsible
+ * for the work accomplished by the surrounding application code. That active Span may be accessed via the
+ * {@link ActiveSpanSource#activeSpan()} method. If the application needs to defer work that should be part of the same
+ * Span, the Source provides a {@link ActiveSpan#defer} method that returns a {@link Continuation}; this continuation
+ * may be used to re-activate and continue the {@link Span} in that other asynchronous executor and/or thread.
  *
  * <p>
- * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#adopt}. They can
- * be {@link ActiveSpan#defer()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d later.
+ * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#adopt}. They
+ * can be {@link ActiveSpan#defer()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d
+ * later.
  *
  * @see ActiveSpanSource
  */
@@ -41,8 +42,8 @@ public interface ActiveSpan extends Closeable, Span {
 
     /**
      * A {@link Continuation} can be used *once* to activate a Span along with any non-OpenTracing execution context
-     * (e.g., MDC), then deactivate when processing activity moves on to another Span. (In practice, this activeSpan period
-     * typically extends for the length of a deferred async closure invocation.)
+     * (e.g., MDC), then deactivate when processing activity moves on to another Span. (In practice, this activeSpan
+     * period typically extends for the length of a deferred async closure invocation.)
      *
      * <p>
      * Most users do not directly interact with {@link Continuation}, {@link Continuation#activate()} or
