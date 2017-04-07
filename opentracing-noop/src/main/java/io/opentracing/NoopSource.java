@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * A noop (i.e., cheap-as-possible) implementation of a Source.
  */
-public class NoopProvider implements ActiveSpanProvider {
+public class NoopSource implements ActiveSpanSource {
     public static final ActiveSpan NOOP_ACTIVE_SPAN = new NoopHandle();
     public static final ActiveSpan.Continuation NOOP_CONTINUATION = new NoopContinuation();
 
