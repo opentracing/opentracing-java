@@ -22,15 +22,15 @@ Packages are deployed to Maven Central under the `io.opentracing` group.
 
 ### Initialization
 
-Initialization is OpenTracing-implementation-specific. Generally speaking, the pattern is to initialize a `Tracer` once for the entire process and to use that `Tracer` for the remainder of the process lifetime. The [GlobalTracer](https://github.com/opentracing/opentracing-java/blob/master/opentracing-util/src/main/java/io/opentracing/util/GlobalTracer.java) provides a helper for singleton access to the `Tracer` as well as `ServiceLoader` support for OpenTracing Java implementations.
+Initialization is OpenTracing-implementation-specific. Generally speaking, the pattern is to initialize a `Tracer` once for the entire process and to use that `Tracer` for the remainder of the process lifetime. The [GlobalTracer](https://github.com/opentracing/opentracing-java/blob/master/opentracing-util/src/main/java/io/opentracing/util/GlobalTracer.java) provides a helper for singleton access to the `Tracer`.
 
 ### `ActiveSpan`s, `Continuation`s, and within-process prapagation
 
 For any execution context or Thread, at most one `Span` may be "active". Of course there may be many other `Spans` involved with the execution context which are (a) started, (b) not finished, and yet (c) not "active": perhaps they are waiting for I/O, blocked on a child Span, or otherwise off the critical path.
  
-It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides an `ActiveSpanSource` abstraction to provide access to the active `Span` and to pin and defer it for re-activation in other execution contexts (e.g., in an async callback).
+It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides an `ActiveSpanSource` abstraction to provide access to an `ActiveSpan` and to pin and `defer()` it for re-activation in other execution contexts (e.g., in an async callback).
 
-Every `Tracer` implementation _must_ provide access to an `ActiveSpanSource` (typically passed in at `Tracer` initialization time). The `ActiveSpanSource` in turn exposes the current `ActiveSpan`, like so:
+Access to the active `Span` is straightforward:
 
 ```
 io.opentracing.Tracer tracer = ...;
@@ -91,10 +91,10 @@ Consider the case where a `Span`'s lifetime logically starts in one execution co
 
 The `"ServiceHandlerSpan"` is _active_ when it's running FunctionA and FunctionB, and inactive while it's waiting on an RPC (presumably modelled as its own Span, though that's not the concern here).
 
-**The `ActiveSpanSource` makes it easy to "adopt" the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** These are the steps:
+**The `ActiveSpanSource` makes it easy to "adopt" the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` must also implement `ActiveSpanSource`. These are the steps:
 
 1. Start the `ActiveSpan` via `Tracer.startActive()` rather than via `Tracer.startManual()`; or, if the `Span` was already `startManual()`ed, call `ActiveSpanSource#adopt(span)`. Either route will yield an `ActiveSpan` instance that's "adopted" the `Span`.
-2. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#defer()` to obtain an `ActiveSpa.Continuation`
+2. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#defer()` to obtain an `ActiveSpan.Continuation`
 3. In the closure/`Runnable`/`Future`/etc itself, invoke `ActiveSpan.Continuation#activate` to re-activate the `ActiveSpan`, then `deactivate()` it when the Span is no longer active (or use try-with-resources for less typing).
 
 For example:
