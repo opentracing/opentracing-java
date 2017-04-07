@@ -100,7 +100,7 @@ public class MDCDemo {
         final Logger logger = org.slf4j.LoggerFactory.getLogger("MDCDemo");
         MDC.put("mdcKey", "mdcVal");
 
-        final MockTracer tracer = new MockTracer(new MDCActiveSpanSource());
+        final MockTracer tracer = new MockTracer(new MDCActiveSpanProvider());
 
         // Do stuff with the MockTracer.
         {

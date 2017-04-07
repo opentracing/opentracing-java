@@ -1,12 +1,12 @@
 package io.opentracing;
 
 /**
- * {@link ActiveSpanSource} allows an existing (possibly thread-local-aware) execution context provider to act as a
+ * {@link ActiveSpanProvider} allows an existing (possibly thread-local-aware) execution context provider to act as a
  * source for an actively-scheduled OpenTracing Span.
  *
  * @see ActiveSpan
  */
-public interface ActiveSpanSource {
+public interface ActiveSpanProvider {
 
     /**
      * @return the active {@link ActiveSpan}, or null if none could be found. This does not affect the reference count for

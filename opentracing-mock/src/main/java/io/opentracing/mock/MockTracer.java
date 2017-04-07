@@ -14,11 +14,11 @@
 package io.opentracing.mock;
 
 import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
+import io.opentracing.ActiveSpanProvider;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
-import io.opentracing.ThreadLocalActiveSpanSource;
+import io.opentracing.ThreadLocalActiveSpanProvider;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
@@ -41,17 +41,17 @@ import java.util.Map;
 public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private ActiveSpanSource spanSource;
+    private ActiveSpanProvider spanSource;
 
     public MockTracer() {
         this(Propagator.PRINTER);
     }
 
-    public MockTracer(ActiveSpanSource spanSource) {
+    public MockTracer(ActiveSpanProvider spanSource) {
         this(spanSource, Propagator.PRINTER);
     }
 
-    public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
+    public MockTracer(ActiveSpanProvider spanSource, Propagator propagator) {
         this.propagator = propagator;
         this.spanSource = spanSource;
     }
@@ -60,7 +60,7 @@ public class MockTracer implements Tracer {
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(new ThreadLocalActiveSpanSource(), propagator);
+        this(new ThreadLocalActiveSpanProvider(), propagator);
     }
 
     /**
@@ -176,7 +176,7 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public ActiveSpanSource spanSource() {
+    public ActiveSpanProvider spanSource() {
         return spanSource;
     }
 

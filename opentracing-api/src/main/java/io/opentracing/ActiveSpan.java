@@ -5,15 +5,15 @@ import java.io.Closeable;
 /**
  * In any execution context (or any thread, etc), there is at most one "active" {@link Span} primarily responsible for
  * the work accomplished by the surrounding application code. That active Span may be accessed via the
- * {@link ActiveSpanSource#active()} method. If the application needs to defer work that should be part of the same Span, the
+ * {@link ActiveSpanProvider#active()} method. If the application needs to defer work that should be part of the same Span, the
  * Source provides a {@link ActiveSpan#defer} method that returns a {@link Continuation}; this continuation may be used
  * to re-activate and continue the {@link Span} in that other asynchronous executor and/or thread.
  *
  * <p>
- * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startAndActivate()} or {@link ActiveSpanSource#adopt}. They can
+ * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startAndActivate()} or {@link ActiveSpanProvider#adopt}. They can
  * be {@link ActiveSpan#defer()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d later.
  *
- * @see ActiveSpanSource
+ * @see ActiveSpanProvider
  */
 public interface ActiveSpan extends Closeable, Span {
     /**
@@ -46,14 +46,14 @@ public interface ActiveSpan extends Closeable, Span {
      *
      * <p>
      * Most users do not directly interact with {@link Continuation}, {@link Continuation#activate()} or
-     * {@link ActiveSpan#deactivate()}, but rather use {@link ActiveSpanSource}-aware Runnables/Callables/Executors.
+     * {@link ActiveSpan#deactivate()}, but rather use {@link ActiveSpanProvider}-aware Runnables/Callables/Executors.
      * Those higher-level primitives need not be defined within the OpenTracing core API, and so they are not.
      *
      * <p>
      * NOTE: {@link Continuation} extends {@link Closeable} rather than AutoCloseable in order to keep support
      * for JDK1.6.
      *
-     * @see ActiveSpanSource#adopt(Span)
+     * @see ActiveSpanProvider#adopt(Span)
      */
     interface Continuation {
         /**
@@ -62,7 +62,7 @@ public interface ActiveSpan extends Closeable, Span {
          * <p>
          * NOTE: It is an error to call activate() more than once on a single Continuation instance.
          *
-         * @see ActiveSpanSource#adopt(Span)
+         * @see ActiveSpanProvider#adopt(Span)
          * @return a handle to the newly-activated Span
          */
         ActiveSpan activate();

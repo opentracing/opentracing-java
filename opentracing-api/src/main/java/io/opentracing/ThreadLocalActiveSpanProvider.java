@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see ThreadLocalActiveSpan
  * @see Tracer#spanSource()
  */
-public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
+public class ThreadLocalActiveSpanProvider implements ActiveSpanProvider {
     final ThreadLocal<ThreadLocalActiveSpan> tlsSnapshot = new ThreadLocal<ThreadLocalActiveSpan>();
 
     ThreadLocalActiveSpan.Continuation makeContinuation(Span span, AtomicInteger refCount) {

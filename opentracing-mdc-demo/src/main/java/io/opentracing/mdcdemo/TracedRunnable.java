@@ -1,13 +1,13 @@
 package io.opentracing.mdcdemo;
 
 import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
+import io.opentracing.ActiveSpanProvider;
 
 public class TracedRunnable implements Runnable {
     private Runnable runnable;
     private ActiveSpan.Continuation continuation;
 
-    public TracedRunnable(Runnable runnable, ActiveSpanSource spanSource) {
+    public TracedRunnable(Runnable runnable, ActiveSpanProvider spanSource) {
         this(runnable, spanSource.active());
     }
 
