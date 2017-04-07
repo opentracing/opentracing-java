@@ -89,6 +89,16 @@ public class MockTracer implements Tracer {
     protected void onSpanFinished(MockSpan mockSpan) {
     }
 
+    @Override
+    public ActiveSpan activeSpan() {
+        return spanSource.activeSpan();
+    }
+
+    @Override
+    public ActiveSpan adopt(Span span) {
+        return spanSource.adopt(span);
+    }
+
     /**
      * Propagator allows the developer to intercept and verify any calls to inject() and/or extract().
      *
@@ -167,17 +177,12 @@ public class MockTracer implements Tracer {
     }
 
     private SpanContext activeSpanContext() {
-        ActiveSpan handle = this.spanSource.active();
+        ActiveSpan handle = this.spanSource.activeSpan();
         if (handle == null) {
             return null;
         }
 
         return handle.context();
-    }
-
-    @Override
-    public ActiveSpanSource spanSource() {
-        return spanSource;
     }
 
     @Override

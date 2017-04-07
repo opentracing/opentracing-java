@@ -15,7 +15,7 @@ public class NoopSource implements ActiveSpanSource {
     }
 
     @Override
-    public ActiveSpan active() { return NOOP_ACTIVE_SPAN; }
+    public ActiveSpan activeSpan() { return NOOP_ACTIVE_SPAN; }
 
     public static class NoopHandle implements ActiveSpan {
         @Override

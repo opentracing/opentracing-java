@@ -25,17 +25,29 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
-    public void deactivate() {
-        if (source.tlsSnapshot.get() != this) {
-            // This shouldn't happen if users call methods in the expected order. Bail out.
-            return;
-        }
-        source.tlsSnapshot.set(toRestore);
-
-        if (0 == refCount.decrementAndGet()) {
-            wrapped.finish();
-        }
+    public final void deactivate() {
+        doDeactivate();
+        decRef();
     }
+
+    /**
+     * Per the {@link java.io.Closeable} API.
+     */
+    @Override
+    public final void close() {
+        this.deactivate();
+    }
+
+    /**
+     * Implementations must clean up any state (including thread-locals, etc) associated with the previosly activeSpan
+     * {@link Span}.
+     */
+    protected abstract void doDeactivate();
+
+    /**
+     * Return the {@link ActiveSpanSource} associated wih this {@link Continuation}.
+     */
+    protected abstract ActiveSpanSource spanSource();
 
     @Override
     public Continuation defer() {
