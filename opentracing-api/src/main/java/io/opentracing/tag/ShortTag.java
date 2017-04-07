@@ -13,6 +13,7 @@
  */
 package io.opentracing.tag;
 
+@Deprecated
 public class ShortTag extends AbstractTag<Short> {
     public ShortTag(String key) {
         super(key);
