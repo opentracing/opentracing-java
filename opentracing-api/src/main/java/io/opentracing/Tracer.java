@@ -162,45 +162,43 @@ public interface Tracer {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * Returns a newly started and {@linkplain ActiveSpanSource.Continuation#activate() activated}
-         * {@link ActiveSpanSource.Handle}.
+         * Returns a newly started and activated {@link ActiveSpan}.
          *
          * <p>
-         *
-         * The returned {@link ActiveSpanSource.Handle} supports try-with-resources. For example:
+         * The returned {@link ActiveSpan} supports try-with-resources. For example:
          * <pre>{@code
          *     try (ActiveSpanSource.Handle handle = tracer.buildSpan("...").startAndActivate()) {
          *         // Do work
          *         Span span = tracer.spanSource().activeSpan();
          *         span.setTag( ... );  // etc, etc
-         *     }  // Span finishes automatically unless pinned via {@link ActiveSpanSource.Handle#defer}
+         *     }  // Span finishes automatically unless pinned via {@link ActiveSpan#defer}
          * }</pre>
-	 *
+         *
          * <p>
          * If
-	 * <ul>
-	 * <li>the {@link Tracer}'s {@link ActiveSpanSource#active()} is not null, and
-	 * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
-	 * <li>{@link SpanBuilder#asRoot()} is not invoked,
-	 * </ul>
-	 * ... then an inferred {@link References#CHILD_OF} reference is created to the {@link ActiveSpanSource#active()}
-	 * {@link SpanContext} when either {@link SpanBuilder#start()} or {@link SpanBuilder#startAndActivate} is invoked.
+         * <ul>
+         * <li>the {@link Tracer}'s {@link ActiveSpanSource#active()} is not null, and
+         * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
+         * <li>{@link SpanBuilder#asRoot()} is not invoked,
+         * </ul>
+         * ... then an inferred {@link References#CHILD_OF} reference is created to the {@link ActiveSpanSource#active()}
+         * {@link SpanContext} when either {@link SpanBuilder#start()} or {@link SpanBuilder#startAndActivate} is invoked.
          *
          * <p>
          * Note: {@link SpanBuilder#startAndActivate()} is a shorthand for
          * {@code tracer.spanSource().adopt(SpanBuilder.start()).activate()}
          * </p>
          *
-         * @return a pre-activated {@link ActiveSpanSource.Handle}
+         * @return a pre-activated {@link ActiveSpan}
          *
          * @see Tracer#spanSource()
-         * @see ActiveSpanSource.Continuation#activate()
-         * @see ActiveSpanSource#adopt(Span)
+         * @see ActiveSpanSource
+         * @see ActiveSpan
          */
-        ActiveSpanSource.Handle startAndActivate();
+        ActiveSpan startAndActivate();
 
         /**
-	 * @see SpanBuilder#startAndActivate()
+         * @see SpanBuilder#startAndActivate()
          * @return the newly-started Span instance, which will *not* be automatically activated by the
          *         {@link ActiveSpanSource}
          */
