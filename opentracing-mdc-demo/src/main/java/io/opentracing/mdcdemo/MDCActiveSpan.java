@@ -1,6 +1,6 @@
 package io.opentracing.mdcdemo;
 
-import io.opentracing.ActiveSpanProvider;
+import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.impl.AbstractActiveSpan;
 import org.slf4j.MDC;
@@ -13,10 +13,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * production-quality code.
  */
 class MDCActiveSpan extends AbstractActiveSpan {
-    private MDCActiveSpanProvider mdcActiveSpanSource;
+    private MDCActiveSpanSource mdcActiveSpanSource;
     private MDCActiveSpan toRestore = null;
 
-    MDCActiveSpan(MDCActiveSpanProvider mdcActiveSpanSource, Span span, Map<String, String> mdcContext, AtomicInteger refCount) {
+    MDCActiveSpan(MDCActiveSpanSource mdcActiveSpanSource, Span span, Map<String, String> mdcContext, AtomicInteger refCount) {
         super(span, refCount);
         this.mdcActiveSpanSource = mdcActiveSpanSource;
         this.toRestore = mdcActiveSpanSource.tlsSnapshot.get();
@@ -34,16 +34,16 @@ class MDCActiveSpan extends AbstractActiveSpan {
     }
 
     @Override
-    protected ActiveSpanProvider spanSource() {
+    protected ActiveSpanSource spanSource() {
         return mdcActiveSpanSource;
     }
 
     static class MDCContinuation extends AbstractActiveSpan.AbstractContinuation {
-        private MDCActiveSpanProvider mdcActiveSpanSource;
+        private MDCActiveSpanSource mdcActiveSpanSource;
         private final Map<String, String> mdcContext;
         private final Span span;
 
-        MDCContinuation(MDCActiveSpanProvider source, Span span, AtomicInteger refCount) {
+        MDCContinuation(MDCActiveSpanSource source, Span span, AtomicInteger refCount) {
             super(refCount);
             this.mdcActiveSpanSource = source;
             this.mdcContext = MDC.getCopyOfContextMap();

@@ -7,16 +7,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link ThreadLocalActiveSpan} is a trivial {@link ActiveSpan} implementation that relies on Java's thread-local
  * storage primitive.
  *
- * @see ActiveSpanProvider
+ * @see ActiveSpanSource
  * @see Tracer#spanSource()
  */
 public class ThreadLocalActiveSpan implements ActiveSpan {
-    private ThreadLocalActiveSpanProvider source;
+    private ThreadLocalActiveSpanSource source;
     private final Span wrapped;
     private final ThreadLocalActiveSpan toRestore;
     private final AtomicInteger refCount;
 
-    ThreadLocalActiveSpan(ThreadLocalActiveSpanProvider source, Span wrapped, AtomicInteger refCount) {
+    ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, AtomicInteger refCount) {
         this.source = source;
         this.refCount = refCount;
         this.wrapped = wrapped;
@@ -124,11 +124,11 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     static class Continuation implements ActiveSpan.Continuation {
-        private ThreadLocalActiveSpanProvider source;
+        private ThreadLocalActiveSpanSource source;
         private final Span span;
         private final AtomicInteger refCount;
 
-        Continuation(ThreadLocalActiveSpanProvider source, Span span, AtomicInteger refCount) {
+        Continuation(ThreadLocalActiveSpanSource source, Span span, AtomicInteger refCount) {
             this.source = source;
             this.refCount = refCount;
             this.span = span;
