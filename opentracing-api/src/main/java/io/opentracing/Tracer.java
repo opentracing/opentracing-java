@@ -23,8 +23,8 @@ public interface Tracer extends ActiveSpanSource {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
-     * <p>If there is an activeSpan Span according to the {@link Tracer#activeSpan()},
-     * buildSpan will automatically reference that activeSpan Span as a parent.
+     * <p>If there is an active Span according to the {@link Tracer#activeSpan()},
+     * buildSpan will automatically reference that active Span as a parent.
      *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *

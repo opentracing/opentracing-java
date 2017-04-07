@@ -22,10 +22,7 @@ Packages are deployed to Maven Central under the `io.opentracing` group.
 
 ### Initialization
 
-Initialization is OpenTracing-implementation-specific. Generally speaking, the pattern is to initialize a `Tracer` once
-for the entire process and to use that `Tracer` for the remainder of the process lifetime. The
-[GlobalTracer](https://github.com/opentracing-contrib/java-globaltracer) repository provides a helper for singleton
-access to the `Tracer` as well as `ServiceLoader` support for OpenTracing Java implementations.
+Initialization is OpenTracing-implementation-specific. Generally speaking, the pattern is to initialize a `Tracer` once for the entire process and to use that `Tracer` for the remainder of the process lifetime. The [GlobalTracer](https://github.com/opentracing/opentracing-java/blob/master/opentracing-util/src/main/java/io/opentracing/util/GlobalTracer.java) provides a helper for singleton access to the `Tracer` as well as `ServiceLoader` support for OpenTracing Java implementations.
 
 ### `ActiveSpan`s, `Continuation`s, and within-process prapagation
 
