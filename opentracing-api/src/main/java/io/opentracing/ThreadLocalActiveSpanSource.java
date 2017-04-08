@@ -25,4 +25,9 @@ public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
         return makeContinuation(span, new AtomicInteger(1)).activate();
     }
 
+    // Only for tests
+    void clearThreadLocal() {
+        tlsSnapshot.remove();
+    }
+
 }

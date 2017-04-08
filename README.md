@@ -123,7 +123,7 @@ try (ActiveSpan serviceSpan = tracer.buildSpan("ServiceHandlerSpan").startActive
 
 In practice, all of this is most fluently accomplished through the use of an OpenTracing-aware `ExecutorService` and/or `Runnable`/`Callable` adapter; they can factor most of the typing.
 
-#### Reference counting with `ActiveSpan`s
+#### Automatic `finish()`ing via `ActiveSpan` reference counts
 
 When an `ActiveSpan` is created (either via `Tracer.SpanBuilder#startActive` or `ActiveSpanSource#adopt(Span)`), the reference count associated with the adopted `Span` is `1`.
 
