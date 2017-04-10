@@ -13,6 +13,9 @@
  */
 package io.opentracing.tag;
 
+/**
+ * @deprecated use {@link IntTag} instead.
+ */
 @Deprecated
 public class ShortTag extends AbstractTag<Short> {
     public ShortTag(String key) {
