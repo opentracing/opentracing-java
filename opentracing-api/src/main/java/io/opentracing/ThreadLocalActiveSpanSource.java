@@ -16,7 +16,7 @@ package io.opentracing;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A trivial source for the {@linkplain #activeSpan activeSpan} {@link ActiveSpan}.
+ * A trivial source for the {@linkplain #activeSpan active} {@link ActiveSpan}.
  *
  * @see ThreadLocalActiveSpan
  * @see Tracer#activeSpan()

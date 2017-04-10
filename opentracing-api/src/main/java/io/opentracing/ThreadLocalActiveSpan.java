@@ -52,7 +52,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     /**
-     * Implementations must clean up any state (including thread-locals, etc) associated with the previosly activeSpan
+     * Implementations must clean up any state (including thread-locals, etc) associated with the previously active
      * {@link Span}.
      */
     protected abstract void doDeactivate();
