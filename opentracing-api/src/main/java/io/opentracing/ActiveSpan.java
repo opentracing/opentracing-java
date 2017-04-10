@@ -18,14 +18,14 @@ import java.io.Closeable;
 /**
  * In any execution context (or any thread, etc), there is at most one "active" {@link Span}/{@link ActiveSpan}
  * primarily responsible for the work accomplished by the surrounding application code. That @{link ActiveSpan} may be
- * accessed via the {@link ActiveSpanSource#activeSpan()} method. If the application needs to defer work that should be
- * part of the same Span, the Source provides a {@link ActiveSpan#defer} method that returns a {@link Continuation};
+ * accessed via the {@link ActiveSpanSource#activeSpan()} method. If the application needs to capture work that should be
+ * part of the same Span, the Source provides a {@link ActiveSpan#capture} method that returns a {@link Continuation};
  * this continuation may be used to re-activate and continue the {@link Span} in that other asynchronous executor
  * and/or thread.
  *
  * <p>
  * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#adopt}. They
- * can be {@link ActiveSpan#defer()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d
+ * can be {@link ActiveSpan#capture()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d
  * later.
  *
  * @see ActiveSpanSource
@@ -42,15 +42,21 @@ public interface ActiveSpan extends Closeable, Span {
     void deactivate();
 
     /**
-     * "Fork" a new {@link Continuation} associated with this {@link ActiveSpan} and {@link Span}, as well as any
+     * "Capture" a new {@link Continuation} associated with this {@link ActiveSpan} and {@link Span}, as well as any
      * 3rd-party execution context of interest.
+     *
+     * <p>
+     * <em>IMPORTANT:</em> the caller MUST {@link Continuation#activate()} and {@link ActiveSpan#deactivate()} the
+     * returned {@link Continuation} or the pinned {@link Span} will never automatically {@link Span#finish()}. That is,
+     * calling {@link #capture()} increments a refcount that must be decremented somewhere else.
+     *
      * <p>
      * The associated {@link Span} will not {@link Span#finish()} while a {@link Continuation} is outstanding; in
      * this way, it provides a reference/pin just like an @{ActiveSpan} does.
      *
      * @return a new {@link Continuation} to {@link Continuation#activate()} at the appropriate time.
      */
-    Continuation defer();
+    Continuation capture();
 
     /**
      * A {@link Continuation} can be used *once* to activate a Span along with any non-OpenTracing execution context

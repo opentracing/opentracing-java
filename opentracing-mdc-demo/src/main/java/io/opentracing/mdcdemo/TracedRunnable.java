@@ -28,7 +28,7 @@ public class TracedRunnable implements Runnable {
     public TracedRunnable(Runnable runnable, ActiveSpan handle) {
         if (runnable == null) throw new NullPointerException("Runnable is <null>.");
         this.runnable = runnable;
-        this.continuation = handle.defer();
+        this.continuation = handle.capture();
     }
 
     @Override

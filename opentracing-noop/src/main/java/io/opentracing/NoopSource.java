@@ -35,7 +35,7 @@ public class NoopSource implements ActiveSpanSource {
         public void deactivate() {}
 
         @Override
-        public Continuation defer() {
+        public Continuation capture() {
             return NOOP_CONTINUATION;
         }
 

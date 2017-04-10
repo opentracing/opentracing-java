@@ -30,7 +30,7 @@ public class TracedCallable<T> implements Callable<T> {
     public TracedCallable(Callable<T> callable, ActiveSpan handle) {
         if (callable == null) throw new NullPointerException("Callable is <null>.");
         this.callable = callable;
-        this.continuation = handle.defer();
+        this.continuation = handle.capture();
     }
 
     public T call() throws Exception {

@@ -45,12 +45,12 @@ public class ThreadLocalActiveSpanTest {
         ActiveSpan.Continuation continued = null;
         try {
             assertNotNull(activeSpan);
-            continued = activeSpan.defer();
+            continued = activeSpan.capture();
         } finally {
             activeSpan.close();
         }
 
-        // Make sure the Span was not finished since there was a defer().
+        // Make sure the Span was not finished since there was a capture().
         verify(span, never()).finish();
 
         // Activate the continuation.
