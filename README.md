@@ -28,7 +28,7 @@ Initialization is OpenTracing-implementation-specific. Generally speaking, the p
 
 For any execution context or Thread, at most one `Span` may be "active". Of course there may be many other `Spans` involved with the execution context which are (a) started, (b) not finished, and yet (c) not "active": perhaps they are waiting for I/O, blocked on a child Span, or otherwise off the critical path.
  
-It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides an `ActiveSpanSource` abstraction to provide access to an `ActiveSpan` and to pin and `defer()` it for re-activation in other execution contexts (e.g., in an async callback).
+It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides an `ActiveSpanSource` abstraction to provide access to an `ActiveSpan` and to pin and `capture()` it for re-activation in other execution contexts (e.g., in an async callback).
 
 Access to the active `Span` is straightforward:
 
@@ -64,7 +64,7 @@ io.opentracing.Tracer tracer = ...;
 try (ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive()) {
     // Do things.
     //
-    // If we create async work, `activeSpan.defer()` allows us to pass the `ActiveSpan` along as well.
+    // If we create async work, `activeSpan.capture()` allows us to pass the `ActiveSpan` along as well.
 }
 ```
 
@@ -94,7 +94,7 @@ The `"ServiceHandlerSpan"` is _active_ when it's running FunctionA and FunctionB
 **The `ActiveSpanSource` makes it easy to "adopt" the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` must also implement `ActiveSpanSource`. These are the steps:
 
 1. Start the `ActiveSpan` via `Tracer.startActive()` rather than via `Tracer.startManual()`; or, if the `Span` was already `startManual()`ed, call `ActiveSpanSource#adopt(span)`. Either route will yield an `ActiveSpan` instance that's "adopted" the `Span`.
-2. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#defer()` to obtain an `ActiveSpan.Continuation`
+2. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#capture()` to obtain an `ActiveSpan.Continuation`
 3. In the closure/`Runnable`/`Future`/etc itself, invoke `ActiveSpan.Continuation#activate` to re-activate the `ActiveSpan`, then `deactivate()` it when the Span is no longer active (or use try-with-resources for less typing).
 
 For example:
@@ -106,8 +106,8 @@ io.opentracing.Tracer tracer = ...;
 try (ActiveSpan serviceSpan = tracer.buildSpan("ServiceHandlerSpan").startActive()) {
     ...
 
-    // STEP 2 ABOVE: defer the ActiveSpan
-    final ActiveSpan.Continuation cont = serviceSpan.defer();
+    // STEP 2 ABOVE: capture the ActiveSpan
+    final ActiveSpan.Continuation cont = serviceSpan.capture();
     doAsyncWork(new Runnable() {
         @Override
         public void run() {
@@ -127,7 +127,7 @@ In practice, all of this is most fluently accomplished through the use of an Ope
 
 When an `ActiveSpan` is created (either via `Tracer.SpanBuilder#startActive` or `ActiveSpanSource#adopt(Span)`), the reference count associated with the adopted `Span` is `1`.
 
-- When an `ActiveSpan.Continuation` is created via `ActiveSpan#defer`, the reference count **increments**
+- When an `ActiveSpan.Continuation` is created via `ActiveSpan#capture`, the reference count **increments**
 - When an `ActiveSpan.Continuation` is `ActiveSpan.Continuation#activate()`d and thus transformed back into an `ActiveSpan`, the reference count **is unchanged**
 - When an `ActiveSpan` is `ActiveSpan#deactivate()`d, the reference count **decrements**
 

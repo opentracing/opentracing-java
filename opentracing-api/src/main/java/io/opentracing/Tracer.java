@@ -163,7 +163,7 @@ public interface Tracer extends ActiveSpanSource {
          *     try (ActiveSpan span = tracer.buildSpan("...").startActive()) {
          *         // (Do work)
          *         span.setTag( ... );  // etc, etc
-         *     }  // Span finishes automatically unless pinned via {@link ActiveSpan#defer}
+         *     }  // Span finishes automatically unless pinned via {@link ActiveSpan#capture }
          * }</pre>
          *
          * <p>

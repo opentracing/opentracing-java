@@ -63,7 +63,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     protected abstract ActiveSpanSource spanSource();
 
     @Override
-    public Continuation defer() {
+    public Continuation capture() {
         refCount.incrementAndGet();
         return source.makeContinuation(wrapped, refCount);
     }
