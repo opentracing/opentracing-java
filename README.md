@@ -28,7 +28,7 @@ Initialization is OpenTracing-implementation-specific. Generally speaking, the p
 
 For any execution context or Thread, at most one `Span` may be "active". Of course there may be many other `Spans` involved with the execution context which are (a) started, (b) not finished, and yet (c) not "active": perhaps they are waiting for I/O, blocked on a child Span, or otherwise off the critical path.
  
-It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides an `ActiveSpanSource` abstraction to provide access to an `ActiveSpan` and to pin and `capture()` it for re-activation in other execution contexts (e.g., in an async callback).
+It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing provides an `ActiveSpanSource` abstraction to grant access to an `ActiveSpan` and to pin and `capture()` it for re-activation in other execution contexts (e.g., in an async callback).
 
 Access to the active `Span` is straightforward:
 
@@ -68,19 +68,31 @@ try (ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive()) {
 }
 ```
 
-
-**If there is an `ActiveSpan`, it will act as the parent to any newly `startActive()`ed `Span`** unless the programmer invokes `asRoot()` at `buildSpan()` time, like so:
+The above is semantically equivalent to the more explicit try-finally version:
 
 ```
 io.opentracing.Tracer tracer = ...;
 ...
-SpanContext someOtherSpanContext = ...;
+ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive();
+try {
+    // Do things.
+} finally {
+    activeSpan.deactivate();
+}
+```
+
+
+**If there is an `ActiveSpan`, it will act as the parent to any newly started `Span`** unless the programmer invokes `asRoot()` at `buildSpan()` time, like so:
+
+```
+io.opentracing.Tracer tracer = ...;
+...
 ActiveSpan span = tracer.buildSpan("someWork").asRoot().startActive();
 ```
 
 ### Deferring asynchronous work
 
-Consider the case where a `Span`'s lifetime logically starts in one execution context and ends in another. For instance, the intra-Span timing breakdown might look like this:
+Consider the case where a `Span`'s lifetime logically starts in one thread and ends in another. For instance, the intra-Span timing breakdown might look like this:
 
 ```
 [ ServiceHandlerSpan                                 ]
@@ -91,7 +103,7 @@ Consider the case where a `Span`'s lifetime logically starts in one execution co
 
 The `"ServiceHandlerSpan"` is _active_ when it's running FunctionA and FunctionB, and inactive while it's waiting on an RPC (presumably modelled as its own Span, though that's not the concern here).
 
-**The `ActiveSpanSource` makes it easy to "adopt" the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` must also implement `ActiveSpanSource`. These are the steps:
+**The `ActiveSpanSource` makes it easy to `capture()` the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` must also implement `ActiveSpanSource`. These are the steps:
 
 1. Start the `ActiveSpan` via `Tracer.startActive()` rather than via `Tracer.startManual()`; or, if the `Span` was already `startManual()`ed, call `ActiveSpanSource#adopt(span)`. Either route will yield an `ActiveSpan` instance that's "adopted" the `Span`.
 2. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#capture()` to obtain an `ActiveSpan.Continuation`
