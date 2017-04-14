@@ -40,8 +40,8 @@ final class NoopTracerImpl implements NoopTracer {
     }
 
     @Override
-    public ActiveSpan adopt(Span span) {
-        return ACTIVE_SPAN_SOURCE.adopt(span);
+    public ActiveSpan makeActive(Span span) {
+        return ACTIVE_SPAN_SOURCE.makeActive(span);
     }
 }
 

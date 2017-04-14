@@ -121,7 +121,7 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
-    public ActiveSpan adopt(Span span) {
-        return tracer.adopt(span);
+    public ActiveSpan makeActive(Span span) {
+        return tracer.makeActive(span);
     }
 }

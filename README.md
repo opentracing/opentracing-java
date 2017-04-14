@@ -105,7 +105,7 @@ The `"ServiceHandlerSpan"` is _active_ when it's running FunctionA and FunctionB
 
 **The `ActiveSpanSource` makes it easy to `capture()` the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` must also implement `ActiveSpanSource`. These are the steps:
 
-1. Start the `ActiveSpan` via `Tracer.startActive()` rather than via `Tracer.startManual()`; or, if the `Span` was already `startManual()`ed, call `ActiveSpanSource#adopt(span)`. Either route will yield an `ActiveSpan` instance that's "adopted" the `Span`.
+1. Start the `ActiveSpan` via `Tracer.startActive()` rather than via `Tracer.startManual()`; or, if the `Span` was already `startManual()`ed, call `ActiveSpanSource#makeActive(span)`. Either route will yield an `ActiveSpan` instance that encapsulates the `Span`.
 2. In the method/function that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#capture()` to obtain an `ActiveSpan.Continuation`
 3. In the closure/`Runnable`/`Future`/etc itself, invoke `ActiveSpan.Continuation#activate` to re-activate the `ActiveSpan`, then `deactivate()` it when the Span is no longer active (or use try-with-resources for less typing).
 
@@ -137,7 +137,7 @@ In practice, all of this is most fluently accomplished through the use of an Ope
 
 #### Automatic `finish()`ing via `ActiveSpan` reference counts
 
-When an `ActiveSpan` is created (either via `Tracer.SpanBuilder#startActive` or `ActiveSpanSource#adopt(Span)`), the reference count associated with the adopted `Span` is `1`.
+When an `ActiveSpan` is created (either via `Tracer.SpanBuilder#startActive` or `ActiveSpanSource#makeActive(Span)`), the reference count associated with the `ActiveSpan` is `1`.
 
 - When an `ActiveSpan.Continuation` is created via `ActiveSpan#capture`, the reference count **increments**
 - When an `ActiveSpan.Continuation` is `ActiveSpan.Continuation#activate()`d and thus transformed back into an `ActiveSpan`, the reference count **is unchanged**

@@ -40,13 +40,13 @@ public class ThreadLocalActiveSpanSourceTest {
     }
 
     @Test
-    public void adoptedActiveSpan() throws Exception {
+    public void makeActiveSpan() throws Exception {
         Span span = mock(Span.class);
 
         // We can't use 1.7 features like try-with-resources in this repo -- argh.
         //
         // F*** IT, WE'LL DO IT LIVE!
-        ActiveSpan activeSpan = source.adopt(span);
+        ActiveSpan activeSpan = source.makeActive(span);
         try {
             assertNotNull(activeSpan);
             ActiveSpan otherActiveSpan = source.activeSpan();

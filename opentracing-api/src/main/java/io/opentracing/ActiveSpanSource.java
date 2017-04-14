@@ -28,12 +28,12 @@ public interface ActiveSpanSource {
     ActiveSpan activeSpan();
 
     /**
-     * Wrap and "adopt" a @{link Span} by encapsulating it – and any active state (e.g., MDC state) in the execution
+     * Wrap and "makeActive" a @{link Span} by encapsulating it – and any active state (e.g., MDC state) in the execution
      * context – in a new @{link ActiveSpan}.
      *
      * @param span the Span just started
      * @return an @{link ActiveSpan} that encapsulates the given Span and any other Source-specific context (e.g.,
      * MDC data)
      */
-    ActiveSpan adopt(Span span);
+    ActiveSpan makeActive(Span span);
 }
