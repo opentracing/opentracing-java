@@ -178,7 +178,7 @@ public interface Tracer extends ActiveSpanSource {
          * {@link SpanBuilder#startActive} is invoked.
          *
          * <p>
-         * Note: {@link SpanBuilder#startActive()} is a shorthand for {@code tracer.adopt(spanBuilder.startManual())}.
+         * Note: {@link SpanBuilder#startActive()} is a shorthand for {@code tracer.makeActive(spanBuilder.startManual())}.
          * </p>
          *
          * @return a pre-activated {@link ActiveSpan}

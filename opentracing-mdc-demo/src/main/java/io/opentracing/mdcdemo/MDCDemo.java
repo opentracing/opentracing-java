@@ -52,7 +52,7 @@ public class MDCDemo {
     public void asyncSpans() throws Exception {
         final Tracer tracer = this.tracer; // save typing
 
-        // Create an ExecutorService and adopt it in a TracedExecutorService.
+        // Create an ExecutorService and makeActive it in a TracedExecutorService.
         ExecutorService realExecutor = Executors.newFixedThreadPool(500);
         final ExecutorService otExecutor = new TracedExecutorService(realExecutor, tracer);
 

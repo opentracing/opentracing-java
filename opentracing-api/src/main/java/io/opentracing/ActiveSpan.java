@@ -24,7 +24,7 @@ import java.io.Closeable;
  * and/or thread.
  *
  * <p>
- * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#adopt}. They
+ * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#makeActive}. They
  * can be {@link ActiveSpan#capture()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d
  * later.
  *
@@ -72,7 +72,7 @@ public interface ActiveSpan extends Closeable, Span {
      * NOTE: {@link Continuation} extends {@link Closeable} rather than {@code AutoCloseable} in order to keep support
      * for JDK1.6.
      *
-     * @see ActiveSpanSource#adopt(Span)
+     * @see ActiveSpanSource#makeActive(Span)
      */
     interface Continuation {
         /**
@@ -81,7 +81,7 @@ public interface ActiveSpan extends Closeable, Span {
          * <p>
          * NOTE: It is an error to call activate() more than once on a single Continuation instance.
          *
-         * @see ActiveSpanSource#adopt(Span)
+         * @see ActiveSpanSource#makeActive(Span)
          * @return a handle to the newly-activated Span
          */
         ActiveSpan activate();

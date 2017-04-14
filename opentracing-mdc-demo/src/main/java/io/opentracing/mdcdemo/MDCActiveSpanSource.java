@@ -30,7 +30,7 @@ public class MDCActiveSpanSource extends AbstractActiveSpanSource {
     @Override
     protected MDCActiveSpan.MDCContinuation makeContinuation(Span span, AtomicInteger refCount) {
         if (span instanceof AbstractActiveSpan) {
-            throw new IllegalArgumentException("Should only adopt the wrapped Span");
+            throw new IllegalArgumentException("Should only makeActive the wrapped Span");
         }
         return new MDCActiveSpan.MDCContinuation(this, span, refCount);
     }

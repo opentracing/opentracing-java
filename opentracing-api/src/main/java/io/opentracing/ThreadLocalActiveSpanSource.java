@@ -34,7 +34,7 @@ public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
     }
 
     @Override
-    public ActiveSpan adopt(Span span) {
+    public ActiveSpan makeActive(Span span) {
         return makeContinuation(span, new AtomicInteger(1)).activate();
     }
 

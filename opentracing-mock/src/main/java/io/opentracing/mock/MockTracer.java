@@ -95,8 +95,8 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public ActiveSpan adopt(Span span) {
-        return spanSource.adopt(span);
+    public ActiveSpan makeActive(Span span) {
+        return spanSource.makeActive(span);
     }
 
     /**
@@ -266,7 +266,7 @@ public class MockTracer implements Tracer {
         @Override
         public ActiveSpan startActive() {
             MockSpan span = this.startManual();
-            return spanSource.adopt(span);
+            return spanSource.makeActive(span);
         }
 
         @Override

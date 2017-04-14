@@ -23,7 +23,7 @@ public class NoopSource implements ActiveSpanSource {
     public static final ActiveSpan.Continuation NOOP_CONTINUATION = new NoopContinuation();
 
     @Override
-    public ActiveSpan adopt(Span span) {
+    public ActiveSpan makeActive(Span span) {
         return NOOP_ACTIVE_SPAN;
     }
 
