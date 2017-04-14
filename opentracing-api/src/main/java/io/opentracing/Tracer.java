@@ -23,8 +23,8 @@ public interface Tracer extends ActiveSpanSource {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
-     * <p>If there is an active Span according to the {@link Tracer#activeSpan()},
-     * buildSpan will automatically reference that active Span as a parent.
+     * <p>If there is an active Span according to the {@link Tracer#activeSpan()}, buildSpan will automatically create
+     * a {@link References#CHILD_OF} reference to that active {@code ActiveSpan.context()}.
      *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *
@@ -32,7 +32,8 @@ public interface Tracer extends ActiveSpanSource {
      * <pre>{@code
      *   Tracer tracer = ...
      *
-     *   // Note: if there is a {@link Tracer#activeSpan()}, it will be treated as the parent of workSpan.
+     *   // Note: if there is a {@link Tracer#activeSpan()}, it will be used as the target of an implicit CHILD_OF
+     *   // Reference for "workSpan".
      *   try (ActiveSpan workSpan = tracer.buildSpan("DoWork").startActive()) {
      *       workSpan.span().setTag("...", "...");
      *       // etc, etc
@@ -118,7 +119,7 @@ public interface Tracer extends ActiveSpanSource {
 	 * <ul>
 	 * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
 	 * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
-	 * <li>{@link SpanBuilder#asRoot()} is not invoked,
+	 * <li>{@link SpanBuilder#ignoringActiveSpan()} is not invoked,
 	 * </ul>
 	 * ... then an inferred {@link References#CHILD_OF} reference is created to the {@link ActiveSpanSource#activeSpan()}
 	 * {@link SpanContext} when either {@link SpanBuilder#startActive()} or {@link SpanBuilder#startManual} is invoked.
@@ -132,15 +133,9 @@ public interface Tracer extends ActiveSpanSource {
         SpanBuilder addReference(String referenceType, SpanContext referencedContext);
 
         /**
-         * Remove any explicit (e.g., via {@link SpanBuilder#addReference(String,SpanContext)}) or implicit (e.g., via
-         * {@link ActiveSpanSource#activeSpan}) references to parent / predecessor SpanContexts, thus making the built
-         * Span a "root" of a Trace tree/graph.
-         *
-         * <p>
-         * Subsequent calls to {@link SpanBuilder#addReference(String, SpanContext)} /
-         * {@link SpanBuilder#asChildOf(Span)} / etc are permitted and behave as per usual.
+         * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ActiveSpanSource#activeSpan}).
          */
-        SpanBuilder asRoot();
+        SpanBuilder ignoringActiveSpan();
 
         /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
         SpanBuilder withTag(String key, String value);
@@ -171,7 +166,7 @@ public interface Tracer extends ActiveSpanSource {
          * <ul>
          * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
          * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
-         * <li>{@link SpanBuilder#asRoot()} is not invoked,
+         * <li>{@link SpanBuilder#ignoringActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
          * {@link ActiveSpanSource#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startManual()} or

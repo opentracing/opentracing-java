@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see Tracer#activeSpan()
  */
 public class ThreadLocalActiveSpan implements ActiveSpan {
-    private ThreadLocalActiveSpanSource source;
+    private final ThreadLocalActiveSpanSource source;
     private final Span wrapped;
     private final ThreadLocalActiveSpan toRestore;
     private final AtomicInteger refCount;
@@ -65,7 +65,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     @Override
     public Continuation capture() {
         refCount.incrementAndGet();
-        return source.makeContinuation(wrapped, refCount);
+        return new ThreadLocalActiveSpan.Continuation(source, wrapped, refCount);
     }
 
     @Override

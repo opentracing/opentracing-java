@@ -82,12 +82,12 @@ try {
 ```
 
 
-**If there is an `ActiveSpan`, it will act as the parent to any newly started `Span`** unless the programmer invokes `asRoot()` at `buildSpan()` time, like so:
+**If there is an `ActiveSpan`, it will act as the parent to any newly started `Span`** unless the programmer invokes `ignoringActiveSpan()` at `buildSpan()` time, like so:
 
 ```
 io.opentracing.Tracer tracer = ...;
 ...
-ActiveSpan span = tracer.buildSpan("someWork").asRoot().startActive();
+ActiveSpan span = tracer.buildSpan("someWork").ignoringActiveSpan().startActive();
 ```
 
 ### Deferring asynchronous work
