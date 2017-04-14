@@ -24,10 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
     final ThreadLocal<ThreadLocalActiveSpan> tlsSnapshot = new ThreadLocal<ThreadLocalActiveSpan>();
 
-    ThreadLocalActiveSpan.Continuation makeContinuation(Span span, AtomicInteger refCount) {
-        return new ThreadLocalActiveSpan.Continuation(this, span, refCount);
-    }
-
     @Override
     public ThreadLocalActiveSpan activeSpan() {
         return tlsSnapshot.get();
@@ -35,7 +31,7 @@ public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
 
     @Override
     public ActiveSpan makeActive(Span span) {
-        return makeContinuation(span, new AtomicInteger(1)).activate();
+        return new ThreadLocalActiveSpan.Continuation(this, span, new AtomicInteger(1)).activate();
     }
 
     // Only for tests
