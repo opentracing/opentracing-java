@@ -42,8 +42,8 @@ public interface Format<C> {
         }
 
         /**
-         * The TEXT_MAP format allows for arbitrary String->String map encoding of SpanContext state for Tracer.inject
-         * and Tracer.extract.
+         * The TEXT_MAP format allows for arbitrary String-&gt;String map encoding of SpanContext state for
+         * Tracer.inject and Tracer.extract.
          *
          * Unlike HTTP_HEADERS, the builtin TEXT_MAP format expresses no constraints on keys or values.
          *
@@ -55,7 +55,7 @@ public interface Format<C> {
         public final static Format<TextMap> TEXT_MAP = new Builtin<TextMap>("TEXT_MAP");
 
         /**
-         * The HTTP_HEADERS format allows for HTTP-header-compatible String->String map encoding of SpanContext state
+         * The HTTP_HEADERS format allows for HTTP-header-compatible String-&gt;String map encoding of SpanContext state
          * for Tracer.inject and Tracer.extract.
          *
          * I.e., keys written to the TextMap MUST be suitable for HTTP header keys (which are poorly defined but
