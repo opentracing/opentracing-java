@@ -224,13 +224,5 @@ public class MockTracer implements Tracer {
             return new MockSpan(MockTracer.this, this.operationName, this.startMicros, initialTags, this.firstParent);
         }
 
-        @Override
-        public Iterable<Map.Entry<String, String>> baggageItems() {
-            if (firstParent == null) {
-                return Collections.EMPTY_MAP.entrySet();
-            } else {
-                return firstParent.baggageItems();
-            }
-        }
     }
 }
