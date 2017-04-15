@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,8 +22,8 @@ import java.util.Map;
 /**
  * A TextMap carrier for use with Tracer.inject() ONLY (it has no read methods).
  *
- * Note that the TextMap interface can be made to wrap around arbitrary data types (not just Map<String, String> as
- * illustrated here).
+ * Note that the TextMap interface can be made to wrap around arbitrary data types (not just Map&lt;String, String&gt;
+ * as illustrated here).
  *
  * @see Tracer#inject(SpanContext, Format, Object)
  */
