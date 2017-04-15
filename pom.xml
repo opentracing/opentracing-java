@@ -25,7 +25,6 @@
     <modules>
         <module>opentracing-api</module>
         <module>opentracing-noop</module>
-        <module>opentracing-impl</module>
         <module>opentracing-mock</module>
         <module>opentracing-util</module>
     </modules>
@@ -115,12 +114,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>opentracing-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>opentracing-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
