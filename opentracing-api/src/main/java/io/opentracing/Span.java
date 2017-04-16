@@ -1,5 +1,5 @@
 /**
- * Copyright 2016 The OpenTracing Authors
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -22,6 +22,9 @@ import java.util.Map;
  * <p>Spans are created by the {@link Tracer#buildSpan} interface.
  */
 public interface Span extends Closeable {
+
+    SpanManager.Visibility visibility();
+
     /**
      * Retrieve the associated SpanContext.
      *
@@ -42,6 +45,8 @@ public interface Span extends Closeable {
     void finish();
 
     /**
+     * Deactivates spans from spanManager.
+     *
      * Sets an explicit end timestamp and records the span.
      *
      * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
