@@ -13,7 +13,9 @@
  */
 package io.opentracing.impl;
 
+import io.opentracing.Scheduler;
 import io.opentracing.SpanContext;
+import io.opentracing.ThreadLocalScheduler;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Extractor;
 import io.opentracing.propagation.Format;
@@ -28,13 +30,25 @@ abstract class AbstractTracer implements Tracer {
     static final boolean BAGGAGE_ENABLED = !Boolean.getBoolean("opentracing.propagation.dropBaggage");
 
     private final PropagationRegistry registry = new PropagationRegistry();
+    private Scheduler scheduler;
+
 
     protected AbstractTracer() {
+        this(new ThreadLocalScheduler());
+    }
+
+    protected AbstractTracer(Scheduler scheduler) {
+        this.scheduler = scheduler;
         registry.register(Format.Builtin.TEXT_MAP, new TextMapInjectorImpl(this));
         registry.register(Format.Builtin.TEXT_MAP, new TextMapExtractorImpl(this));
     }
 
     abstract AbstractSpanBuilder createSpanBuilder(String operationName);
+
+    @Override
+    public Scheduler scheduler() {
+        return this.scheduler;
+    }
 
     @Override
     public SpanBuilder buildSpan(String operationName){

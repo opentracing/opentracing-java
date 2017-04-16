@@ -30,6 +30,6 @@ final class TestTextMapExtractorImpl implements Extractor<TextMap> {
             }
         }
 
-        return null != marker ? new TestSpanBuilder(marker) : NoopSpanBuilder.INSTANCE;
+        return null != marker ? new TestSpanBuilder(marker, null) : NoopSpanBuilder.INSTANCE;
     }
 }

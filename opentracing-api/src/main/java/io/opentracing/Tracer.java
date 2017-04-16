@@ -23,23 +23,35 @@ public interface Tracer {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
+     * <p>If there is an active Span according to the {@link Tracer#scheduler()}'s {@link Scheduler#activeContext},
+     * buildSpan will automatically reference that active Span as a parent.
+     *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *
      * <p>A contrived example:
      * <pre>{@code
-      Tracer tracer = ...
-
-      Span parentSpan = tracer.buildSpan("DoWork")
-                              .start();
-
-      Span http = tracer.buildSpan("HandleHTTPRequest")
-                        .asChildOf(parentSpan.context())
-                        .withTag("user_agent", req.UserAgent)
-                        .withTag("lucky_number", 42)
-                        .start();
-      }</pre>
+     *   Tracer tracer = ...
+     *
+     *   // Note: if there is an {@link Scheduler#active()} Span, it will be treated as the parent of workSpan.
+     *   Span workSpan = tracer.buildSpan("DoWork")
+     *                         .start();
+     *
+     *   // It's also possible to create Spans with explicit parent References and tags.
+     *   Span http = tracer.buildSpan("HandleHTTPRequest")
+     *                     .asChildOf(workSpan.context())  // an explicit parent
+     *                     .withTag("user_agent", req.UserAgent)
+     *                     .withTag("lucky_number", 42)
+     *                     .start();
+     * }</pre>
      */
     SpanBuilder buildSpan(String operationName);
+
+    /**
+     * @return the Scheduler associated with this Tracer. Must not be null.
+     * @see Scheduler
+     * @see ThreadLocalScheduler a simple built-in thread-local-storage Scheduler
+     */
+    Scheduler scheduler();
 
     /**
      * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
@@ -104,6 +116,10 @@ public interface Tracer {
         /**
          * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to
          * represent multiple such References.
+         * <p>
+         * If no references are added manually (and {@link SpanBuilder#asRoot()} is not invoked) before
+         * calling {@link SpanBuilder#start()}, an inferred reference is created to any
+         * {@link Scheduler#activeContext()} context.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
@@ -112,6 +128,17 @@ public interface Tracer {
          * @see io.opentracing.References
          */
         SpanBuilder addReference(String referenceType, SpanContext referencedContext);
+
+        /**
+         * Remove any explicit (e.g., via {@link SpanBuilder#addReference(String,SpanContext)}) or implicit (e.g., via
+         * {@link Scheduler#activeContext()}) references to parent / predecessor SpanContexts, thus making the built
+         * Span a "root" of a Trace tree/graph.
+         *
+         * <p>
+         * Subsequent calls to {@link SpanBuilder#addReference(String, SpanContext)} /
+         * {@link SpanBuilder#asChildOf(Span)} / etc are permitted and behave as per usual.
+         */
+        SpanBuilder asRoot();
 
         /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
         SpanBuilder withTag(String key, String value);
@@ -125,7 +152,33 @@ public interface Tracer {
         /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
         SpanBuilder withStartTimestamp(long microseconds);
 
-        /** Returns the started Span. */
+        /**
+         * Returns a newly started and {@linkplain Scheduler.Continuation#activate(boolean) activated}
+         * {@link Scheduler.Continuation}.
+         *
+         * <p>
+         *
+         * Note that the Continuation supports try-with-resources. For example:
+         * <pre>{@code
+         *     try (Scheduler.Continuation spanCont = tracer.buildSpan("...").startAndActivate(true)) {
+         *         // Do work
+         *         Span span = tracer.scheduler().active();
+         *         span.setTag( ... );  // etc, etc
+         *     }
+         * }</pre>
+         *
+         * @param finishOnDeactivate if true, the {@link Span} encapsulated by the {@link Scheduler.Continuation} will
+         *                   finish() upon invocation of {@link Scheduler.Continuation#deactivate()}.
+         * @return a pre-activated {@link Scheduler.Continuation}
+         *
+         * @see Scheduler.Continuation#activate(boolean)
+         */
+        Scheduler.Continuation startAndActivate(boolean finishOnDeactivate);
+
+        /**
+         * @return the newly-started Span instance, which will *not* be automatically activated by the
+         *         {@link Scheduler}
+         */
         Span start();
 
     }
