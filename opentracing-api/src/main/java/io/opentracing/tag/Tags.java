@@ -88,7 +88,7 @@ public final class Tags {
     /**
      * SAMPLING_PRIORITY determines the priority of sampling this Span.
      */
-    public static final ShortTag SAMPLING_PRIORITY = new ShortTag("sampling.priority");
+    public static final IntTag SAMPLING_PRIORITY = new IntTag("sampling.priority");
 
     /**
      * SPAN_KIND hints at the relationship between spans, e.g. client/server.
