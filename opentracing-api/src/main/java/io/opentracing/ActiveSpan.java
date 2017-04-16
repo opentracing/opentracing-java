@@ -18,15 +18,19 @@ import java.io.Closeable;
 /**
  * In any execution context (or any thread, etc), there is at most one "active" {@link Span}/{@link ActiveSpan}
  * primarily responsible for the work accomplished by the surrounding application code. That @{link ActiveSpan} may be
- * accessed via the {@link ActiveSpanSource#activeSpan()} method. If the application needs to capture work that should be
- * part of the same Span, the Source provides a {@link ActiveSpan#capture} method that returns a {@link Continuation};
- * this continuation may be used to re-activate and continue the {@link Span} in that other asynchronous executor
- * and/or thread.
+ * accessed via the {@link ActiveSpanSource#activeSpan()} method. If the application needs to capture work that should
+ * be part of the same Span, the Source provides a {@link ActiveSpan#capture} method that returns a
+ * {@link Continuation}; this continuation may be used to re-activate and continue the {@link Span} in that other
+ * asynchronous executor and/or thread.
  *
  * <p>
- * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#makeActive}. They
- * can be {@link ActiveSpan#capture()}ed as {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d
- * later.
+ * {@link ActiveSpan}s are created via {@link Tracer.SpanBuilder#startActive()} or {@link ActiveSpanSource#makeActive}.
+ * They can be {@link ActiveSpan#capture()}ed as {@link ActiveSpan.Continuation}s, then
+ * re-{@link Continuation#activate()}d later.
+ *
+ * <p>
+ * NOTE: {@link ActiveSpan} extends {@link Closeable} rather than {@code AutoCloseable} in order to keep support
+ * for JDK1.6.
  *
  * @see ActiveSpanSource
  */
@@ -40,6 +44,12 @@ public interface ActiveSpan extends Closeable, Span {
      * @see Closeable#close() {@link ActiveSpan}s are auto-closeable and may be used in try-with-resources blocks
      */
     void deactivate();
+
+    /**
+     * A synonym for {@link #deactivate()} that can be used in try-with-resources blocks.
+     */
+    @Override
+    void close();
 
     /**
      * "Capture" a new {@link Continuation} associated with this {@link ActiveSpan} and {@link Span}, as well as any
@@ -67,10 +77,6 @@ public interface ActiveSpan extends Closeable, Span {
      * Most users do not directly interact with {@link Continuation}, {@link Continuation#activate()} or
      * {@link ActiveSpan#deactivate()}, but rather use {@link ActiveSpanSource}-aware Runnables/Callables/Executors.
      * Those higher-level primitives need not be defined within the OpenTracing core API, and so they are not.
-     *
-     * <p>
-     * NOTE: {@link Continuation} extends {@link Closeable} rather than {@code AutoCloseable} in order to keep support
-     * for JDK1.6.
      *
      * @see ActiveSpanSource#makeActive(Span)
      */

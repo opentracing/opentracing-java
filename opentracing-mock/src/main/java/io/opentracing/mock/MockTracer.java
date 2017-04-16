@@ -220,7 +220,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanBuilder ignoringActiveSpan() {
+        public SpanBuilder ignoreActiveSpan() {
             firstParent = null;
             return this;
         }

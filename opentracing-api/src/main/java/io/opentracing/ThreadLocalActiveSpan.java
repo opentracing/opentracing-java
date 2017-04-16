@@ -52,8 +52,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
 
     @Override
     public Continuation capture() {
-        refCount.incrementAndGet();
-        return new ThreadLocalActiveSpan.Continuation(source, wrapped, refCount);
+        return new ThreadLocalActiveSpan.Continuation();
     }
 
     @Override
@@ -136,20 +135,14 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
         deactivate();
     }
 
-    static class Continuation implements ActiveSpan.Continuation {
-        private ThreadLocalActiveSpanSource source;
-        private final Span span;
-        private final AtomicInteger refCount;
-
-        Continuation(ThreadLocalActiveSpanSource source, Span span, AtomicInteger refCount) {
-            this.source = source;
-            this.refCount = refCount;
-            this.span = span;
+    private final class Continuation implements ActiveSpan.Continuation {
+        Continuation() {
+            refCount.incrementAndGet();
         }
 
         @Override
         public ThreadLocalActiveSpan activate() {
-            return new ThreadLocalActiveSpan(source, span, refCount);
+            return new ThreadLocalActiveSpan(source, wrapped, refCount);
         }
     }
 
