@@ -15,6 +15,8 @@ package io.opentracing.impl;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,17 +33,27 @@ abstract class AbstractSpan implements Span, SpanContext {
     private final Map<String,String> baggage = new HashMap<>();
 
     private final Instant start;
+    private final Clock clock;
     private Duration duration;
     private final Map<String,Object> tags = new HashMap<>();
     private final List<LogData> logs = new ArrayList<>();
 
-    AbstractSpan(String operationName ) {
-        this(operationName, Instant.now());
+    AbstractSpan(String operationName) {
+        this(operationName, null, null);
+    }
+
+    AbstractSpan(String operationName, Clock clock) {
+        this(operationName, null, clock);
     }
 
     AbstractSpan(String operationName, Instant start) {
+        this(operationName, start, null);
+    }
+
+    AbstractSpan(String operationName, Instant start, Clock clock) {
         this.operationName = operationName;
-        this.start = start;
+        this.clock = (clock == null ? Clock.systemUTC() : clock);
+        this.start = (start == null ? Instant.now(this.clock) : start);
     }
 
     @Override
@@ -52,7 +64,7 @@ abstract class AbstractSpan implements Span, SpanContext {
     @Override
     public void finish() {
         assert null == duration;
-        duration = Duration.between(start, Instant.now());
+        duration = Duration.between(start, Instant.now(clock));
     }
 
     @Override
@@ -152,7 +164,7 @@ abstract class AbstractSpan implements Span, SpanContext {
 
     @Override
     public final Span log(String event, /* @Nullable */ Object payload) {
-        Instant now = Instant.now();
+        Instant now = Instant.now(clock);
 
         return log(
                 TimeUnit.SECONDS.toMicros(now.getEpochSecond()) + TimeUnit.NANOSECONDS.toMicros(now.getNano()),
@@ -176,6 +188,11 @@ abstract class AbstractSpan implements Span, SpanContext {
         return Collections.unmodifiableList(logs);
     }
 
+    long nowMicros() {
+        Instant now = Instant.now(clock);
+        return (now.getEpochSecond() * 1000000) + (now.getNano() / 1000);
+    }
+
     final class LogData {
         private final Instant time;
         private final Map<String, ?> fields;
@@ -184,10 +201,5 @@ abstract class AbstractSpan implements Span, SpanContext {
             this.time = time;
             this.fields = fields;
         }
-    }
-
-    static long nowMicros() {
-        Instant now = Instant.now();
-        return (now.getEpochSecond() * 1000000) + (now.getNano() / 1000);
     }
 }

@@ -17,6 +17,8 @@ import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +31,8 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
 
     protected String operationName = null;
     protected final List<Reference> references = new ArrayList<>();
-    protected Instant start = Instant.now();
+    protected Instant start;
+    protected Clock clock;
 
     private final Map<String, String> stringTags = new HashMap<>();
     private final Map<String, Boolean> booleanTags = new HashMap<>();
@@ -37,7 +40,13 @@ abstract class AbstractSpanBuilder implements Tracer.SpanBuilder {
     private final Map<String, String> baggage = new HashMap<>();
 
     AbstractSpanBuilder(String operationName) {
+        this(operationName, null);
+    }
+
+    AbstractSpanBuilder(String operationName, Clock clock) {
         this.operationName = operationName;
+        this.clock = (clock == null ? Clock.systemUTC() : clock);
+        this.start = Instant.now(this.clock);
     }
 
     /** Create a Span, using the builder fields. */
