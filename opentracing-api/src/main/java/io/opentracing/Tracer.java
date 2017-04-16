@@ -32,7 +32,7 @@ public interface Tracer extends ActiveSpanSource {
      * <pre>{@code
      *   Tracer tracer = ...
      *
-     *   // Note: if there is a {@link Tracer#activeSpan()}, it will be used as the target of an implicit CHILD_OF
+     *   // Note: if there is a `tracer.activeSpan()`, it will be used as the target of an implicit CHILD_OF
      *   // Reference for "workSpan".
      *   try (ActiveSpan workSpan = tracer.buildSpan("DoWork").startActive()) {
      *       workSpan.span().setTag("...", "...");
@@ -119,7 +119,7 @@ public interface Tracer extends ActiveSpanSource {
 	 * <ul>
 	 * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
 	 * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
-	 * <li>{@link SpanBuilder#ignoringActiveSpan()} is not invoked,
+	 * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
 	 * </ul>
 	 * ... then an inferred {@link References#CHILD_OF} reference is created to the {@link ActiveSpanSource#activeSpan()}
 	 * {@link SpanContext} when either {@link SpanBuilder#startActive()} or {@link SpanBuilder#startManual} is invoked.
@@ -135,7 +135,7 @@ public interface Tracer extends ActiveSpanSource {
         /**
          * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ActiveSpanSource#activeSpan}).
          */
-        SpanBuilder ignoringActiveSpan();
+        SpanBuilder ignoreActiveSpan();
 
         /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
         SpanBuilder withTag(String key, String value);
@@ -166,7 +166,7 @@ public interface Tracer extends ActiveSpanSource {
          * <ul>
          * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
          * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
-         * <li>{@link SpanBuilder#ignoringActiveSpan()} is not invoked,
+         * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
          * {@link ActiveSpanSource#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startManual()} or
