@@ -22,17 +22,17 @@ package io.opentracing;
 public interface ActiveSpanSource {
 
     /**
-     * @return the active {@link ActiveSpan}, or null if none could be found. This does not affect the reference count
-     * for the {@link ActiveSpan}.
+     * @return the {@link ActiveSpan active span}, or null if none could be found. This does not affect the reference
+     * count for the {@link ActiveSpan}.
      */
     ActiveSpan activeSpan();
 
     /**
-     * Wrap and "makeActive" a @{link Span} by encapsulating it – and any active state (e.g., MDC state) in the execution
-     * context – in a new @{link ActiveSpan}.
+     * Wrap and "makeActive" a {@link Span} by encapsulating it – and any active state (e.g., MDC state) in the
+     * execution context – in a new {@link ActiveSpan}.
      *
      * @param span the Span just started
-     * @return an @{link ActiveSpan} that encapsulates the given Span and any other Source-specific context (e.g.,
+     * @return an {@link ActiveSpan} that encapsulates the given Span and any other Source-specific context (e.g.,
      * MDC data)
      */
     ActiveSpan makeActive(Span span);
