@@ -64,7 +64,8 @@ public interface Tracer extends ActiveSpanSource {
      * @param <C> the carrier type, which also parametrizes the Format.
      * @param spanContext the SpanContext instance to inject into the carrier
      * @param format the Format of the carrier
-     * @param carrier the carrier for the SpanContext state. All Tracer.inject() implementations must support io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
+     * @param carrier the carrier for the SpanContext state. All Tracer.inject() implementations must support
+     *                io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
      *
      * @see io.opentracing.propagation.Format
      * @see io.opentracing.propagation.Format.Builtin
@@ -111,18 +112,19 @@ public interface Tracer extends ActiveSpanSource {
         SpanBuilder asChildOf(Span parent);
 
         /**
-         * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to
-         * represent multiple such References.
-	 *
+         * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
+         * to represent multiple such References.
+         *
          * <p>
          * If
-	 * <ul>
-	 * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
-	 * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
-	 * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
-	 * </ul>
-	 * ... then an inferred {@link References#CHILD_OF} reference is created to the {@link ActiveSpanSource#activeSpan()}
-	 * {@link SpanContext} when either {@link SpanBuilder#startActive()} or {@link SpanBuilder#startManual} is invoked.
+         * <ul>
+         * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
+         * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
+         * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
+         * </ul>
+         * ... then an inferred {@link References#CHILD_OF} reference is created to the
+         * {@link ActiveSpanSource#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startActive()} or
+         * {@link SpanBuilder#startManual} is invoked.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
@@ -173,7 +175,8 @@ public interface Tracer extends ActiveSpanSource {
          * {@link SpanBuilder#startActive} is invoked.
          *
          * <p>
-         * Note: {@link SpanBuilder#startActive()} is a shorthand for {@code tracer.makeActive(spanBuilder.startManual())}.
+         * Note: {@link SpanBuilder#startActive()} is a shorthand for
+         * {@code tracer.makeActive(spanBuilder.startManual())}.
          * </p>
          *
          * @return a pre-activated {@link ActiveSpan}
@@ -184,8 +187,11 @@ public interface Tracer extends ActiveSpanSource {
         ActiveSpan startActive();
 
         /**
+         * Like {@link #startActive()}, but the returned {@link Span} has not been activated per
+         * {@link ActiveSpanSource}.
+         *
          * @see SpanBuilder#startActive()
-         * @return the newly-started Span instance, which will *not* be automatically activated by the
+         * @return the newly-started Span instance, which has *not* been automatically activated by the
          *         {@link ActiveSpanSource}
          */
         Span startManual();
