@@ -40,9 +40,8 @@ public class NoopSource implements ActiveSpanSource {
         }
 
         @Override
-        // XXX audit
         public SpanContext context() {
-            return null;
+            return NoopSpanContextImpl.INSTANCE;
         }
 
         @Override
