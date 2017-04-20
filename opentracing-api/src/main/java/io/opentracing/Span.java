@@ -53,8 +53,6 @@ public interface Span {
      */
     void finish(long finishMicros);
 
-    void close();
-
     /**
      * Set a key:value tag on the Span.
      */

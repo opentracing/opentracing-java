@@ -27,13 +27,8 @@ public class ThreadLocalActiveSpanTest {
     private ThreadLocalActiveSpanSource source;
 
     @Before
-    public void setUp() throws Exception {
+    public void before() throws Exception {
         source = new ThreadLocalActiveSpanSource();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        source.clearThreadLocal();
     }
 
     @Test

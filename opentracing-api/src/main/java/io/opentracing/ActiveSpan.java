@@ -17,7 +17,7 @@ import java.io.Closeable;
 
 /**
  * In any execution context (or any thread, etc), there is at most one "active" {@link Span}/{@link ActiveSpan}
- * primarily responsible for the work accomplished by the surrounding application code. That @{link ActiveSpan} may be
+ * primarily responsible for the work accomplished by the surrounding application code. That {@link ActiveSpan} may be
  * accessed via the {@link ActiveSpanSource#activeSpan()} method. If the application needs to capture work that should
  * be part of the same Span, the Source provides a {@link ActiveSpan#capture} method that returns a
  * {@link Continuation}; this continuation may be used to re-activate and continue the {@link Span} in that other
@@ -39,7 +39,7 @@ public interface ActiveSpan extends Closeable, Span {
      * Mark the end of the active period for the {@link Span} pinned by this {@link ActiveSpan}. When the last
      * {@link ActiveSpan} is deactivated for a given {@link Span}, it is automatically {@link Span#finish()}ed.
      * <p>
-     * NOTE: It is an error to call deactivate() more than once on a single {@link ActiveSpan} instance.
+     * NOTE: Calling {@link #deactivate} more than once on a single {@link ActiveSpan} instance is undefined behavior.
      *
      * @see Closeable#close() {@link ActiveSpan}s are auto-closeable and may be used in try-with-resources blocks
      */
@@ -62,7 +62,7 @@ public interface ActiveSpan extends Closeable, Span {
      *
      * <p>
      * The associated {@link Span} will not {@link Span#finish()} while a {@link Continuation} is outstanding; in
-     * this way, it provides a reference/pin just like an @{ActiveSpan} does.
+     * this way, it provides a reference/pin just like an {@link ActiveSpan} does.
      *
      * @return a new {@link Continuation} to {@link Continuation#activate()} at the appropriate time.
      */
