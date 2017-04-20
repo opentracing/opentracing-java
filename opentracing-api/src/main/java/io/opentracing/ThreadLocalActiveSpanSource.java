@@ -34,9 +34,4 @@ public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
         return new ThreadLocalActiveSpan(this, span, new AtomicInteger(1));
     }
 
-    // Only for tests
-    void clearThreadLocal() {
-        tlsSnapshot.remove();
-    }
-
 }

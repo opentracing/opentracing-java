@@ -204,6 +204,7 @@ public class MockTracer implements Tracer {
         private final String operationName;
         private long startMicros;
         private MockSpan.MockContext firstParent;
+        private boolean ignoringActiveSpan;
         private Map<String, Object> initialTags = new HashMap<>();
 
         SpanBuilder(String operationName) {
@@ -221,7 +222,7 @@ public class MockTracer implements Tracer {
 
         @Override
         public SpanBuilder ignoreActiveSpan() {
-            firstParent = null;
+            ignoringActiveSpan = true;
             return this;
         }
 
@@ -273,6 +274,9 @@ public class MockTracer implements Tracer {
         public MockSpan startManual() {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
+            }
+            if (firstParent == null && !ignoringActiveSpan) {
+                firstParent = (MockSpan.MockContext)spanSource.activeSpan().context();
             }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }
