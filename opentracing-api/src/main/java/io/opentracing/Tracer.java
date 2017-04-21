@@ -29,7 +29,7 @@ public interface Tracer extends ActiveSpanSource {
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *
      * <p>A contrived example:
-     * <pre>{@code
+     * <pre><code>
      *   Tracer tracer = ...
      *
      *   // Note: if there is a `tracer.activeSpan()`, it will be used as the target of an implicit CHILD_OF
@@ -46,7 +46,7 @@ public interface Tracer extends ActiveSpanSource {
      *                     .withTag("user_agent", req.UserAgent)
      *                     .withTag("lucky_number", 42)
      *                     .startManual();
-     * }</pre>
+     * </code></pre>
      */
     SpanBuilder buildSpan(String operationName);
 
@@ -54,12 +54,12 @@ public interface Tracer extends ActiveSpanSource {
      * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
      *
      * <p>Example:
-     * <pre>{@code
+     * <pre><code>
      * Tracer tracer = ...
      * Span clientSpan = ...
      * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
      * tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
-     * }</pre>
+     * </code></pre>
      *
      * @param <C> the carrier type, which also parametrizes the Format.
      * @param spanContext the SpanContext instance to inject into the carrier
@@ -76,12 +76,12 @@ public interface Tracer extends ActiveSpanSource {
      * Extract a SpanContext from a `carrier` of a given type, presumably after propagation across a process boundary.
      *
      * <p>Example:
-     * <pre>{@code
+     * <pre><code>
      * Tracer tracer = ...
      * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
      * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
      * ... = tracer.buildSpan('...').asChildOf(spanCtx).startActive();
-     * }</pre>
+     * </code></pre>
      *
      * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
      * IllegalArgumentException.
@@ -156,12 +156,12 @@ public interface Tracer extends ActiveSpanSource {
          *
          * <p>
          * The returned {@link ActiveSpan} supports try-with-resources. For example:
-         * <pre>{@code
+         * <pre><code>
          *     try (ActiveSpan span = tracer.buildSpan("...").startActive()) {
          *         // (Do work)
          *         span.setTag( ... );  // etc, etc
          *     }  // Span finishes automatically unless pinned via {@link ActiveSpan#capture }
-         * }</pre>
+         * </code></pre>
          *
          * <p>
          * If
