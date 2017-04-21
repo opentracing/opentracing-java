@@ -24,11 +24,11 @@ import java.nio.ByteBuffer;
  *
  * Most OpenTracing users will only reference the Format.Builtin constants. For example:
  *
- * <pre>{@code
+ * <pre><code>
  * Tracer tracer = ...
  * io.opentracing.propagation.HttpHeaders httpCarrier = new AnHttpHeaderCarrier(httpRequest);
  * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeaderReader);
- * }</pre>
+ * </code></pre>
  *
  * @see Tracer#inject(SpanContext, Format, Object)
  * @see Tracer#extract(Format, Object)

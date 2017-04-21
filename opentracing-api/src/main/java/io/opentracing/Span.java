@@ -34,8 +34,9 @@ public interface Span {
     /**
      * Sets the end timestamp to now and records the span.
      *
-     * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
-     * do otherwise leads to undefined behavior.
+     * <p>With the exception of calls to {@link #context}, this should be the last call made to the span instance.
+     * Future calls to {@link #finish} are defined as noops, and future calls to methods other than {@link #context}
+     * lead to undefined behavior.
      *
      * @see Span#context()
      */
@@ -72,14 +73,14 @@ public interface Span {
      * Caveat emptor.
      *
      * <p>A contrived example (using Guava, which is not required):
-     * <pre>{@code
-     span.log(
-         ImmutableMap.Builder<String, Object>()
-         .put("event", "soft error")
-         .put("type", "cache timeout")
-         .put("waited.millis", 1500)
-         .build());
-     }</pre>
+     * <pre><code>
+       span.log(
+           ImmutableMap.Builder<String, Object>()
+           .put("event", "soft error")
+           .put("type", "cache timeout")
+           .put("waited.millis", 1500)
+           .build());
+       </code></pre>
      *
      * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
      *               some may also support arbitrary Objects.
@@ -108,9 +109,9 @@ public interface Span {
      *
      * Shorthand for
      *
-     * <pre>{@code
-     span.log(Collections.singletonMap("event", event));
-     }</pre>
+     * <pre><code>
+       span.log(Collections.singletonMap("event", event));
+       </code></pre>
      *
      * @param event the event value; often a stable identifier for a moment in the Span lifecycle
      * @return the Span, for chaining
@@ -122,9 +123,9 @@ public interface Span {
      *
      * Shorthand for
      *
-     * <pre>{@code
-     span.log(timestampMicroseconds, Collections.singletonMap("event", event));
-     }</pre>
+     * <pre><code>
+       span.log(timestampMicroseconds, Collections.singletonMap("event", event));
+       </code></pre>
      *
      * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
      *                              Span's start timestamp.
