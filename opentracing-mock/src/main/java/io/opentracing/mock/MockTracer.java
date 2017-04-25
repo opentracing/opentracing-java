@@ -169,11 +169,7 @@ public class MockTracer implements Tracer {
 
     @Override
     public SpanBuilder buildSpan(String operationName) {
-        SpanBuilder sb = new SpanBuilder(operationName);
-        if (this.spanSource != null) {
-            sb.asChildOf(activeSpanContext());
-        }
-        return sb;
+        return new SpanBuilder(operationName);
     }
 
     private SpanContext activeSpanContext() {
@@ -276,7 +272,7 @@ public class MockTracer implements Tracer {
                 this.startMicros = MockSpan.nowMicros();
             }
             if (firstParent == null && !ignoringActiveSpan) {
-                firstParent = (MockSpan.MockContext)spanSource.activeSpan().context();
+                firstParent = (MockSpan.MockContext)activeSpanContext();
             }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }

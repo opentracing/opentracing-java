@@ -103,11 +103,15 @@ public interface Tracer extends ActiveSpanSource {
 
         /**
          * A shorthand for addReference(References.CHILD_OF, parent).
+         *
+         * If parent==null, this is a noop.
          */
         SpanBuilder asChildOf(SpanContext parent);
 
         /**
          * A shorthand for addReference(References.CHILD_OF, parent.context()).
+         *
+         * If parent==null, this is a noop.
          */
         SpanBuilder asChildOf(Span parent);
 
@@ -128,7 +132,8 @@ public interface Tracer extends ActiveSpanSource {
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
-         *                          referencedContext is the parent
+         *                          referencedContext is the parent. If referencedContext==null, the call to
+         *                          {@link #addReference} is a noop.
          *
          * @see io.opentracing.References
          */

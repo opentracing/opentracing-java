@@ -59,42 +59,42 @@ public class NoopSource implements ActiveSpanSource {
 
         @Override
         public Span setTag(String key, String value) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span setTag(String key, boolean value) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span setTag(String key, Number value) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span log(Map<String, ?> fields) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span log(long timestampMicroseconds, Map<String, ?> fields) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span log(String event) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span log(long timestampMicroseconds, String event) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span setBaggageItem(String key, String value) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
@@ -104,17 +104,17 @@ public class NoopSource implements ActiveSpanSource {
 
         @Override
         public Span setOperationName(String operationName) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span log(String eventName, Object payload) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
 
         @Override
         public Span log(long timestampMicroseconds, String eventName, Object payload) {
-            return null;
+            return NOOP_ACTIVE_SPAN;
         }
     }
 
