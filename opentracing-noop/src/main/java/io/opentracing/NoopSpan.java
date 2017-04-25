@@ -68,8 +68,5 @@ final class NoopSpanImpl implements NoopSpan {
 
     @Override
     public String toString() { return NoopSpan.class.getSimpleName(); }
-
-    @Override
-    public void close() { finish(); }
 }
 
