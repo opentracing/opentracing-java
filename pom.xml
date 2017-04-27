@@ -48,7 +48,7 @@
         <mockito.version>1.10.19</mockito.version>
 
         <animal-sniffer-maven-plugin.version>1.15</animal-sniffer-maven-plugin.version>
-        <maven-plugin.version>0.3.3</maven-plugin.version>
+        <maven-plugin.version>0.3.4</maven-plugin.version>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
         <maven-source-plugin.version>3.0.0</maven-source-plugin.version>
@@ -178,7 +178,7 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.3.9 -->
+                <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.0 -->
                 <plugin>
                     <groupId>io.takari</groupId>
                     <artifactId>maven</artifactId>
