@@ -15,28 +15,36 @@ package io.opentracing;
 
 import java.util.Map;
 
-/**
- * A noop (i.e., cheap-as-possible) implementation of a Source.
- */
-public class NoopSource implements ActiveSpanSource {
-    public static final ActiveSpan NOOP_ACTIVE_SPAN = new NoopActiveSpan();
-    public static final ActiveSpan.Continuation NOOP_CONTINUATION = new NoopContinuation();
+public interface NoopActiveSpanSource extends ActiveSpanSource {
+    NoopActiveSpanSource INSTANCE = new NoopActiveSpanSourceImpl();
 
+    interface NoopActiveSpan extends ActiveSpan {
+        NoopActiveSpanSource.NoopActiveSpan INSTANCE = new NoopActiveSpanSourceImpl.NoopActiveSpanImpl();
+    }
+    interface NoopContinuation extends ActiveSpan.Continuation {
+        NoopActiveSpanSource.NoopContinuation INSTANCE = new NoopActiveSpanSourceImpl.NoopContinuationImpl();
+    }
+}
+
+/**
+ * A noop (i.e., cheap-as-possible) implementation of an ActiveSpanSource.
+ */
+class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
     @Override
     public ActiveSpan makeActive(Span span) {
-        return NOOP_ACTIVE_SPAN;
+        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
     }
 
     @Override
-    public ActiveSpan activeSpan() { return NOOP_ACTIVE_SPAN; }
+    public ActiveSpan activeSpan() { return NoopActiveSpanSource.NoopActiveSpan.INSTANCE; }
 
-    public static class NoopActiveSpan implements ActiveSpan {
+    static class NoopActiveSpanImpl implements NoopActiveSpanSource.NoopActiveSpan {
         @Override
         public void deactivate() {}
 
         @Override
         public Continuation capture() {
-            return NOOP_CONTINUATION;
+            return NoopActiveSpanSource.NoopContinuation.INSTANCE;
         }
 
         @Override
@@ -59,42 +67,42 @@ public class NoopSource implements ActiveSpanSource {
 
         @Override
         public Span setTag(String key, String value) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span setTag(String key, boolean value) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span setTag(String key, Number value) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span log(Map<String, ?> fields) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span log(long timestampMicroseconds, Map<String, ?> fields) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span log(String event) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span log(long timestampMicroseconds, String event) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span setBaggageItem(String key, String value) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
@@ -104,24 +112,24 @@ public class NoopSource implements ActiveSpanSource {
 
         @Override
         public Span setOperationName(String operationName) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span log(String eventName, Object payload) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public Span log(long timestampMicroseconds, String eventName, Object payload) {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
     }
 
-    public static class NoopContinuation implements ActiveSpan.Continuation {
+    static class NoopContinuationImpl implements NoopActiveSpanSource.NoopContinuation {
         @Override
         public ActiveSpan activate() {
-            return NOOP_ACTIVE_SPAN;
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
     }
 }

@@ -22,12 +22,13 @@ package io.opentracing;
 public interface ActiveSpanSource {
 
     /**
-     * @return the {@link ActiveSpan active span}, or null if none could be found. This does not affect the reference
-     * count for the {@link ActiveSpan}.
+     * Return the {@link ActiveSpan active span}. This does not affect the reference count for the {@link ActiveSpan}.
      *
      * <p>
-     * If there is an {@link ActiveSpan}, it becomes an implicit parent at the call to
-     * {@link Tracer.SpanBuilder#startActive()}, not at {@link Tracer#buildSpan(String)} time.
+     * If there is an {@link ActiveSpan active span}, it becomes an implicit parent
+     * at {@link Tracer.SpanBuilder#startActive()} time, not at {@link Tracer#buildSpan(String)} time.
+     *
+     * @return the {@link ActiveSpan active span}, or null if none could be found.
      */
     ActiveSpan activeSpan();
 
