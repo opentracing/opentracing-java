@@ -16,8 +16,6 @@ package io.opentracing.util;
 import io.opentracing.Span;
 import io.opentracing.tag.Tags;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,25 +31,46 @@ public class SpanUtils {
     /**
      * Tags the span as error=true and logs the occurrence of any Throwable (including all appropriate fields).
      *
-     * @param span the span on which the error should be tagged/logged
-     * @param t throwable which will be included on the log entry including stacktrace
-     * @param message message for the log entry.
+     * This is a shortcut for {@link SpanUtils#logException(Span, Throwable, String) logException(Span, Throwable, null)}.
+     * If there is additional context you can provide for the error, consider calling that method and including that context
+     * in the message argument.
+     *
+     * @param span the span to which the tag/log should be applied.
+     * @param t throwable which will be included on the log entry
+     */
+    public static void logException(Span span, Throwable t) {
+        logException(span, t, null);
+    }
+
+    /**
+     * Tags the span as error=true and logs the occurrence of any Throwable (including all appropriate fields).
+     *
+     * Note: the semantic conventions also specify a field called "stack". This will not be populated here (due
+     * to performance concerns), but the Tracer can choose to do so based on the value we store in "error.object".
+     *
+     * @param span the span to which the tag/log should be applied.
+     * @param t throwable which will be included on the log entry
+     * @param message message for the log entry. This will be concatenated with (and therefore should not be the
+     *                same as) the exception message. Null- and empty-tolerant.
      */
     public static void logException(Span span, Throwable t, String message) {
+        if (span == null) {
+            throw new IllegalArgumentException("Span must not be null.");
+        }
+        if (t == null) {
+            throw new IllegalArgumentException("Throwable must not be null.");
+        }
         Map<String, Object> fields = new HashMap<String, Object>();
-        fields.put("error.kind", "Exception");
-        fields.put("error.object", t);
         fields.put("event", "error");
-        fields.put("message", message);
-        fields.put("stack", getStacktraceAsString(t));
+        if (message == null || message.trim().isEmpty()) {
+            fields.put("message", t.getMessage());
+        } else {
+            fields.put("message", String.format("%s | %s", message, t.getMessage()));
+        }
+        fields.put("error.kind", t.getClass().getName());
+        fields.put("error.object", t);
 
         span.setTag(Tags.ERROR.getKey(), true);
         span.log(fields);
-    }
-
-    private static String getStacktraceAsString(Throwable t) {
-        StringWriter stackWriter = new StringWriter();
-        t.printStackTrace(new PrintWriter(stackWriter));
-        return stackWriter.toString();
     }
 }
