@@ -93,6 +93,15 @@ public final class GlobalTracer implements Tracer {
         }
     }
 
+    /**
+     * Identify whether a {@link Tracer} has previously been registered.
+     *
+     * @return Whether a tracer has been registered
+     */
+    public static synchronized boolean isRegistered() {
+        return !(GlobalTracer.tracer instanceof NoopTracer);
+    }
+
     @Override
     public SpanBuilder buildSpan(String operationName) {
         return tracer.buildSpan(operationName);
