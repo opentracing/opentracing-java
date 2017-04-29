@@ -15,10 +15,10 @@ package io.opentracing.mock;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
+import io.opentracing.NoopActiveSpanSource;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
-import io.opentracing.ThreadLocalActiveSpanSource;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
@@ -60,7 +60,7 @@ public class MockTracer implements Tracer {
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(new ThreadLocalActiveSpanSource(), propagator);
+        this(NoopActiveSpanSource.INSTANCE, propagator);
     }
 
     /**
