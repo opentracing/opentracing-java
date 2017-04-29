@@ -53,55 +53,45 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         }
 
         @Override
-        public void finish() {
-
-        }
-
-        @Override
-        public void finish(long finishMicros) {
-
-        }
-
-        @Override
         public void close() {}
 
         @Override
-        public Span setTag(String key, String value) {
+        public BaseSpan setTag(String key, String value) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span setTag(String key, boolean value) {
+        public BaseSpan setTag(String key, boolean value) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span setTag(String key, Number value) {
+        public BaseSpan setTag(String key, Number value) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span log(Map<String, ?> fields) {
+        public BaseSpan log(Map<String, ?> fields) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span log(long timestampMicroseconds, Map<String, ?> fields) {
+        public BaseSpan log(long timestampMicroseconds, Map<String, ?> fields) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span log(String event) {
+        public BaseSpan log(String event) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span log(long timestampMicroseconds, String event) {
+        public BaseSpan log(long timestampMicroseconds, String event) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span setBaggageItem(String key, String value) {
+        public BaseSpan setBaggageItem(String key, String value) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
@@ -111,17 +101,17 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         }
 
         @Override
-        public Span setOperationName(String operationName) {
+        public BaseSpan setOperationName(String operationName) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span log(String eventName, Object payload) {
+        public BaseSpan log(String eventName, Object payload) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
-        public Span log(long timestampMicroseconds, String eventName, Object payload) {
+        public BaseSpan log(long timestampMicroseconds, String eventName, Object payload) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
     }

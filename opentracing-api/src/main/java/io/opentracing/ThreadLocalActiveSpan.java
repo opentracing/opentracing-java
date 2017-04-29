@@ -61,52 +61,42 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
-    public void finish() {
-        wrapped.finish();
-    }
-
-    @Override
-    public void finish(long finishMicros) {
-        wrapped.finish(finishMicros);
-    }
-
-    @Override
-    public Span setTag(String key, String value) {
+    public BaseSpan setTag(String key, String value) {
         return wrapped.setTag(key, value);
     }
 
     @Override
-    public Span setTag(String key, boolean value) {
+    public BaseSpan setTag(String key, boolean value) {
         return wrapped.setTag(key, value);
     }
 
     @Override
-    public Span setTag(String key, Number value) {
+    public BaseSpan setTag(String key, Number value) {
         return wrapped.setTag(key, value);
     }
 
     @Override
-    public Span log(Map<String, ?> fields) {
+    public BaseSpan log(Map<String, ?> fields) {
         return wrapped.log(fields);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, Map<String, ?> fields) {
+    public BaseSpan log(long timestampMicroseconds, Map<String, ?> fields) {
         return wrapped.log(timestampMicroseconds, fields);
     }
 
     @Override
-    public Span log(String event) {
+    public BaseSpan log(String event) {
         return wrapped.log(event);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String event) {
+    public BaseSpan log(long timestampMicroseconds, String event) {
         return wrapped.log(timestampMicroseconds, event);
     }
 
     @Override
-    public Span setBaggageItem(String key, String value) {
+    public BaseSpan setBaggageItem(String key, String value) {
         return wrapped.setBaggageItem(key, value);
     }
 
@@ -116,17 +106,17 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
-    public Span setOperationName(String operationName) {
+    public BaseSpan setOperationName(String operationName) {
         return wrapped.setOperationName(operationName);
     }
 
     @Override
-    public Span log(String eventName, Object payload) {
+    public BaseSpan log(String eventName, Object payload) {
         return wrapped.log(eventName, payload);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) {
+    public BaseSpan log(long timestampMicroseconds, String eventName, Object payload) {
         return wrapped.log(timestampMicroseconds, eventName, payload);
     }
 
