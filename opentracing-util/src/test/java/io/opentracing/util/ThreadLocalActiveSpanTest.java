@@ -11,9 +11,10 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing;
+package io.opentracing.util;
 
-import org.junit.After;
+import io.opentracing.ActiveSpan;
+import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
 
