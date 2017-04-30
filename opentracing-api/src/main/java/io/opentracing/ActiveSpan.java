@@ -16,8 +16,12 @@ package io.opentracing;
 import java.io.Closeable;
 
 /**
- * In any execution context (or any thread, etc), there is at most one "active" {@link Span}/{@link ActiveSpan}
- * primarily responsible for the work accomplished by the surrounding application code. That {@link ActiveSpan} may be
+ * {@link ActiveSpan} inherits all of the OpenTracing functionality in {@link BaseSpan} and layers on functionality
+ * designed for low-touch in-process propagation.
+ *
+ * <p>
+ * In any execution context (or any thread, etc), there is at most one "active" {@link ActiveSpan} primarily
+ * responsible for the work accomplished by the surrounding application code. That {@link ActiveSpan} may be
  * accessed via the {@link ActiveSpanSource#activeSpan()} method. If the application needs to capture work that should
  * be part of the same Span, the Source provides a {@link ActiveSpan#capture} method that returns a
  * {@link Continuation}; this continuation may be used to re-activate and continue the {@link Span} in that other
@@ -29,10 +33,12 @@ import java.io.Closeable;
  * re-{@link Continuation#activate()}d later.
  *
  * <p>
- * NOTE: {@link ActiveSpan} extends {@link Closeable} rather than {@code AutoCloseable} in order to keep support
+ * NOTE: {@link ActiveSpan} extends {@link Closeable} rather than {@code AutoCloseable} in order to preserve support
  * for JDK1.6.
  *
  * @see ActiveSpanSource
+ * @see BaseSpan
+ * @see Span
  */
 public interface ActiveSpan extends Closeable, BaseSpan {
     /**

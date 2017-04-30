@@ -145,7 +145,7 @@ When an `ActiveSpan` is created (either via `Tracer.SpanBuilder#startActive` or 
 
 When the reference count decrements to zero, **the `Span`'s `finish()` method is invoked automatically.**
 
-When used as designed, the programmer should not need to invoke `Span#finish()` manually, but rather should let `ActiveSpan` and `ActiveSpan.Continuation` invoke `finish()` as soon as the last active or deferred `ActiveSpan` is deactivated.
+When used as designed, the programmer lets `ActiveSpan` and `ActiveSpan.Continuation` finish the `Span` as soon as the last active or deferred `ActiveSpan` is deactivated.
 
 # Development
 
