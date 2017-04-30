@@ -36,7 +36,7 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
     }
 
     @Override
-    public ActiveSpan activeSpan() { return NoopActiveSpanSource.NoopActiveSpan.INSTANCE; }
+    public ActiveSpan activeSpan() { return null; }
 
     static class NoopActiveSpanImpl implements NoopActiveSpanSource.NoopActiveSpan {
         @Override
