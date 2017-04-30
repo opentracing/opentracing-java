@@ -35,7 +35,7 @@ public interface Tracer extends ActiveSpanSource {
      *   // Note: if there is a `tracer.activeSpan()`, it will be used as the target of an implicit CHILD_OF
      *   // Reference for "workSpan".
      *   try (ActiveSpan workSpan = tracer.buildSpan("DoWork").startActive()) {
-     *       workSpan.span().setTag("...", "...");
+     *       workSpan.setTag("...", "...");
      *       // etc, etc
      *   }
      *
