@@ -17,9 +17,11 @@ import java.io.Closeable;
 import java.util.Map;
 
 /**
- * Represents an in-flight span in the opentracing system.
+ * Represents an in-flight Span that's manually propagated within the given process. Most of the API lives in
+ * {@link BaseSpan}.
  *
- * <p>Spans are created by the {@link Tracer#buildSpan} interface.
+ * <p>{@link Span}s are created by the {@link Tracer.SpanBuilder#startManual} method; see {@link ActiveSpan} for
+ * a {@link BaseSpan} extension designed for automatic in-process propagation.
  */
 public interface Span extends BaseSpan {
     /**

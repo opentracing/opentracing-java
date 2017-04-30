@@ -13,6 +13,7 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.BaseSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 
@@ -50,7 +51,7 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public Span setOperationName(String operationName) {
+    public BaseSpan setOperationName(String operationName) {
         finishedCheck("Setting operationName {%s} on already finished span", operationName);
         this.operationName = operationName;
         return this;
@@ -116,17 +117,17 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public Span setTag(String key, String value) {
+    public BaseSpan setTag(String key, String value) {
         return setObjectTag(key, value);
     }
 
     @Override
-    public Span setTag(String key, boolean value) {
+    public BaseSpan setTag(String key, boolean value) {
         return setObjectTag(key, value);
     }
 
     @Override
-    public Span setTag(String key, Number value) {
+    public BaseSpan setTag(String key, Number value) {
         return setObjectTag(key, value);
     }
 
@@ -149,22 +150,22 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public Span log(String event) {
+    public BaseSpan log(String event) {
         return this.log(nowMicros(), event);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String event) {
+    public BaseSpan log(long timestampMicroseconds, String event) {
         return this.log(timestampMicroseconds, Collections.singletonMap("event", event));
     }
 
     @Override
-    public Span log(String eventName, Object payload) {
+    public BaseSpan log(String eventName, Object payload) {
         return this.log(nowMicros(), eventName, payload);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) {
+    public BaseSpan log(long timestampMicroseconds, String eventName, Object payload) {
         Map<String, Object> fields = new HashMap<>();
         fields.put("event", eventName);
         if (payload != null) {

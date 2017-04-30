@@ -31,40 +31,40 @@ final class NoopSpanImpl implements NoopSpan {
     public void finish(long finishMicros) {}
 
     @Override
-    public Span setTag(String key, String value) { return this; }
+    public BaseSpan setTag(String key, String value) { return this; }
 
     @Override
-    public Span setTag(String key, boolean value) { return this; }
+    public BaseSpan setTag(String key, boolean value) { return this; }
 
     @Override
-    public Span setTag(String key, Number value) { return this; }
+    public BaseSpan setTag(String key, Number value) { return this; }
 
     @Override
-    public Span log(Map<String, ?> fields) { return this; }
+    public BaseSpan log(Map<String, ?> fields) { return this; }
 
     @Override
-    public Span log(long timestampMicroseconds, Map<String, ?> fields) { return this; }
+    public BaseSpan log(long timestampMicroseconds, Map<String, ?> fields) { return this; }
 
     @Override
-    public Span log(String event) { return this; }
+    public BaseSpan log(String event) { return this; }
 
     @Override
-    public Span log(long timestampMicroseconds, String event) { return this; }
+    public BaseSpan log(long timestampMicroseconds, String event) { return this; }
 
     @Override
-    public Span log(String eventName, Object payload) { return this; }
+    public BaseSpan log(String eventName, Object payload) { return this; }
 
     @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) { return this; }
+    public BaseSpan log(long timestampMicroseconds, String eventName, Object payload) { return this; }
 
     @Override
-    public Span setBaggageItem(String key, String value) { return this; }
+    public BaseSpan setBaggageItem(String key, String value) { return this; }
 
     @Override
     public String getBaggageItem(String key) { return null; }
 
     @Override
-    public Span setOperationName(String operationName) { return this; }
+    public BaseSpan setOperationName(String operationName) { return this; }
 
     @Override
     public String toString() { return NoopSpan.class.getSimpleName(); }
