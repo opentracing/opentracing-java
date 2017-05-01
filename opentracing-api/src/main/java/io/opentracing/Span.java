@@ -23,7 +23,7 @@ import java.util.Map;
  * <p>{@link Span}s are created by the {@link Tracer.SpanBuilder#startManual} method; see {@link ActiveSpan} for
  * a {@link BaseSpan} extension designed for automatic in-process propagation.
  */
-public interface Span extends BaseSpan {
+public interface Span extends BaseSpan<Span> {
     /**
      * Sets the end timestamp to now and records the span.
      *

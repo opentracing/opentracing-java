@@ -25,7 +25,7 @@ import java.util.Map;
  * @see Tracer.SpanBuilder#startManual()
  * @see Tracer.SpanBuilder#startActive()
  */
-public interface BaseSpan {
+public interface BaseSpan<S extends BaseSpan> {
     /**
      * Retrieve the associated SpanContext.
      *
@@ -39,13 +39,13 @@ public interface BaseSpan {
      * Set a key:value tag on the Span.
      */
     // overloaded 3x to support the BasicType concern
-    BaseSpan setTag(String key, String value);
+    S setTag(String key, String value);
 
     /** Same as {@link #setTag(String, String)}, but for boolean values. */
-    BaseSpan setTag(String key, boolean value);
+    S setTag(String key, boolean value);
 
     /** Same as {@link #setTag(String, String)}, but for numeric values. */
-    BaseSpan setTag(String key, Number value);
+    S setTag(String key, Number value);
 
     /**
      * Log key:value pairs to the Span with the current walltime timestamp.
@@ -68,7 +68,7 @@ public interface BaseSpan {
      * @return the Span, for chaining
      * @see Span#log(String)
      */
-    BaseSpan log(Map<String, ?> fields);
+    S log(Map<String, ?> fields);
 
     /**
      * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
@@ -83,7 +83,7 @@ public interface BaseSpan {
      * @return the Span, for chaining
      * @see Span#log(long, String)
      */
-    BaseSpan log(long timestampMicroseconds, Map<String, ?> fields);
+    S log(long timestampMicroseconds, Map<String, ?> fields);
 
     /**
      * Record an event at the current walltime timestamp.
@@ -97,7 +97,7 @@ public interface BaseSpan {
      * @param event the event value; often a stable identifier for a moment in the Span lifecycle
      * @return the Span, for chaining
      */
-    BaseSpan log(String event);
+    S log(String event);
 
     /**
      * Record an event at a specific timestamp.
@@ -113,7 +113,7 @@ public interface BaseSpan {
      * @param event the event value; often a stable identifier for a moment in the Span lifecycle
      * @return the Span, for chaining
      */
-    BaseSpan log(long timestampMicroseconds, String event);
+    S log(long timestampMicroseconds, String event);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
@@ -128,7 +128,7 @@ public interface BaseSpan {
      *
      * @return this Span instance, for chaining
      */
-    BaseSpan setBaggageItem(String key, String value);
+    S setBaggageItem(String key, String value);
 
     /**
      * @return the value of the baggage item identified by the given key, or null if no such item could be found
@@ -140,7 +140,7 @@ public interface BaseSpan {
      *
      * @return this Span instance, for chaining
      */
-    BaseSpan setOperationName(String operationName);
+    S setOperationName(String operationName);
 
     /**
      * @deprecated use {@link #log(Map)} like this
@@ -148,12 +148,12 @@ public interface BaseSpan {
      * or
      * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
      **/
-    BaseSpan log(String eventName, /* @Nullable */ Object payload);
+    S log(String eventName, /* @Nullable */ Object payload);
     /**
      * @deprecated use {@link #log(Map)} like this
      * {@code span.log(timestampMicroseconds, Map.of("event", "timeout"))}
      * or
      * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
      **/
-    BaseSpan log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
+    S log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }

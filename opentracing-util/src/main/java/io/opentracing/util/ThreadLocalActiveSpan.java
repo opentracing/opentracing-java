@@ -15,7 +15,6 @@ package io.opentracing.util;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
-import io.opentracing.BaseSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -68,43 +67,51 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
-    public BaseSpan setTag(String key, String value) {
-        return wrapped.setTag(key, value);
+    public ThreadLocalActiveSpan setTag(String key, String value) {
+        wrapped.setTag(key, value);
+        return this;
     }
 
     @Override
-    public BaseSpan setTag(String key, boolean value) {
-        return wrapped.setTag(key, value);
+    public ThreadLocalActiveSpan setTag(String key, boolean value) {
+        wrapped.setTag(key, value);
+        return this;
     }
 
     @Override
-    public BaseSpan setTag(String key, Number value) {
-        return wrapped.setTag(key, value);
+    public ThreadLocalActiveSpan setTag(String key, Number value) {
+        wrapped.setTag(key, value);
+        return this;
     }
 
     @Override
-    public BaseSpan log(Map<String, ?> fields) {
-        return wrapped.log(fields);
+    public ThreadLocalActiveSpan log(Map<String, ?> fields) {
+        wrapped.log(fields);
+        return this;
     }
 
     @Override
-    public BaseSpan log(long timestampMicroseconds, Map<String, ?> fields) {
-        return wrapped.log(timestampMicroseconds, fields);
+    public ThreadLocalActiveSpan log(long timestampMicroseconds, Map<String, ?> fields) {
+        wrapped.log(timestampMicroseconds, fields);
+        return this;
     }
 
     @Override
-    public BaseSpan log(String event) {
-        return wrapped.log(event);
+    public ThreadLocalActiveSpan log(String event) {
+        wrapped.log(event);
+        return this;
     }
 
     @Override
-    public BaseSpan log(long timestampMicroseconds, String event) {
-        return wrapped.log(timestampMicroseconds, event);
+    public ThreadLocalActiveSpan log(long timestampMicroseconds, String event) {
+        wrapped.log(timestampMicroseconds, event);
+        return this;
     }
 
     @Override
-    public BaseSpan setBaggageItem(String key, String value) {
-        return wrapped.setBaggageItem(key, value);
+    public ThreadLocalActiveSpan setBaggageItem(String key, String value) {
+        wrapped.setBaggageItem(key, value);
+        return this;
     }
 
     @Override
@@ -113,18 +120,21 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
-    public BaseSpan setOperationName(String operationName) {
-        return wrapped.setOperationName(operationName);
+    public ThreadLocalActiveSpan setOperationName(String operationName) {
+        wrapped.setOperationName(operationName);
+        return this;
     }
 
     @Override
-    public BaseSpan log(String eventName, Object payload) {
-        return wrapped.log(eventName, payload);
+    public ThreadLocalActiveSpan log(String eventName, Object payload) {
+        wrapped.log(eventName, payload);
+        return this;
     }
 
     @Override
-    public BaseSpan log(long timestampMicroseconds, String eventName, Object payload) {
-        return wrapped.log(timestampMicroseconds, eventName, payload);
+    public ThreadLocalActiveSpan log(long timestampMicroseconds, String eventName, Object payload) {
+        wrapped.log(timestampMicroseconds, eventName, payload);
+        return this;
     }
 
     @Override
