@@ -40,7 +40,7 @@ import java.io.Closeable;
  * @see BaseSpan
  * @see Span
  */
-public interface ActiveSpan extends Closeable, BaseSpan {
+public interface ActiveSpan extends Closeable, BaseSpan<ActiveSpan> {
     /**
      * Mark the end of the active period for the {@link Span} pinned by this {@link ActiveSpan}. When the last
      * {@link ActiveSpan} is deactivated for a given {@link Span}, it is automatically {@link Span#finish()}ed.
