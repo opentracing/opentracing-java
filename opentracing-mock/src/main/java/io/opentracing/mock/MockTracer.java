@@ -13,12 +13,7 @@
  */
 package io.opentracing.mock;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import io.opentracing.References;
 import io.opentracing.Span;
@@ -108,6 +103,9 @@ public class MockTracer implements Tracer {
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
                 if (carrier instanceof TextMap) {
                     TextMap textMap = (TextMap) carrier;
+                    for (Map.Entry<String, String> entry : ctx.baggageItems()) {
+                        textMap.put(entry.getKey(), entry.getValue());
+                    }
                     textMap.put(SPAN_ID_KEY, String.valueOf(ctx.spanId()));
                     textMap.put(TRACE_ID_KEY, String.valueOf(ctx.traceId()));
                 } else {
@@ -119,16 +117,17 @@ public class MockTracer implements Tracer {
             public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
                 Long traceId = null;
                 Long spanId = null;
+                Map<String, String> baggage = new HashMap<>();
 
                 if (carrier instanceof TextMap) {
                     TextMap textMap = (TextMap) carrier;
-                    Iterator<Map.Entry<String, String>> iterator = textMap.iterator();
-                    while (iterator.hasNext()) {
-                        Map.Entry<String, String> entry = iterator.next();
+                    for (Map.Entry<String, String> entry : textMap) {
                         if (TRACE_ID_KEY.equals(entry.getKey())) {
                             traceId = Long.valueOf(entry.getValue());
                         } else if (SPAN_ID_KEY.equals(entry.getKey())) {
                             spanId = Long.valueOf(entry.getValue());
+                        } else {
+                            baggage.put(entry.getKey(), entry.getValue());
                         }
                     }
                 } else {
@@ -136,7 +135,11 @@ public class MockTracer implements Tracer {
                 }
 
                 if (traceId != null && spanId != null) {
-                    return new MockSpan.MockContext(traceId, spanId, Collections.<String, String>emptyMap());
+                    if (baggage.isEmpty()) {
+                        return new MockSpan.MockContext(traceId, spanId, Collections.<String, String>emptyMap());
+                    } else {
+                        return new MockSpan.MockContext(traceId, spanId, baggage);
+                    }
                 }
 
                 return null;
