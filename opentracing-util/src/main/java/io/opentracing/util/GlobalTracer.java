@@ -94,6 +94,11 @@ public final class GlobalTracer implements Tracer {
 
     /**
      * Identify whether a {@link Tracer} has previously been registered.
+     * <p>
+     * This check is useful in scenarios where more than one component may be responsible
+     * for registering a tracer. For example, when using a Java Agent, it will need to determine
+     * if the application has already registered a tracer, and if not attempt to resolve and
+     * register one itself.
      *
      * @return Whether a tracer has been registered
      */
