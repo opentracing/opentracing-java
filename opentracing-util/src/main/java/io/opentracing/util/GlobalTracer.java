@@ -86,11 +86,24 @@ public final class GlobalTracer implements Tracer {
             LOGGER.log(Level.FINE, "Attempted to register the GlobalTracer as delegate of itself.");
             return; // no-op
         }
-        if (GlobalTracer.tracer instanceof NoopTracer) {
-            GlobalTracer.tracer = tracer;
-        } else if (!GlobalTracer.tracer.equals(tracer)) { // be lenient for re-registration of same tracer
+        if (isRegistered() && !GlobalTracer.tracer.equals(tracer)) {
             throw new IllegalStateException("There is already a current global Tracer registered.");
         }
+        GlobalTracer.tracer = tracer;
+    }
+
+    /**
+     * Identify whether a {@link Tracer} has previously been registered.
+     * <p>
+     * This check is useful in scenarios where more than one component may be responsible
+     * for registering a tracer. For example, when using a Java Agent, it will need to determine
+     * if the application has already registered a tracer, and if not attempt to resolve and
+     * register one itself.
+     *
+     * @return Whether a tracer has been registered
+     */
+    public static synchronized boolean isRegistered() {
+        return !(GlobalTracer.tracer instanceof NoopTracer);
     }
 
     @Override
