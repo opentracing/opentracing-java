@@ -33,5 +33,14 @@ final class NoopTracerImpl implements NoopTracer {
     @Override
     public String toString() { return NoopTracer.class.getSimpleName(); }
 
+    @Override
+    public ActiveSpan activeSpan() {
+        return null;
+    }
+
+    @Override
+    public ActiveSpan makeActive(Span span) {
+        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+    }
 }
 

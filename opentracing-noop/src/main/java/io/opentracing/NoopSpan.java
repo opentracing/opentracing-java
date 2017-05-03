@@ -21,7 +21,6 @@ public interface NoopSpan extends Span {
 
 final class NoopSpanImpl implements NoopSpan {
 
-
     @Override
     public SpanContext context() { return NoopSpanContextImpl.INSTANCE; }
 
@@ -32,46 +31,42 @@ final class NoopSpanImpl implements NoopSpan {
     public void finish(long finishMicros) {}
 
     @Override
-    public void close() { finish(); }
+    public NoopSpan setTag(String key, String value) { return this; }
 
     @Override
-    public Span setTag(String key, String value) { return this; }
+    public NoopSpan setTag(String key, boolean value) { return this; }
 
     @Override
-    public Span setTag(String key, boolean value) { return this; }
+    public NoopSpan setTag(String key, Number value) { return this; }
 
     @Override
-    public Span setTag(String key, Number value) { return this; }
+    public NoopSpan log(Map<String, ?> fields) { return this; }
 
     @Override
-    public Span log(Map<String, ?> fields) { return this; }
+    public NoopSpan log(long timestampMicroseconds, Map<String, ?> fields) { return this; }
 
     @Override
-    public Span log(long timestampMicroseconds, Map<String, ?> fields) { return this; }
+    public NoopSpan log(String event) { return this; }
 
     @Override
-    public Span log(String event) { return this; }
+    public NoopSpan log(long timestampMicroseconds, String event) { return this; }
 
     @Override
-    public Span log(long timestampMicroseconds, String event) { return this; }
+    public NoopSpan log(String eventName, Object payload) { return this; }
 
     @Override
-    public Span log(String eventName, Object payload) { return this; }
+    public NoopSpan log(long timestampMicroseconds, String eventName, Object payload) { return this; }
 
     @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) { return this; }
-
-    @Override
-    public Span setBaggageItem(String key, String value) { return this; }
+    public NoopSpan setBaggageItem(String key, String value) { return this; }
 
     @Override
     public String getBaggageItem(String key) { return null; }
 
     @Override
-    public Span setOperationName(String operationName) { return this; }
+    public NoopSpan setOperationName(String operationName) { return this; }
 
     @Override
     public String toString() { return NoopSpan.class.getSimpleName(); }
-
 }
 

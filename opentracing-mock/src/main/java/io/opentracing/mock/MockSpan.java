@@ -13,11 +13,15 @@
  */
 package io.opentracing.mock;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -46,7 +50,7 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public Span setOperationName(String operationName) {
+    public MockSpan setOperationName(String operationName) {
         finishedCheck("Setting operationName {%s} on already finished span", operationName);
         this.operationName = operationName;
         return this;
@@ -112,26 +116,21 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public void close() {
-        this.finish();
-    }
-
-    @Override
-    public Span setTag(String key, String value) {
+    public MockSpan setTag(String key, String value) {
         return setObjectTag(key, value);
     }
 
     @Override
-    public Span setTag(String key, boolean value) {
+    public MockSpan setTag(String key, boolean value) {
         return setObjectTag(key, value);
     }
 
     @Override
-    public Span setTag(String key, Number value) {
+    public MockSpan setTag(String key, Number value) {
         return setObjectTag(key, value);
     }
 
-    private synchronized Span setObjectTag(String key, Object value) {
+    private synchronized MockSpan setObjectTag(String key, Object value) {
         finishedCheck("Adding tag {%s:%s} to already finished span", key, value);
         tags.put(key, value);
         return this;
@@ -143,29 +142,29 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public final synchronized Span log(long timestampMicros, Map<String, ?> fields) {
+    public final synchronized MockSpan log(long timestampMicros, Map<String, ?> fields) {
         finishedCheck("Adding logs %s at %d to already finished span", fields, timestampMicros);
         this.logEntries.add(new LogEntry(timestampMicros, fields));
         return this;
     }
 
     @Override
-    public Span log(String event) {
+    public MockSpan log(String event) {
         return this.log(nowMicros(), event);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String event) {
+    public MockSpan log(long timestampMicroseconds, String event) {
         return this.log(timestampMicroseconds, Collections.singletonMap("event", event));
     }
 
     @Override
-    public Span log(String eventName, Object payload) {
+    public MockSpan log(String eventName, Object payload) {
         return this.log(nowMicros(), eventName, payload);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String eventName, Object payload) {
+    public MockSpan log(long timestampMicroseconds, String eventName, Object payload) {
         Map<String, Object> fields = new HashMap<>();
         fields.put("event", eventName);
         if (payload != null) {

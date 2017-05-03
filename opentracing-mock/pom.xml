@@ -36,6 +36,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>opentracing-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-noop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-noop</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

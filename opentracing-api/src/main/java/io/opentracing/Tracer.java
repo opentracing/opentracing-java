@@ -18,26 +18,35 @@ import io.opentracing.propagation.Format;
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
-public interface Tracer {
+public interface Tracer extends ActiveSpanSource {
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
+     * <p>If there is an active Span according to the {@link Tracer#activeSpan()}, buildSpan will automatically create
+     * a {@link References#CHILD_OF} reference to that active {@code ActiveSpan.context()}.
+     *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *
      * <p>A contrived example:
-     * <pre>{@code
-      Tracer tracer = ...
-
-      Span parentSpan = tracer.buildSpan("DoWork")
-                              .start();
-
-      Span http = tracer.buildSpan("HandleHTTPRequest")
-                        .asChildOf(parentSpan.context())
-                        .withTag("user_agent", req.UserAgent)
-                        .withTag("lucky_number", 42)
-                        .start();
-      }</pre>
+     * <pre><code>
+     *   Tracer tracer = ...
+     *
+     *   // Note: if there is a `tracer.activeSpan()`, it will be used as the target of an implicit CHILD_OF
+     *   // Reference for "workSpan".
+     *   try (ActiveSpan workSpan = tracer.buildSpan("DoWork").startActive()) {
+     *       workSpan.setTag("...", "...");
+     *       // etc, etc
+     *   }
+     *
+     *   // It's also possible to create Spans manually, bypassing the ActiveSpanSource entirely and with explicit
+     *   // parent References.
+     *   Span http = tracer.buildSpan("HandleHTTPRequest")
+     *                     .asChildOf(rpcSpanContext)  // an explicit parent
+     *                     .withTag("user_agent", req.UserAgent)
+     *                     .withTag("lucky_number", 42)
+     *                     .startManual();
+     * </code></pre>
      */
     SpanBuilder buildSpan(String operationName);
 
@@ -45,17 +54,18 @@ public interface Tracer {
      * Inject a SpanContext into a `carrier` of a given type, presumably for propagation across process boundaries.
      *
      * <p>Example:
-     * <pre>{@code
+     * <pre><code>
      * Tracer tracer = ...
      * Span clientSpan = ...
      * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
      * tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
-     * }</pre>
+     * </code></pre>
      *
      * @param <C> the carrier type, which also parametrizes the Format.
      * @param spanContext the SpanContext instance to inject into the carrier
      * @param format the Format of the carrier
-     * @param carrier the carrier for the SpanContext state. All Tracer.inject() implementations must support io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
+     * @param carrier the carrier for the SpanContext state. All Tracer.inject() implementations must support
+     *                io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
      *
      * @see io.opentracing.propagation.Format
      * @see io.opentracing.propagation.Format.Builtin
@@ -66,12 +76,12 @@ public interface Tracer {
      * Extract a SpanContext from a `carrier` of a given type, presumably after propagation across a process boundary.
      *
      * <p>Example:
-     * <pre>{@code
+     * <pre><code>
      * Tracer tracer = ...
      * TextMap httpHeadersCarrier = new AnHttpHeaderCarrier(httpRequest);
      * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeadersCarrier);
-     * tracer.buildSpan('...').asChildOf(spanCtx).start();
-     * }</pre>
+     * ... = tracer.buildSpan('...').asChildOf(spanCtx).startActive();
+     * </code></pre>
      *
      * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
      * IllegalArgumentException.
@@ -93,25 +103,46 @@ public interface Tracer {
 
         /**
          * A shorthand for addReference(References.CHILD_OF, parent).
+         *
+         * If parent==null, this is a noop.
          */
         SpanBuilder asChildOf(SpanContext parent);
 
         /**
          * A shorthand for addReference(References.CHILD_OF, parent.context()).
+         *
+         * If parent==null, this is a noop.
          */
-        SpanBuilder asChildOf(Span parent);
+        SpanBuilder asChildOf(BaseSpan parent);
 
         /**
-         * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times to
-         * represent multiple such References.
+         * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
+         * to represent multiple such References.
+         *
+         * <p>
+         * If
+         * <ul>
+         * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
+         * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
+         * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
+         * </ul>
+         * ... then an inferred {@link References#CHILD_OF} reference is created to the
+         * {@link ActiveSpanSource#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startActive()} or
+         * {@link SpanBuilder#startManual} is invoked.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
-         *                          referencedContext is the parent
+         *                          referencedContext is the parent. If referencedContext==null, the call to
+         *                          {@link #addReference} is a noop.
          *
          * @see io.opentracing.References
          */
         SpanBuilder addReference(String referenceType, SpanContext referencedContext);
+
+        /**
+         * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ActiveSpanSource#activeSpan}).
+         */
+        SpanBuilder ignoreActiveSpan();
 
         /** Same as {@link Span#setTag(String, String)}, but for the span being built. */
         SpanBuilder withTag(String key, String value);
@@ -125,8 +156,54 @@ public interface Tracer {
         /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
         SpanBuilder withStartTimestamp(long microseconds);
 
-        /** Returns the started Span. */
-        Span start();
+        /**
+         * Returns a newly started and activated {@link ActiveSpan}.
+         *
+         * <p>
+         * The returned {@link ActiveSpan} supports try-with-resources. For example:
+         * <pre><code>
+         *     try (ActiveSpan span = tracer.buildSpan("...").startActive()) {
+         *         // (Do work)
+         *         span.setTag( ... );  // etc, etc
+         *     }  // Span finishes automatically unless pinned via {@link ActiveSpan#capture }
+         * </code></pre>
+         *
+         * <p>
+         * If
+         * <ul>
+         * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
+         * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
+         * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
+         * </ul>
+         * ... then an inferred {@link References#CHILD_OF} reference is created to the
+         * {@link ActiveSpanSource#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startManual()} or
+         * {@link SpanBuilder#startActive} is invoked.
+         *
+         * <p>
+         * Note: {@link SpanBuilder#startActive()} is a shorthand for
+         * {@code tracer.makeActive(spanBuilder.startManual())}.
+         * </p>
+         *
+         * @return a pre-activated {@link ActiveSpan}
+         *
+         * @see ActiveSpanSource
+         * @see ActiveSpan
+         */
+        ActiveSpan startActive();
 
+        /**
+         * Like {@link #startActive()}, but the returned {@link Span} has not been activated per
+         * {@link ActiveSpanSource}.
+         *
+         * @see SpanBuilder#startActive()
+         * @return the newly-started Span instance, which has *not* been automatically activated by the
+         *         {@link ActiveSpanSource}
+         */
+        Span startManual();
+
+        /**
+         * @deprecated use {@link #startManual} or {@link #startActive} instead.
+         */
+        Span start();
     }
 }
