@@ -139,11 +139,7 @@ public class MockTracer implements Tracer {
                 }
 
                 if (traceId != null && spanId != null) {
-                    if (baggage.isEmpty()) {
-                        return new MockSpan.MockContext(traceId, spanId, Collections.<String, String>emptyMap());
-                    } else {
-                        return new MockSpan.MockContext(traceId, spanId, baggage);
-                    }
+                    return new MockSpan.MockContext(traceId, spanId, baggage);
                 }
 
                 return null;
