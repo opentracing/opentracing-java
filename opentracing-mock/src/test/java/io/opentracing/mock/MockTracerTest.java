@@ -168,10 +168,10 @@ public class MockTracerTest {
         Assert.assertEquals(2, finishedSpans.size());
         Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
         Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
-        Assert.assertEquals(finishedSpans.get(0).getBaggageItem("foobag"), "fooitem");
+        Assert.assertEquals("fooitem", finishedSpans.get(0).getBaggageItem("foobag"));
         Assert.assertNull(finishedSpans.get(0).getBaggageItem("barbag"));
-        Assert.assertEquals(finishedSpans.get(1).getBaggageItem("foobag"), "fooitem");
-        Assert.assertEquals(finishedSpans.get(1).getBaggageItem("barbag"), "baritem");
+        Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
+        Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
     }
 
     @Test
