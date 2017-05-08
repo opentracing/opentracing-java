@@ -16,8 +16,8 @@ package io.opentracing;
 import java.util.Map;
 
 /**
- * {@link BaseSpan} represents the OpenTracing specification's Span contract with the exception of methods to finish
- * said Span. For those, either use {@link Span#finish()} or {@link ActiveSpan#deactivate()} depending on the
+ * {@link BaseSpan} represents the OpenTracing specification's span contract with the exception of methods to finish
+ * said span. For those, either use {@link Span#finish()} or {@link ActiveSpan#deactivate()} depending on the
  * programming model.
  *
  * @see Span

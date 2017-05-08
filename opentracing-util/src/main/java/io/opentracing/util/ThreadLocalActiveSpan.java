@@ -23,12 +23,12 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
  /**
- * {@link ThreadLocalActiveSpan} is a trivial {@link ActiveSpan} implementation that relies on Java's thread-local
- * storage primitive.
- *
- * @see ActiveSpanSource
- * @see Tracer#activeSpan()
- */
+  * {@link ThreadLocalActiveSpan} is a simple {@link ActiveSpan} implementation that relies on Java's
+  * thread-local storage primitive.
+  *
+  * @see ActiveSpanSource
+  * @see Tracer#activeSpan()
+  */
 public class ThreadLocalActiveSpan implements ActiveSpan {
     private final ThreadLocalActiveSpanSource source;
     private final Span wrapped;

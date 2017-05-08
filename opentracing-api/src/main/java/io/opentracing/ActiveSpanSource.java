@@ -17,28 +17,34 @@ package io.opentracing;
  * {@link ActiveSpanSource} allows an existing (possibly thread-local-aware) execution context provider to act as a
  * source for an actively-scheduled OpenTracing Span.
  *
+ * <p>
+ * {@link ActiveSpanSource} is a super-interface to {@link Tracer}, so note that all {@link Tracer}s fulfill the
+ * {@link ActiveSpanSource} contract.
+ *
  * @see ActiveSpan
  */
 public interface ActiveSpanSource {
 
     /**
-     * Return the {@link ActiveSpan active span}. This does not affect the reference count for the {@link ActiveSpan}.
+     * Return the {@link ActiveSpan active span}. This does not affect the internal reference count for the
+     * {@link ActiveSpan}.
      *
      * <p>
-     * If there is an {@link ActiveSpan active span}, it becomes an implicit parent
-     * at {@link Tracer.SpanBuilder#startActive()} time, not at {@link Tracer#buildSpan(String)} time.
+     * If there is an {@link ActiveSpan active span}, it becomes an implicit parent of any newly-created
+     * {@link BaseSpan span} at {@link Tracer.SpanBuilder#startActive()} time (rather than at
+     * {@link Tracer#buildSpan(String)} time).
      *
      * @return the {@link ActiveSpan active span}, or null if none could be found.
      */
     ActiveSpan activeSpan();
 
     /**
-     * Wrap and "makeActive" a {@link Span} by encapsulating it – and any active state (e.g., MDC state) in the
-     * execution context – in a new {@link ActiveSpan}.
+     * Wrap and "make active" a {@link Span} by encapsulating it – and any active state (e.g., MDC state) in the
+     * current thread – in a new {@link ActiveSpan}.
      *
-     * @param span the Span just started
-     * @return an {@link ActiveSpan} that encapsulates the given Span and any other Source-specific context (e.g.,
-     * MDC data)
+     * @param span the Span to wrap in an {@link ActiveSpan}
+     * @return an {@link ActiveSpan} that encapsulates the given {@link Span} and any other
+     *     {@link ActiveSpanSource}-specific context (e.g., the MDC context map)
      */
     ActiveSpan makeActive(Span span);
 }

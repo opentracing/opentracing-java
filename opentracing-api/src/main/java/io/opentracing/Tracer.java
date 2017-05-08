@@ -23,9 +23,6 @@ public interface Tracer extends ActiveSpanSource {
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
-     * <p>If there is an active Span according to the {@link Tracer#activeSpan()}, buildSpan will automatically create
-     * a {@link References#CHILD_OF} reference to that active {@code ActiveSpan.context()}.
-     *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.
      *
      * <p>A contrived example:
@@ -33,14 +30,13 @@ public interface Tracer extends ActiveSpanSource {
      *   Tracer tracer = ...
      *
      *   // Note: if there is a `tracer.activeSpan()`, it will be used as the target of an implicit CHILD_OF
-     *   // Reference for "workSpan".
+     *   // Reference for "workSpan" when `startActive()` is invoked.
      *   try (ActiveSpan workSpan = tracer.buildSpan("DoWork").startActive()) {
      *       workSpan.setTag("...", "...");
      *       // etc, etc
      *   }
      *
-     *   // It's also possible to create Spans manually, bypassing the ActiveSpanSource entirely and with explicit
-     *   // parent References.
+     *   // It's also possible to create Spans manually, bypassing the ActiveSpanSource activation.
      *   Span http = tracer.buildSpan("HandleHTTPRequest")
      *                     .asChildOf(rpcSpanContext)  // an explicit parent
      *                     .withTag("user_agent", req.UserAgent)
@@ -104,6 +100,7 @@ public interface Tracer extends ActiveSpanSource {
         /**
          * A shorthand for addReference(References.CHILD_OF, parent).
          *
+         * <p>
          * If parent==null, this is a noop.
          */
         SpanBuilder asChildOf(SpanContext parent);
@@ -111,6 +108,7 @@ public interface Tracer extends ActiveSpanSource {
         /**
          * A shorthand for addReference(References.CHILD_OF, parent.context()).
          *
+         * <p>
          * If parent==null, this is a noop.
          */
         SpanBuilder asChildOf(BaseSpan parent);
@@ -165,7 +163,7 @@ public interface Tracer extends ActiveSpanSource {
          *     try (ActiveSpan span = tracer.buildSpan("...").startActive()) {
          *         // (Do work)
          *         span.setTag( ... );  // etc, etc
-         *     }  // Span finishes automatically unless pinned via {@link ActiveSpan#capture }
+         *     }  // Span finishes automatically unless deferred via {@link ActiveSpan#capture}
          * </code></pre>
          *
          * <p>
@@ -176,15 +174,14 @@ public interface Tracer extends ActiveSpanSource {
          * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
-         * {@link ActiveSpanSource#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startManual()} or
-         * {@link SpanBuilder#startActive} is invoked.
+         * {@link ActiveSpanSource#activeSpan()}'s {@link SpanContext} when either
+         * {@link SpanBuilder#startManual()} or {@link SpanBuilder#startActive} is invoked.
          *
          * <p>
          * Note: {@link SpanBuilder#startActive()} is a shorthand for
          * {@code tracer.makeActive(spanBuilder.startManual())}.
-         * </p>
          *
-         * @return a pre-activated {@link ActiveSpan}
+         * @return an {@link ActiveSpan}, already registered via the {@link ActiveSpanSource}
          *
          * @see ActiveSpanSource
          * @see ActiveSpan
@@ -192,12 +189,12 @@ public interface Tracer extends ActiveSpanSource {
         ActiveSpan startActive();
 
         /**
-         * Like {@link #startActive()}, but the returned {@link Span} has not been activated per
+         * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
          * {@link ActiveSpanSource}.
          *
          * @see SpanBuilder#startActive()
-         * @return the newly-started Span instance, which has *not* been automatically activated by the
-         *         {@link ActiveSpanSource}
+         * @return the newly-started Span instance, which has *not* been automatically registered
+         *         via the {@link ActiveSpanSource}
          */
         Span startManual();
 
