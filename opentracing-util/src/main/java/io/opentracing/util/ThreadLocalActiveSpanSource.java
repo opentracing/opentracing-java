@@ -21,7 +21,7 @@ import io.opentracing.Tracer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A trivial source for the {@linkplain #activeSpan active} {@link ActiveSpan}.
+ * A simple {@link ActiveSpanSource} implementation built on top of Java's thread-local storage primitive.
  *
  * @see ThreadLocalActiveSpan
  * @see Tracer#activeSpan()

@@ -17,11 +17,13 @@ import java.io.Closeable;
 import java.util.Map;
 
 /**
- * Represents an in-flight Span that's manually propagated within the given process. Most of the API lives in
- * {@link BaseSpan}.
+ * Represents an in-flight Span that's <strong>manually propagated</strong> within the given process. Most of
+ * the API lives in {@link BaseSpan}.
  *
  * <p>{@link Span}s are created by the {@link Tracer.SpanBuilder#startManual} method; see {@link ActiveSpan} for
  * a {@link BaseSpan} extension designed for automatic in-process propagation.
+ *
+ * @see ActiveSpan for automatic propagation (recommended for most intstrumentation!)
  */
 public interface Span extends BaseSpan<Span> {
     /**
