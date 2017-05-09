@@ -111,7 +111,7 @@ public interface Tracer extends ActiveSpanSource {
          * <p>
          * If parent==null, this is a noop.
          */
-        SpanBuilder asChildOf(BaseSpan parent);
+        SpanBuilder asChildOf(BaseSpan<?> parent);
 
         /**
          * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
@@ -201,6 +201,7 @@ public interface Tracer extends ActiveSpanSource {
         /**
          * @deprecated use {@link #startManual} or {@link #startActive} instead.
          */
+        @Deprecated
         Span start();
     }
 }

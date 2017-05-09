@@ -38,7 +38,6 @@ public interface BaseSpan<S extends BaseSpan> {
     /**
      * Set a key:value tag on the Span.
      */
-    // overloaded 3x to support the BasicType concern
     S setTag(String key, String value);
 
     /** Same as {@link #setTag(String, String)}, but for boolean values. */
@@ -148,12 +147,15 @@ public interface BaseSpan<S extends BaseSpan> {
      * or
      * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
      **/
+    @Deprecated
     S log(String eventName, /* @Nullable */ Object payload);
+
     /**
      * @deprecated use {@link #log(Map)} like this
      * {@code span.log(timestampMicroseconds, Map.of("event", "timeout"))}
      * or
      * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
      **/
+    @Deprecated
     S log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }
