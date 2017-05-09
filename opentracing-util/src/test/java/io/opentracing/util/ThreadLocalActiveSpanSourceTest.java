@@ -39,9 +39,7 @@ public class ThreadLocalActiveSpanSourceTest {
     public void makeActiveSpan() throws Exception {
         Span span = mock(Span.class);
 
-        // We can't use 1.7 features like try-with-resources in this repo -- argh.
-        //
-        // F*** IT, WE'LL DO IT LIVE!
+        // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
         ActiveSpan activeSpan = source.makeActive(span);
         try {
             assertNotNull(activeSpan);
