@@ -33,7 +33,10 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
-    public Tracer.SpanBuilder asChildOf(Span parent) {
+    public Tracer.SpanBuilder ignoreActiveSpan() { return this; }
+
+    @Override
+    public Tracer.SpanBuilder asChildOf(BaseSpan parent) {
         return this;
     }
 
@@ -59,6 +62,16 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
 
     @Override
     public Span start() {
+        return startManual();
+    }
+
+    @Override
+    public ActiveSpan startActive() {
+        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+    }
+
+    @Override
+    public Span startManual() {
         return NoopSpanImpl.INSTANCE;
     }
 
