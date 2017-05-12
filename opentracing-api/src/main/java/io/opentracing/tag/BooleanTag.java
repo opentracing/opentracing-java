@@ -19,7 +19,7 @@ public class BooleanTag extends AbstractTag<Boolean> {
     }
 
     @Override
-    public void set(io.opentracing.Span span, Boolean tagValue) {
+    public void set(io.opentracing.BaseSpan<?> span, Boolean tagValue) {
         span.setTag(super.key, tagValue);
     }
 }

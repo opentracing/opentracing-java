@@ -24,5 +24,5 @@ public abstract class AbstractTag<T> {
         return key;
     }
 
-    protected abstract void set(io.opentracing.Span span, T tagValue);
+    protected abstract void set(io.opentracing.BaseSpan<?> span, T tagValue);
 }

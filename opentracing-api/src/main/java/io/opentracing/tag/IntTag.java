@@ -19,7 +19,7 @@ public class IntTag extends AbstractTag<Integer> {
     }
 
     @Override
-    public void set(io.opentracing.Span span, Integer tagValue) {
+    public void set(io.opentracing.BaseSpan<?> span, Integer tagValue) {
         span.setTag(super.key, tagValue);
     }
 }

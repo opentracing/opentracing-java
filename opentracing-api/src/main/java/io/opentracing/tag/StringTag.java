@@ -19,11 +19,11 @@ public class StringTag extends AbstractTag<String> {
     }
 
     @Override
-    public void set(io.opentracing.Span span, String tagValue) {
+    public void set(io.opentracing.BaseSpan<?> span, String tagValue) {
         span.setTag(super.key, tagValue);
     }
 
-    public void set(io.opentracing.Span span, StringTag tag) {
+    public void set(io.opentracing.BaseSpan<?> span, StringTag tag) {
         span.setTag(super.key, tag.key);
     }
 }

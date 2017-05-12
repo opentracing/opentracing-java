@@ -23,7 +23,7 @@ public class ShortTag extends AbstractTag<Short> {
     }
 
     @Override
-    public void set(io.opentracing.Span span, Short tagValue) {
+    public void set(io.opentracing.BaseSpan<?> span, Short tagValue) {
         span.setTag(super.key, tagValue);
     }
 }
