@@ -13,13 +13,15 @@
  */
 package io.opentracing.tag;
 
+import io.opentracing.BaseSpan;
+
 public class BooleanTag extends AbstractTag<Boolean> {
     public BooleanTag(String key) {
         super(key);
     }
 
     @Override
-    public void set(io.opentracing.BaseSpan<?> span, Boolean tagValue) {
+    public void set(BaseSpan<?> span, Boolean tagValue) {
         span.setTag(super.key, tagValue);
     }
 }

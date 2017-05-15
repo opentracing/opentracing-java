@@ -13,6 +13,8 @@
  */
 package io.opentracing.tag;
 
+import io.opentracing.BaseSpan;
+
 /**
  * @deprecated use {@link IntTag} instead.
  */
@@ -23,7 +25,7 @@ public class ShortTag extends AbstractTag<Short> {
     }
 
     @Override
-    public void set(io.opentracing.BaseSpan<?> span, Short tagValue) {
+    public void set(BaseSpan<?> span, Short tagValue) {
         span.setTag(super.key, tagValue);
     }
 }
