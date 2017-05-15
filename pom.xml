@@ -48,15 +48,17 @@
         <mockito.version>1.10.19</mockito.version>
 
         <animal-sniffer-maven-plugin.version>1.15</animal-sniffer-maven-plugin.version>
+        <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
+        <centralsync-maven-plugin.version>0.1.0</centralsync-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
+        <license-maven-plugin.version>2.11</license-maven-plugin.version>
         <maven-plugin.version>0.3.4</maven-plugin.version>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
         <maven-source-plugin.version>3.0.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
-        <license-maven-plugin.version>2.11</license-maven-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <centralsync-maven-plugin.version>0.1.0</centralsync-maven-plugin.version>
     </properties>
 
     <name>OpenTracing (Parent)</name>
@@ -254,6 +256,7 @@
                     <header>${main.basedir}/src/etc/header.txt</header>
                     <excludes>
                         <exclude>.travis.yml</exclude>
+                        <exclude>.coveralls.yml</exclude>
                         <exclude>.gitignore</exclude>
                         <exclude>.mvn/**</exclude>
                         <exclude>mvnw*</exclude>
@@ -303,6 +306,25 @@
                     <repo>maven</repo>
                     <packageName>opentracing-java</packageName>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
