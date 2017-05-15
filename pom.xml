@@ -53,7 +53,7 @@
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
         <maven-source-plugin.version>3.0.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
-        <license-maven-plugin.version>2.11</license-maven-plugin.version>
+        <license-maven-plugin.version>3.0</license-maven-plugin.version>
         <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <centralsync-maven-plugin.version>0.1.0</centralsync-maven-plugin.version>
@@ -252,6 +252,9 @@
                 <version>${license-maven-plugin.version}</version>
                 <configuration>
                     <header>${main.basedir}/src/etc/header.txt</header>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
                     <excludes>
                         <exclude>.travis.yml</exclude>
                         <exclude>.gitignore</exclude>

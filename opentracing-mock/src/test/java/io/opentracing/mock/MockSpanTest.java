@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -13,10 +13,9 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.Span;
 import org.junit.Assert;
 import org.junit.Test;
-
-import io.opentracing.Span;
 
 /**
  * @author Pavol Loffay

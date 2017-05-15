@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -14,8 +14,8 @@
 package io.opentracing.propagation;
 
 import io.opentracing.Tracer;
-import java.util.Iterator;
 
+import java.util.Iterator;
 import java.util.Map;
 
 /**

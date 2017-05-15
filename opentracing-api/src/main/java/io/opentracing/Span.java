@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -12,9 +12,6 @@
  * the License.
  */
 package io.opentracing;
-
-import java.io.Closeable;
-import java.util.Map;
 
 /**
  * Represents an in-flight Span that's <strong>manually propagated</strong> within the given process. Most of

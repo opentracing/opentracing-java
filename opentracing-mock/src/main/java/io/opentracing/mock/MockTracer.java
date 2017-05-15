@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -13,23 +13,11 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
-import io.opentracing.BaseSpan;
-import io.opentracing.NoopActiveSpanSource;
-import io.opentracing.References;
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
+import io.opentracing.*;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
