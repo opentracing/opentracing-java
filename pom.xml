@@ -254,6 +254,7 @@
                     <header>${main.basedir}/src/etc/header.txt</header>
                     <excludes>
                         <exclude>.travis.yml</exclude>
+                        <exclude>.coveralls.yml</exclude>
                         <exclude>.gitignore</exclude>
                         <exclude>.mvn/**</exclude>
                         <exclude>mvnw*</exclude>
