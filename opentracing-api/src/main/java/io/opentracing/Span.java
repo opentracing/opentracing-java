@@ -13,9 +13,6 @@
  */
 package io.opentracing;
 
-import java.io.Closeable;
-import java.util.Map;
-
 /**
  * Represents an in-flight Span that's <strong>manually propagated</strong> within the given process. Most of
  * the API lives in {@link BaseSpan}.
