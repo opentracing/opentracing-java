@@ -13,18 +13,22 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.*;
+import io.opentracing.ActiveSpan;
+import io.opentracing.ActiveSpanSource;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
- /**
-  * {@link ThreadLocalActiveSpan} is a simple {@link ActiveSpan} implementation that relies on Java's
-  * thread-local storage primitive.
-  *
-  * @see ActiveSpanSource
-  * @see Tracer#activeSpan()
-  */
+/**
+ * {@link ThreadLocalActiveSpan} is a simple {@link ActiveSpan} implementation that relies on Java's
+ * thread-local storage primitive.
+ *
+ * @see ActiveSpanSource
+ * @see Tracer#activeSpan()
+ */
 public class ThreadLocalActiveSpan implements ActiveSpan {
     private final ThreadLocalActiveSpanSource source;
     private final Span wrapped;
@@ -149,4 +153,4 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
         }
     }
 
- }
+}

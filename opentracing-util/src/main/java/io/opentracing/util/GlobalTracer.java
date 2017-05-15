@@ -13,7 +13,12 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.*;
+import io.opentracing.ActiveSpan;
+import io.opentracing.NoopTracer;
+import io.opentracing.NoopTracerFactory;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 
 import java.util.logging.Level;

@@ -13,11 +13,23 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.*;
+import io.opentracing.ActiveSpan;
+import io.opentracing.ActiveSpanSource;
+import io.opentracing.BaseSpan;
+import io.opentracing.NoopActiveSpanSource;
+import io.opentracing.References;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -195,6 +207,7 @@ public class MockTracer implements Tracer {
         SpanBuilder(String operationName) {
             this.operationName = operationName;
         }
+
         @Override
         public SpanBuilder asChildOf(SpanContext parent) {
             return addReference(References.CHILD_OF, parent);
@@ -261,7 +274,7 @@ public class MockTracer implements Tracer {
                 this.startMicros = MockSpan.nowMicros();
             }
             if (firstParent == null && !ignoringActiveSpan) {
-                firstParent = (MockSpan.MockContext)activeSpanContext();
+                firstParent = (MockSpan.MockContext) activeSpanContext();
             }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }
