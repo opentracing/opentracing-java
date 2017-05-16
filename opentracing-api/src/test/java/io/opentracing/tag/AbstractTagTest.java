@@ -11,25 +11,43 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.tag;
 
-import io.opentracing.Span;
-import org.junit.Test;
+package io.opentracing.tag;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class StringTagTest {
+import org.junit.Test;
+
+import io.opentracing.ActiveSpan;
+import io.opentracing.Span;
+
+/**
+ * @author Pavol Loffay
+ */
+public class AbstractTagTest {
 
     @Test
-    public void testSetString() {
-        String value = "expected.value";
-        String key = "expected.key";
+    public void testSetTagOnSpan() {
+        String value = "foo";
+        String key = "bar";
 
-        Span span = mock(Span.class);
+        Span activeSpan = mock(Span.class);
         StringTag tag = new StringTag(key);
-        tag.set(span, value);
+        tag.set(activeSpan, value);
 
-        verify(span).setTag(key, value);
+        verify(activeSpan).setTag(key, value);
+    }
+
+    @Test
+    public void testSetTagOnActiveSpan() {
+        String value = "foo";
+        String key = "bar";
+
+        ActiveSpan activeSpan = mock(ActiveSpan.class);
+        StringTag tag = new StringTag(key);
+        tag.set(activeSpan, value);
+
+        verify(activeSpan).setTag(key, value);
     }
 }

@@ -174,4 +174,11 @@ public class GlobalTracerTest {
         }
     }
 
+    @Test
+    public void testIsRegistered() {
+        assertThat("Should not be registered", GlobalTracer.isRegistered(), is(false));
+        GlobalTracer.register(mock(Tracer.class));
+        assertThat("Should be registered", GlobalTracer.isRegistered(), is(true));
+    }
+
 }
