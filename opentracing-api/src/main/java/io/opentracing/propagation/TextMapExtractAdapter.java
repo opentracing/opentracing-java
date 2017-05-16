@@ -14,8 +14,8 @@
 package io.opentracing.propagation;
 
 import io.opentracing.Tracer;
-
 import java.util.Iterator;
+
 import java.util.Map;
 
 /**

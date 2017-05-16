@@ -13,12 +13,13 @@
  */
 package io.opentracing.tag;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.Span;
-import org.junit.Test;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import org.junit.Test;
+
+import io.opentracing.ActiveSpan;
+import io.opentracing.Span;
 
 /**
  * @author Pavol Loffay
