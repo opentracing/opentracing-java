@@ -13,11 +13,23 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.*;
+import io.opentracing.ActiveSpan;
+import io.opentracing.ActiveSpanSource;
+import io.opentracing.BaseSpan;
+import io.opentracing.NoopActiveSpanSource;
+import io.opentracing.References;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
