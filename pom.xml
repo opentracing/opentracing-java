@@ -51,7 +51,7 @@
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <centralsync-maven-plugin.version>0.1.0</centralsync-maven-plugin.version>
         <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
-        <license-maven-plugin.version>2.11</license-maven-plugin.version>
+        <license-maven-plugin.version>3.0</license-maven-plugin.version>
         <maven-plugin.version>0.3.4</maven-plugin.version>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
@@ -254,6 +254,9 @@
                 <version>${license-maven-plugin.version}</version>
                 <configuration>
                     <header>${main.basedir}/src/etc/header.txt</header>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
                     <excludes>
                         <exclude>.travis.yml</exclude>
                         <exclude>.coveralls.yml</exclude>

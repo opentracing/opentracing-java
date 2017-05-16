@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
@@ -207,6 +207,7 @@ public class MockTracer implements Tracer {
         SpanBuilder(String operationName) {
             this.operationName = operationName;
         }
+
         @Override
         public SpanBuilder asChildOf(SpanContext parent) {
             return addReference(References.CHILD_OF, parent);
@@ -273,7 +274,7 @@ public class MockTracer implements Tracer {
                 this.startMicros = MockSpan.nowMicros();
             }
             if (firstParent == null && !ignoringActiveSpan) {
-                firstParent = (MockSpan.MockContext)activeSpanContext();
+                firstParent = (MockSpan.MockContext) activeSpanContext();
             }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }
