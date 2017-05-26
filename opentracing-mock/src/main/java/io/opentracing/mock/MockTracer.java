@@ -125,13 +125,14 @@ public class MockTracer implements Tracer {
         Propagator TEXT_MAP = new Propagator() {
             public static final String SPAN_ID_KEY = "spanid";
             public static final String TRACE_ID_KEY = "traceid";
+            public static final String BAGGAGE_KEY_PREFIX = "baggage-";
 
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
                 if (carrier instanceof TextMap) {
                     TextMap textMap = (TextMap) carrier;
                     for (Map.Entry<String, String> entry : ctx.baggageItems()) {
-                        textMap.put(entry.getKey(), entry.getValue());
+                        textMap.put(BAGGAGE_KEY_PREFIX + entry.getKey(), entry.getValue());
                     }
                     textMap.put(SPAN_ID_KEY, String.valueOf(ctx.spanId()));
                     textMap.put(TRACE_ID_KEY, String.valueOf(ctx.traceId()));
@@ -153,8 +154,9 @@ public class MockTracer implements Tracer {
                             traceId = Long.valueOf(entry.getValue());
                         } else if (SPAN_ID_KEY.equals(entry.getKey())) {
                             spanId = Long.valueOf(entry.getValue());
-                        } else {
-                            baggage.put(entry.getKey(), entry.getValue());
+                        } else if (entry.getKey().startsWith(BAGGAGE_KEY_PREFIX)){
+                            String key = entry.getKey().substring((BAGGAGE_KEY_PREFIX.length()));
+                            baggage.put(key, entry.getValue());
                         }
                     }
                 } else {

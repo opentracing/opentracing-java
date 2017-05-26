@@ -144,13 +144,14 @@ public class MockTracerTest {
     @Test
     public void testTextMapPropagatorTextMap() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        HashMap<String, String> injectMap = new HashMap<>();
+        injectMap.put("foobag", "donttouch");
         {
             Span parentSpan = tracer.buildSpan("foo")
                     .start();
             parentSpan.setBaggageItem("foobag", "fooitem");
             parentSpan.finish();
 
-            HashMap<String, String> injectMap = new HashMap<>();
             tracer.inject(parentSpan.context(), Format.Builtin.TEXT_MAP,
                     new TextMapInjectAdapter(injectMap));
 
@@ -171,6 +172,7 @@ public class MockTracerTest {
         Assert.assertNull(finishedSpans.get(0).getBaggageItem("barbag"));
         Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
         Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
+        Assert.assertEquals("donttouch", injectMap.get("foobag"));
     }
 
     @Test
