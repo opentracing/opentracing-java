@@ -211,6 +211,7 @@ public class MockTracer implements Tracer {
         SpanBuilder(String operationName) {
             this.operationName = operationName;
         }
+
         @Override
         public SpanBuilder asChildOf(SpanContext parent) {
             return addReference(References.CHILD_OF, parent);

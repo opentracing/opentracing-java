@@ -39,6 +39,9 @@ branches:
   except:
     - /^[0-9]/
 
+after_success:
+  - mvn jacoco:report coveralls:report
+
 env:
   global:
   # Ex. travis encrypt -r org/repo BINTRAY_USER=your_github_account
