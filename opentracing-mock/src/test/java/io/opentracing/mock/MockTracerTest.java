@@ -144,27 +144,35 @@ public class MockTracerTest {
     @Test
     public void testTextMapPropagatorTextMap() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        HashMap<String, String> injectMap = new HashMap<>();
+        injectMap.put("foobag", "donttouch");
         {
             Span parentSpan = tracer.buildSpan("foo")
                     .start();
+            parentSpan.setBaggageItem("foobag", "fooitem");
             parentSpan.finish();
 
-            HashMap<String, String> injectMap = new HashMap<>();
             tracer.inject(parentSpan.context(), Format.Builtin.TEXT_MAP,
                     new TextMapInjectAdapter(injectMap));
 
             SpanContext extract = tracer.extract(Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(injectMap));
 
-            tracer.buildSpan("bar")
+            Span childSpan = tracer.buildSpan("bar")
                     .asChildOf(extract)
-                    .start()
-                    .finish();
+                    .start();
+            childSpan.setBaggageItem("barbag", "baritem");
+            childSpan.finish();
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
 
         Assert.assertEquals(2, finishedSpans.size());
         Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
         Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+        Assert.assertEquals("fooitem", finishedSpans.get(0).getBaggageItem("foobag"));
+        Assert.assertNull(finishedSpans.get(0).getBaggageItem("barbag"));
+        Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
+        Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
+        Assert.assertEquals("donttouch", injectMap.get("foobag"));
     }
 
     @Test
