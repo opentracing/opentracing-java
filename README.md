@@ -26,7 +26,7 @@ Initialization is OpenTracing-implementation-specific. Generally speaking, the p
 
 ### Accessing the `Tracer`
 
-Where possible, use dependency injection (of which there are many) to access the `Tracer` instance. For vanilla application code, this is often reasonable and cleaner for all of the usual DI reasons.
+Where possible, use some form of dependency injection (of which there are many) to access the `Tracer` instance. For vanilla application code, this is often reasonable and cleaner for all of the usual DI reasons.
 
 That said, instrumentation for packages that are themselves statically configured (e.g., JDBC drivers) may be unable to make use of said DI mechanisms for `Tracer` access, and as such they should fall back on [GlobalTracer](https://github.com/opentracing/opentracing-java/blob/master/opentracing-util/src/main/java/io/opentracing/util/GlobalTracer.java). By and large, OpenTracing instrumentation should always allow the programmer to specify a `Tracer` instance to use for instrumentation, though the [GlobalTracer](https://github.com/opentracing/opentracing-java/blob/master/opentracing-util/src/main/java/io/opentracing/util/GlobalTracer.java) is a reasonable fallback or default value.
 
