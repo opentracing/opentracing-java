@@ -25,13 +25,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Global tracer that forwards all methods to another tracer
- * that can be configured by calling {@link #register(Tracer)}.
+ * Global tracer that forwards all methods to another tracer that can be
+ * configured by calling {@link #register(Tracer)}.
+ *
  * <p>
  * The {@linkplain #register(Tracer) register} method should only be called once
  * during the application initialization phase.<br>
  * If the {@linkplain #register(Tracer) register} method is never called,
  * the default {@link NoopTracer} is used.
+ *
+ * <p>
+ * Where possible, use some form of dependency injection (of which there are
+ * many) to access the `Tracer` instance. For vanilla application code, this is
+ * often reasonable and cleaner for all of the usual DI reasons.
+ *
+ * <p>
+ * That said, instrumentation for packages that are themselves statically
+ * configured (e.g., JDBC drivers) may be unable to make use of said DI
+ * mechanisms for {@link Tracer} access, and as such they should fall back on
+ * {@link GlobalTracer}. By and large, OpenTracing instrumentation should
+ * always allow the programmer to specify a {@link Tracer} instance to use for
+ * instrumentation, though the {@link GlobalTracer} is a reasonable fallback or
+ * default value.
  */
 public final class GlobalTracer implements Tracer {
     private static final Logger LOGGER = Logger.getLogger(GlobalTracer.class.getName());
