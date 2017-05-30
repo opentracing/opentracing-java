@@ -140,22 +140,4 @@ public interface BaseSpan<S extends BaseSpan> {
      * @return this Span instance, for chaining
      */
     S setOperationName(String operationName);
-
-    /**
-     * @deprecated use {@link #log(Map)} like this
-     * {@code span.log(Map.of("event", "timeout"))}
-     * or
-     * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
-     **/
-    @Deprecated
-    S log(String eventName, /* @Nullable */ Object payload);
-
-    /**
-     * @deprecated use {@link #log(Map)} like this
-     * {@code span.log(timestampMicroseconds, Map.of("event", "timeout"))}
-     * or
-     * {@code span.log(timestampMicroseconds, Map.of("event", "exception", "payload", stackTrace))}
-     **/
-    @Deprecated
-    S log(long timestampMicroseconds, String eventName, /* @Nullable */ Object payload);
 }

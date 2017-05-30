@@ -13,21 +13,22 @@
  */
 package io.opentracing.mock;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 public class MockTracerTest {
     @Test
@@ -38,9 +39,7 @@ public class MockTracerTest {
             Span span = tracer.buildSpan("tester").withStartTimestamp(1000).start();
             span.setTag("string", "foo");
             span.setTag("int", 7);
-            // Old style logging:
-            span.log(1001, "event name", tracer);
-            // New style logging:
+            span.log("foo");
             Map<String, Object> fields = new HashMap<>();
             fields.put("f1", 4);
             fields.put("f2", "two");
@@ -67,9 +66,8 @@ public class MockTracerTest {
         assertEquals(3, logs.size());
         {
             MockSpan.LogEntry log = logs.get(0);
-            assertEquals(1001, log.timestampMicros());
-            assertEquals("event name", log.fields().get("event"));
-            assertEquals(tracer, log.fields().get("payload"));
+            assertEquals(1, log.fields().size());
+            assertEquals("foo", log.fields().get("event"));
         }
         {
             MockSpan.LogEntry log = logs.get(1);

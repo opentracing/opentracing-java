@@ -13,14 +13,14 @@
  */
 package io.opentracing.util;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * {@link ThreadLocalActiveSpan} is a simple {@link ActiveSpan} implementation that relies on Java's
@@ -122,18 +122,6 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     @Override
     public ThreadLocalActiveSpan setOperationName(String operationName) {
         wrapped.setOperationName(operationName);
-        return this;
-    }
-
-    @Override
-    public ThreadLocalActiveSpan log(String eventName, Object payload) {
-        wrapped.log(eventName, payload);
-        return this;
-    }
-
-    @Override
-    public ThreadLocalActiveSpan log(long timestampMicroseconds, String eventName, Object payload) {
-        wrapped.log(timestampMicroseconds, eventName, payload);
         return this;
     }
 
