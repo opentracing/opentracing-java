@@ -13,8 +13,8 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.NoopSpanBuilder;
-import io.opentracing.NoopTracerFactory;
+import io.opentracing.noop.NoopSpanBuilder;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
