@@ -16,7 +16,7 @@ package io.opentracing.mock;
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
 import io.opentracing.BaseSpan;
-import io.opentracing.NoopActiveSpanSource;
+import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;

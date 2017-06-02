@@ -14,8 +14,8 @@
 package io.opentracing.util;
 
 import io.opentracing.ActiveSpan;
-import io.opentracing.NoopTracer;
-import io.opentracing.NoopTracerFactory;
+import io.opentracing.noop.NoopTracer;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -75,7 +75,7 @@ public final class GlobalTracer implements Tracer {
      * <p>
      * All methods are forwarded to the currently configured tracer.<br>
      * Until a tracer is {@link #register(Tracer) explicitly configured},
-     * the {@link io.opentracing.NoopTracer NoopTracer} is used.
+     * the {@link io.opentracing.noop.NoopTracer NoopTracer} is used.
      *
      * @return The global tracer constant.
      * @see #register(Tracer)
