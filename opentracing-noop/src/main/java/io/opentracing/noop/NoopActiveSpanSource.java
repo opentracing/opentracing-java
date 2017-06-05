@@ -109,16 +109,6 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         public NoopActiveSpan setOperationName(String operationName) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
-
-        @Override
-        public NoopActiveSpan log(String eventName, Object payload) {
-            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
-        }
-
-        @Override
-        public NoopActiveSpan log(long timestampMicroseconds, String eventName, Object payload) {
-            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
-        }
     }
 
     static class NoopContinuationImpl implements NoopActiveSpanSource.NoopContinuation {

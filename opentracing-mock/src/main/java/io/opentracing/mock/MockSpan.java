@@ -13,15 +13,15 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -156,21 +156,6 @@ public final class MockSpan implements Span {
     @Override
     public MockSpan log(long timestampMicroseconds, String event) {
         return this.log(timestampMicroseconds, Collections.singletonMap("event", event));
-    }
-
-    @Override
-    public MockSpan log(String eventName, Object payload) {
-        return this.log(nowMicros(), eventName, payload);
-    }
-
-    @Override
-    public MockSpan log(long timestampMicroseconds, String eventName, Object payload) {
-        Map<String, Object> fields = new HashMap<>();
-        fields.put("event", eventName);
-        if (payload != null) {
-            fields.put("payload", payload);
-        }
-        return this.log(timestampMicroseconds, fields);
     }
 
     @Override

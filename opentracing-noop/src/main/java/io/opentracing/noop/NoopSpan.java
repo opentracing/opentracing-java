@@ -55,12 +55,6 @@ final class NoopSpanImpl implements NoopSpan {
     public NoopSpan log(long timestampMicroseconds, String event) { return this; }
 
     @Override
-    public NoopSpan log(String eventName, Object payload) { return this; }
-
-    @Override
-    public NoopSpan log(long timestampMicroseconds, String eventName, Object payload) { return this; }
-
-    @Override
     public NoopSpan setBaggageItem(String key, String value) { return this; }
 
     @Override

@@ -126,18 +126,6 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
-    public ThreadLocalActiveSpan log(String eventName, Object payload) {
-        wrapped.log(eventName, payload);
-        return this;
-    }
-
-    @Override
-    public ThreadLocalActiveSpan log(long timestampMicroseconds, String eventName, Object payload) {
-        wrapped.log(timestampMicroseconds, eventName, payload);
-        return this;
-    }
-
-    @Override
     public void close() {
         deactivate();
     }
