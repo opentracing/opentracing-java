@@ -25,6 +25,16 @@ public class Fields {
     }
 
     /**
+     * The type or "kind" of an error (only for event="error" logs). E.g., "Exception", "OSError"
+     */
+    public static final String ERROR_KIND = "error.kind";
+
+    /**
+     * The actual Throwable/Exception/Error object instance itself. E.g., A java.lang.UnsupportedOperationException instance
+     */
+    public static final String ERROR_OBJECT = "error.object";
+
+    /**
      * A stable identifier for some notable moment in the lifetime of a Span. For instance, a mutex
      * lock acquisition or release or the sorts of lifetime events in a browser page load described
      * in the Performance.timing specification. E.g., from Zipkin, "cs", "sr", "ss", or "cr". Or,
@@ -37,16 +47,6 @@ public class Fields {
      * to backend", "Cache invalidation succeeded"
      */
     public static final String MESSAGE = "message";
-
-    /**
-     * The type or "kind" of an error (only for event="error" logs). E.g., "Exception", "OSError"
-     */
-    public static final String ERROR_KIND = "error.kind";
-
-    /**
-     * The actual Throwable/Exception/Error object instance itself. E.g., A java.lang.UnsupportedOperationException instance
-     */
-    public static final String ERROR_OBJECT = "error.object";
 
     /**
      * A stack trace in platform-conventional format; may or may not pertain to an error. 
