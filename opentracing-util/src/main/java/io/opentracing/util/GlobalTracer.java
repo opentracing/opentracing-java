@@ -65,7 +65,7 @@ public final class GlobalTracer implements Tracer {
      * The registered {@link Tracer} delegate or the {@link NoopTracer} if none was registered yet.
      * Never {@code null}.
      */
-    private static Tracer tracer = NoopTracerFactory.create();
+    private static volatile Tracer tracer = NoopTracerFactory.create();
 
     private GlobalTracer() {
     }
