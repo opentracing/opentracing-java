@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 The OpenTracing Authors
+/*
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,13 +13,21 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.ActiveSpan;
+import io.opentracing.ActiveSpanSource;
+import io.opentracing.BaseSpan;
+import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -29,19 +37,29 @@ import java.util.*;
  *
  * The MockTracerTest has simple usage examples.
  */
-public final class MockTracer implements Tracer {
+public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
+    private ActiveSpanSource spanSource;
 
     public MockTracer() {
         this(Propagator.PRINTER);
+    }
+
+    public MockTracer(ActiveSpanSource spanSource) {
+        this(spanSource, Propagator.PRINTER);
+    }
+
+    public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
+        this.propagator = propagator;
+        this.spanSource = spanSource;
     }
 
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this.propagator = propagator;
+        this(NoopActiveSpanSource.INSTANCE, propagator);
     }
 
     /**
@@ -62,6 +80,22 @@ public final class MockTracer implements Tracer {
      */
     public synchronized List<MockSpan> finishedSpans() {
         return new ArrayList<>(this.finishedSpans);
+    }
+
+    /**
+     * Noop method called on {@link Span#finish()}.
+     */
+    protected void onSpanFinished(MockSpan mockSpan) {
+    }
+
+    @Override
+    public ActiveSpan activeSpan() {
+        return spanSource.activeSpan();
+    }
+
+    @Override
+    public ActiveSpan makeActive(Span span) {
+        return spanSource.makeActive(span);
     }
 
     /**
@@ -87,11 +121,69 @@ public final class MockTracer implements Tracer {
                 return null;
             }
         };
+
+        Propagator TEXT_MAP = new Propagator() {
+            public static final String SPAN_ID_KEY = "spanid";
+            public static final String TRACE_ID_KEY = "traceid";
+            public static final String BAGGAGE_KEY_PREFIX = "baggage-";
+
+            @Override
+            public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
+                if (carrier instanceof TextMap) {
+                    TextMap textMap = (TextMap) carrier;
+                    for (Map.Entry<String, String> entry : ctx.baggageItems()) {
+                        textMap.put(BAGGAGE_KEY_PREFIX + entry.getKey(), entry.getValue());
+                    }
+                    textMap.put(SPAN_ID_KEY, String.valueOf(ctx.spanId()));
+                    textMap.put(TRACE_ID_KEY, String.valueOf(ctx.traceId()));
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+            }
+
+            @Override
+            public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
+                Long traceId = null;
+                Long spanId = null;
+                Map<String, String> baggage = new HashMap<>();
+
+                if (carrier instanceof TextMap) {
+                    TextMap textMap = (TextMap) carrier;
+                    for (Map.Entry<String, String> entry : textMap) {
+                        if (TRACE_ID_KEY.equals(entry.getKey())) {
+                            traceId = Long.valueOf(entry.getValue());
+                        } else if (SPAN_ID_KEY.equals(entry.getKey())) {
+                            spanId = Long.valueOf(entry.getValue());
+                        } else if (entry.getKey().startsWith(BAGGAGE_KEY_PREFIX)){
+                            String key = entry.getKey().substring((BAGGAGE_KEY_PREFIX.length()));
+                            baggage.put(key, entry.getValue());
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+
+                if (traceId != null && spanId != null) {
+                    return new MockSpan.MockContext(traceId, spanId, baggage);
+                }
+
+                return null;
+            }
+        };
     }
 
     @Override
     public SpanBuilder buildSpan(String operationName) {
         return new SpanBuilder(operationName);
+    }
+
+    private SpanContext activeSpanContext() {
+        ActiveSpan handle = this.spanSource.activeSpan();
+        if (handle == null) {
+            return null;
+        }
+
+        return handle.context();
     }
 
     @Override
@@ -106,29 +198,38 @@ public final class MockTracer implements Tracer {
 
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
         this.finishedSpans.add(mockSpan);
+        this.onSpanFinished(mockSpan);
     }
 
-    final class SpanBuilder implements Tracer.SpanBuilder {
+    public final class SpanBuilder implements Tracer.SpanBuilder {
         private final String operationName;
         private long startMicros;
         private MockSpan.MockContext firstParent;
+        private boolean ignoringActiveSpan;
         private Map<String, Object> initialTags = new HashMap<>();
 
         SpanBuilder(String operationName) {
             this.operationName = operationName;
         }
+
         @Override
-        public Tracer.SpanBuilder asChildOf(SpanContext parent) {
+        public SpanBuilder asChildOf(SpanContext parent) {
             return addReference(References.CHILD_OF, parent);
         }
 
         @Override
-        public Tracer.SpanBuilder asChildOf(Span parent) {
+        public SpanBuilder asChildOf(BaseSpan parent) {
             return addReference(References.CHILD_OF, parent.context());
         }
 
         @Override
-        public Tracer.SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
+        public SpanBuilder ignoreActiveSpan() {
+            ignoringActiveSpan = true;
+            return this;
+        }
+
+        @Override
+        public SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
             if (firstParent == null && (
                     referenceType.equals(References.CHILD_OF) || referenceType.equals(References.FOLLOWS_FROM))) {
                 this.firstParent = (MockSpan.MockContext)referencedContext;
@@ -137,41 +238,49 @@ public final class MockTracer implements Tracer {
         }
 
         @Override
-        public Tracer.SpanBuilder withTag(String key, String value) {
+        public SpanBuilder withTag(String key, String value) {
             this.initialTags.put(key, value);
             return this;
         }
 
         @Override
-        public Tracer.SpanBuilder withTag(String key, boolean value) {
+        public SpanBuilder withTag(String key, boolean value) {
             this.initialTags.put(key, value);
             return this;
         }
 
         @Override
-        public Tracer.SpanBuilder withTag(String key, Number value) {
+        public SpanBuilder withTag(String key, Number value) {
             this.initialTags.put(key, value);
             return this;
         }
 
         @Override
-        public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
+        public SpanBuilder withStartTimestamp(long microseconds) {
             this.startMicros = microseconds;
             return this;
         }
 
         @Override
-        public Span start() {
-            return new MockSpan(MockTracer.this, this.operationName, this.startMicros, initialTags, this.firstParent);
+        public MockSpan start() {
+            return startManual();
         }
 
         @Override
-        public Iterable<Map.Entry<String, String>> baggageItems() {
-            if (firstParent == null) {
-                return Collections.EMPTY_MAP.entrySet();
-            } else {
-                return firstParent.baggageItems();
+        public ActiveSpan startActive() {
+            MockSpan span = this.startManual();
+            return spanSource.makeActive(span);
+        }
+
+        @Override
+        public MockSpan startManual() {
+            if (this.startMicros == 0) {
+                this.startMicros = MockSpan.nowMicros();
             }
+            if (firstParent == null && !ignoringActiveSpan) {
+                firstParent = (MockSpan.MockContext) activeSpanContext();
+            }
+            return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }
     }
 }

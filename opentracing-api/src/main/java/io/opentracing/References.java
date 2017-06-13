@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 The OpenTracing Authors
+/*
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,7 @@ package io.opentracing;
  *
  * References are used by Tracer.buildSpan() to describe the relationships between Spans.
  *
- * @see io.opentracing.Tracer.SpanBuilder#addReference(Object, SpanContext)
+ * @see Tracer.SpanBuilder#addReference(String, SpanContext)
  */
 public final class References {
     private References(){}

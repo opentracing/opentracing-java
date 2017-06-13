@@ -8,7 +8,7 @@ Imagine the following (admittedly unrealistic) OpenTracing-instrumented applicat
 
 ```
 public void handlePurchase(User user, Item item, Tracer tracer) {
-    try (Span span = tracer.buildSpan("handlePurchase").start()) {
+    try (ActiveSpan span = tracer.buildSpan("handlePurchase").startActive()) {
         span.setTag("username", user.getUsername());
     }
 }

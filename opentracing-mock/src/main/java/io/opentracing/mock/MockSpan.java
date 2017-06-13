@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 The OpenTracing Authors
+/*
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,11 @@
  */
 package io.opentracing.mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.opentracing.Span;
@@ -33,17 +37,21 @@ public final class MockSpan implements Span {
     private MockContext context;
     private final long parentId; // 0 if there's no parent.
     private final long startMicros;
+    private boolean finished;
     private long finishMicros;
     private final Map<String, Object> tags;
     private final List<LogEntry> logEntries = new ArrayList<>();
     private String operationName;
+
+    private final List<RuntimeException> errors = new ArrayList<>();
 
     public String operationName() {
         return this.operationName;
     }
 
     @Override
-    public Span setOperationName(String operationName) {
+    public MockSpan setOperationName(String operationName) {
+        finishedCheck("Setting operationName {%s} on already finished span", operationName);
         this.operationName = operationName;
         return this;
     }
@@ -82,6 +90,13 @@ public final class MockSpan implements Span {
         return new ArrayList<>(this.logEntries);
     }
 
+    /**
+     * @return a copy of exceptions thrown by this class (e.g. adding a tag after span is finished).
+     */
+    public List<RuntimeException> generatedErrors() {
+        return new ArrayList<>(errors);
+    }
+
     @Override
     public synchronized MockContext context() {
         return this.context;
@@ -94,30 +109,30 @@ public final class MockSpan implements Span {
 
     @Override
     public synchronized void finish(long finishMicros) {
+        finishedCheck("Finishing already finished span");
         this.finishMicros = finishMicros;
         this.mockTracer.appendFinishedSpan(this);
+        this.finished = true;
     }
 
     @Override
-    public void close() {
-        this.finish();
+    public MockSpan setTag(String key, String value) {
+        return setObjectTag(key, value);
     }
 
     @Override
-    public synchronized Span setTag(String key, String value) {
-        this.tags.put(key, value);
-        return this;
+    public MockSpan setTag(String key, boolean value) {
+        return setObjectTag(key, value);
     }
 
     @Override
-    public synchronized Span setTag(String key, boolean value) {
-        this.tags.put(key, value);
-        return this;
+    public MockSpan setTag(String key, Number value) {
+        return setObjectTag(key, value);
     }
 
-    @Override
-    public synchronized Span setTag(String key, Number value) {
-        this.tags.put(key, value);
+    private synchronized MockSpan setObjectTag(String key, Object value) {
+        finishedCheck("Adding tag {%s:%s} to already finished span", key, value);
+        tags.put(key, value);
         return this;
     }
 
@@ -125,39 +140,27 @@ public final class MockSpan implements Span {
     public final Span log(Map<String, ?> fields) {
         return log(nowMicros(), fields);
     }
+
     @Override
-    public final Span log(long timestampMicros, Map<String, ?> fields) {
+    public final synchronized MockSpan log(long timestampMicros, Map<String, ?> fields) {
+        finishedCheck("Adding logs %s at %d to already finished span", fields, timestampMicros);
         this.logEntries.add(new LogEntry(timestampMicros, fields));
         return this;
     }
 
     @Override
-    public Span log(String event) {
+    public MockSpan log(String event) {
         return this.log(nowMicros(), event);
     }
 
     @Override
-    public Span log(long timestampMicroseconds, String event) {
+    public MockSpan log(long timestampMicroseconds, String event) {
         return this.log(timestampMicroseconds, Collections.singletonMap("event", event));
     }
 
     @Override
-    public Span log(String eventName, Object payload) {
-        return this.log(nowMicros(), eventName, payload);
-    }
-
-    @Override
-    public synchronized Span log(long timestampMicroseconds, String eventName, Object payload) {
-        Map<String, Object> fields = new HashMap<>();
-        fields.put("event", eventName);
-        if (payload != null) {
-            fields.put("payload", payload);
-        }
-        return this.log(timestampMicroseconds, fields);
-    }
-
-    @Override
     public synchronized Span setBaggageItem(String key, String value) {
+        finishedCheck("Adding baggage {%s:%s} to already finished span", key, value);
         this.context = this.context.withBaggageItem(key, value);
         return this;
     }
@@ -186,7 +189,7 @@ public final class MockSpan implements Span {
          *
          * @see MockContext#withBaggageItem(String, String)
          */
-        MockContext(long traceId, long spanId, Map<String, String> baggage) {
+        public MockContext(long traceId, long spanId, Map<String, String> baggage) {
             this.baggage = baggage;
             this.traceId = traceId;
             this.spanId = spanId;
@@ -255,5 +258,22 @@ public final class MockSpan implements Span {
 
     static long nowMicros() {
         return System.currentTimeMillis() * 1000;
+    }
+
+    private synchronized void finishedCheck(String format, Object... args) {
+        if (finished) {
+            RuntimeException ex = new IllegalStateException(String.format(format, args));
+            errors.add(ex);
+            throw ex;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "traceId:" + context.traceId() +
+                ", spanId:" + context.spanId() +
+                ", parentId:" + parentId +
+                ", operationName:\"" + operationName + "\"}";
     }
 }

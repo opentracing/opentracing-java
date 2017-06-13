@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 The OpenTracing Authors
+/*
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,13 +13,15 @@
  */
 package io.opentracing.tag;
 
+import io.opentracing.BaseSpan;
+
 public class IntTag extends AbstractTag<Integer> {
-    IntTag(String key) {
+    public IntTag(String key) {
         super(key);
     }
 
     @Override
-    public void set(io.opentracing.Span span, Integer tagValue) {
+    public void set(BaseSpan<?> span, Integer tagValue) {
         span.setTag(super.key, tagValue);
     }
 }

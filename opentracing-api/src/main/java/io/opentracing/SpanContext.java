@@ -1,5 +1,5 @@
-/**
- * Copyright 2016 The OpenTracing Authors
+/*
+ * Copyright 2016-2017 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import java.util.Map;
  *
  * SpanContext is logically divided into two pieces: (1) the user-level "Baggage" that propagates across Span
  * boundaries and (2) any Tracer-implementation-specific fields that are needed to identify or otherwise contextualize
- * the associated Span instance (e.g., a <trace_id, span_id, sampled> tuple).
+ * the associated Span instance (e.g., a &lt;trace_id, span_id, sampled&gt; tuple).
  *
  * @see Span#setBaggageItem(String, String)
  * @see Span#getBaggageItem(String)
