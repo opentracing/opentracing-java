@@ -40,7 +40,7 @@ It's inconvenient to pass an active `Span` from function to function manually, s
 
 Access to the active span is straightforward:
 
-```
+```java
 io.opentracing.Tracer tracer = ...;
 ...
 ActiveSpan span = tracer.activeSpan();
@@ -53,7 +53,7 @@ if (span != null) {
 
 The common case starts an `ActiveSpan` that's automatically registered for intra-process propagation via `ActiveSpanSource`. The best practice is to use a try-with-resources pattern which handles Exceptions and early returns:
 
-```
+```java
 io.opentracing.Tracer tracer = ...;
 ...
 try (ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive()) {
@@ -65,7 +65,7 @@ try (ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive()) {
 
 The above is semantically equivalent to the more explicit try-finally version:
 
-```
+```java
 io.opentracing.Tracer tracer = ...;
 ...
 ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive();
@@ -78,7 +78,7 @@ try {
 
 To manually step around the `ActiveSpanSource` registration, use `startManual()`, like this:
 
-```
+```java
 io.opentracing.Tracer tracer = ...;
 ...
 Span span = tracer.buildSpan("someWork").startManual();
@@ -91,7 +91,7 @@ try {
 
 **If there is an `ActiveSpan`, it will act as the parent to any newly started `Span`** unless the programmer invokes `ignoreActiveSpan()` at `buildSpan()` time, like so:
 
-```
+```java
 io.opentracing.Tracer tracer = ...;
 ...
 ActiveSpan span = tracer.buildSpan("someWork").ignoreActiveSpan().startActive();
@@ -118,7 +118,7 @@ The `"ServiceHandlerSpan"` is _active_ while it's running FunctionA and Function
 
 For example:
 
-```
+```java
 io.opentracing.Tracer tracer = ...;
 ...
 // STEP 1 ABOVE: start the ActiveSpan
