@@ -16,19 +16,17 @@ package io.opentracing.mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class MockTracerTest {
     @Test
@@ -197,5 +195,18 @@ public class MockTracerTest {
         Assert.assertEquals(2, finishedSpans.size());
         Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
         Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+    }
+
+    @Test
+    public void testReset() {
+        MockTracer mockTracer = new MockTracer();
+
+        mockTracer.buildSpan("foo")
+            .startManual()
+            .finish();
+
+        assertEquals(1, mockTracer.finishedSpans().size());
+        mockTracer.reset();
+        assertEquals(0, mockTracer.finishedSpans().size());
     }
 }

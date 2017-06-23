@@ -13,25 +13,35 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.noop.NoopSpanBuilder;
-import io.opentracing.noop.NoopTracerFactory;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
-
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.noop.NoopSpanBuilder;
+import io.opentracing.noop.NoopTracerFactory;
+import io.opentracing.propagation.Format;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class GlobalTracerTest {
 
@@ -79,6 +89,18 @@ public class GlobalTracerTest {
         GlobalTracer.register(mockTracer);
         GlobalTracer.register(mockTracer);
         // 'test' that double registration of the same tracer does not throw exception
+    }
+
+    @Test
+    public void testRegisterGlobalTracer() {
+        assertThat(GlobalTracer.get().buildSpan("foo"), is(instanceOf(NoopSpanBuilder.class)));
+        GlobalTracer.register(GlobalTracer.get());
+        assertThat(GlobalTracer.get().buildSpan("foo"), is(instanceOf(NoopSpanBuilder.class)));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRegisterNull() {
+        GlobalTracer.register(null);
     }
 
     @Test

@@ -101,7 +101,7 @@ public interface ActiveSpan extends Closeable, BaseSpan<ActiveSpan> {
          * NOTE: It is an error to call activate() more than once on a single Continuation instance.
          *
          * @see ActiveSpanSource#makeActive(Span)
-         * @return a handle to the newly-activated {@link ActitveSpan}
+         * @return a handle to the newly-activated {@link ActiveSpan}
          */
         ActiveSpan activate();
     }
