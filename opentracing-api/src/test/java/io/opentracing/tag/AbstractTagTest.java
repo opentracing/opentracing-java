@@ -13,6 +13,7 @@
  */
 package io.opentracing.tag;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -25,6 +26,13 @@ import io.opentracing.Span;
  * @author Pavol Loffay
  */
 public class AbstractTagTest {
+
+    @Test
+    public void testGetKey() {
+        String key = "bar";
+        StringTag tag = new StringTag(key);
+        assertEquals(key, tag.getKey());
+    }
 
     @Test
     public void testSetTagOnSpan() {

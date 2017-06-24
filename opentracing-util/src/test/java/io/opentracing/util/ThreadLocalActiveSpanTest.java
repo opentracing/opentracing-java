@@ -13,16 +13,18 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.Span;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import io.opentracing.ActiveSpan;
+import io.opentracing.Span;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ThreadLocalActiveSpanTest {
     private ThreadLocalActiveSpanSource source;
@@ -99,4 +101,14 @@ public class ThreadLocalActiveSpanTest {
         assertNull(missingSpan);
     }
 
+    @Test
+    public void testDeactivateWhenDifferentSpanIsActive() {
+        Span span = mock(Span.class);
+
+        ActiveSpan activeSpan = source.makeActive(span);
+        source.makeActive(mock(Span.class));
+        activeSpan.deactivate();
+
+        verify(span, times(0)).finish();
+    }
 }

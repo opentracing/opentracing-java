@@ -13,11 +13,11 @@
  */
 package io.opentracing.tag;
 
-import io.opentracing.Span;
-import org.junit.Test;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import io.opentracing.Span;
+import org.junit.Test;
 
 public class StringTagTest {
 
@@ -31,5 +31,16 @@ public class StringTagTest {
         tag.set(span, value);
 
         verify(span).setTag(key, value);
+    }
+
+    @Test
+    public void testSetOtherTag() {
+        String key = "expected.key";
+
+        Span span = mock(Span.class);
+        StringTag tag = new StringTag(key);
+        tag.set(span, new StringTag(key));
+
+        verify(span).setTag(key, key);
     }
 }
