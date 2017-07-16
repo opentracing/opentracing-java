@@ -33,11 +33,9 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     private final ThreadLocalActiveSpanSource source;
     private final Span wrapped;
     private final ThreadLocalActiveSpan toRestore;
-    private final AtomicInteger refCount;
 
-    ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, AtomicInteger refCount) {
+    ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped) {
         this.source = source;
-        this.refCount = refCount;
         this.wrapped = wrapped;
         this.toRestore = source.tlsSnapshot.get();
         source.tlsSnapshot.set(this);
@@ -50,15 +48,16 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
             return;
         }
         source.tlsSnapshot.set(toRestore);
-
-        if (0 == refCount.decrementAndGet()) {
-            wrapped.finish();
-        }
     }
 
     @Override
     public Continuation capture() {
         return new ThreadLocalActiveSpan.Continuation();
+    }
+
+    @Override
+    public Span wrapped() {
+        return wrapped;
     }
 
     @Override
@@ -136,13 +135,11 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     private final class Continuation implements ActiveSpan.Continuation {
-        Continuation() {
-            refCount.incrementAndGet();
-        }
+        Continuation() {}
 
         @Override
         public ThreadLocalActiveSpan activate() {
-            return new ThreadLocalActiveSpan(source, wrapped, refCount);
+            return new ThreadLocalActiveSpan(source, wrapped);
         }
     }
 

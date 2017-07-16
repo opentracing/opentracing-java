@@ -36,7 +36,7 @@ public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
 
     @Override
     public ActiveSpan makeActive(Span span) {
-        return new ThreadLocalActiveSpan(this, span, new AtomicInteger(1));
+        return new ThreadLocalActiveSpan(this, span);
     }
 
 }
