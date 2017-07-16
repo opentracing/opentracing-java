@@ -18,8 +18,6 @@ import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * A simple {@link ActiveSpanSource} implementation built on top of Java's thread-local storage primitive.
  *
@@ -37,6 +35,11 @@ public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
     @Override
     public ActiveSpan makeActive(Span span) {
         return new ThreadLocalActiveSpan(this, span);
+    }
+
+    @Override
+    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
+        return new ThreadLocalActiveSpan(this, span, observer);
     }
 
 }

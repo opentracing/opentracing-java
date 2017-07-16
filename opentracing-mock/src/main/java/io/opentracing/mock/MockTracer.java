@@ -15,10 +15,9 @@ package io.opentracing.mock;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
-import io.opentracing.BaseSpan;
+import io.opentracing.Span;
 import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.References;
-import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -96,6 +95,11 @@ public class MockTracer implements Tracer {
     @Override
     public ActiveSpan makeActive(Span span) {
         return spanSource.makeActive(span);
+    }
+
+    @Override
+    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
+        return spanSource.makeActive(span, observer);
     }
 
     /**
@@ -218,7 +222,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanBuilder asChildOf(BaseSpan parent) {
+        public SpanBuilder asChildOf(Span parent) {
             return addReference(References.CHILD_OF, parent.context());
         }
 
@@ -270,6 +274,12 @@ public class MockTracer implements Tracer {
         public ActiveSpan startActive() {
             MockSpan span = this.startManual();
             return spanSource.makeActive(span);
+        }
+
+        @Override
+        public ActiveSpan startActive(ActiveSpan.Observer observer) {
+            MockSpan span = this.startManual();
+            return spanSource.makeActive(span, observer);
         }
 
         @Override

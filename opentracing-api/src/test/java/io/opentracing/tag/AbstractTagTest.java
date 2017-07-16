@@ -17,10 +17,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import io.opentracing.Span;
 import org.junit.Test;
 
 import io.opentracing.ActiveSpan;
-import io.opentracing.Span;
 
 /**
  * @author Pavol Loffay

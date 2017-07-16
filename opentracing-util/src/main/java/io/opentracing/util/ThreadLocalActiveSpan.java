@@ -14,7 +14,6 @@
 package io.opentracing.util;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
@@ -33,11 +32,17 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     private final ThreadLocalActiveSpanSource source;
     private final Span wrapped;
     private final ThreadLocalActiveSpan toRestore;
+    private final Observer observer;
 
     ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped) {
+        this(source, wrapped, null);
+    }
+
+    ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, Observer observer) {
         this.source = source;
         this.wrapped = wrapped;
         this.toRestore = source.tlsSnapshot.get();
+        this.observer = observer;
         source.tlsSnapshot.set(this);
     }
 
@@ -48,6 +53,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
             return;
         }
         source.tlsSnapshot.set(toRestore);
+        observer.onDeactivate(this);
     }
 
     @Override
@@ -125,6 +131,16 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
+    public void finish() {
+        wrapped.finish();
+    }
+
+    @Override
+    public void finish(long finishMicros) {
+        wrapped.finish(finishMicros);
+    }
+
+    @Override
     public void close() {
         deactivate();
     }
@@ -135,11 +151,15 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     private final class Continuation implements ActiveSpan.Continuation {
-        Continuation() {}
+        Continuation() {
+            observer.onCapture(ThreadLocalActiveSpan.this);
+        }
 
         @Override
         public ThreadLocalActiveSpan activate() {
-            return new ThreadLocalActiveSpan(source, wrapped);
+            ThreadLocalActiveSpan rval = new ThreadLocalActiveSpan(source, wrapped, observer);
+            observer.onActivate(rval);
+            return rval;
         }
     }
 

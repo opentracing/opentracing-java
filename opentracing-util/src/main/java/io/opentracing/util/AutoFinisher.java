@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * XXX: fix comment
  * {@link AutoFinisher} is an {@link ActiveSpan} wrapper that automatically {@link Span#finish()}es the underlying
  * {@link Span} when there are zero remaining {@link ActiveSpan}s or {@link ActiveSpan.Continuation}s referencing
  * that underlying {@link Span}.
@@ -26,117 +27,27 @@ import java.util.concurrent.atomic.AtomicInteger;
  * {@link ActiveSpan.Continuation} references to the underlying {@link ActiveSpan} provided at construction time.
  * </p>
  */
-public class AutoFinisher implements ActiveSpan {
+public class AutoFinisher implements ActiveSpan.Observer {
     private final AtomicInteger refCount;
-    private final ActiveSpan delegated;
 
-    public AutoFinisher(ActiveSpan delegated) {
-        this.delegated = delegated;
-        this.refCount = new AtomicInteger(1);
-    }
-
-    AutoFinisher(ActiveSpan delegated, AtomicInteger refCount) {
-        this.refCount = refCount;
-        this.delegated = delegated;
+    public AutoFinisher() {
+        refCount = new AtomicInteger(1);
     }
 
     @Override
-    public SpanContext context() {
-        return delegated.context();
+    public void onCapture(ActiveSpan span) {
+        // Always increment the reference count when new Continuations are created (i.e., we assume that all
+        // Continuations are eventually activate()d).
+        refCount.incrementAndGet();
     }
 
     @Override
-    public ActiveSpan setTag(String key, String value) {
-        delegated.setTag(key, value);
-        return this;
-    }
+    public void onActivate(ActiveSpan span) {}
 
     @Override
-    public ActiveSpan setTag(String key, boolean value) {
-        delegated.setTag(key, value);
-        return this;
-    }
-
-    @Override
-    public ActiveSpan setTag(String key, Number value) {
-        delegated.setTag(key, value);
-        return this;
-    }
-
-    @Override
-    public ActiveSpan log(Map<String, ?> fields) {
-        delegated.log(fields);
-        return this;
-    }
-
-    @Override
-    public ActiveSpan log(long timestampMicroseconds, Map<String, ?> fields) {
-        delegated.log(timestampMicroseconds, fields);
-        return this;
-    }
-
-    @Override
-    public ActiveSpan log(String event) {
-        delegated.log(event);
-        return this;
-    }
-
-    @Override
-    public ActiveSpan log(long timestampMicroseconds, String event) {
-        delegated.log(timestampMicroseconds, event);
-        return this;
-    }
-
-    @Override
-    public ActiveSpan setBaggageItem(String key, String value) {
-        delegated.setBaggageItem(key, value);
-        return this;
-    }
-
-    @Override
-    public String getBaggageItem(String key) {
-        return delegated.getBaggageItem(key);
-    }
-
-    @Override
-    public ActiveSpan setOperationName(String operationName) {
-        delegated.setOperationName(operationName);
-        return this;
-    }
-
-    @Override
-    public Span wrapped() {
-        return this.delegated.wrapped();
-    }
-
-    @Override
-    public void deactivate() {
-        this.delegated.deactivate();
+    public void onDeactivate(ActiveSpan span) {
         if (0 == refCount.decrementAndGet()) {
-            this.delegated.wrapped().finish();
-        }
-    }
-
-    @Override
-    public void close() {
-        this.deactivate();
-    }
-
-    @Override
-    public Continuation capture() {
-        return new AutoFinisher.Continuation();
-    }
-
-    class Continuation implements ActiveSpan.Continuation {
-        Continuation() {
-            // Always increment the reference count when new Continuations are created (i.e., we assume that all
-            // Continuations are eventually activate()d).
-            refCount.incrementAndGet();
-        }
-
-        @Override
-        public ActiveSpan activate() {
-            return new AutoFinisher(delegated, refCount);
+            span.finish();
         }
     }
 }

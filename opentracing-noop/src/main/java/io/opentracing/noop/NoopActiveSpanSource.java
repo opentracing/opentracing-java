@@ -41,6 +41,11 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
     }
 
     @Override
+    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
+        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+    }
+
+    @Override
     public ActiveSpan activeSpan() { return null; }
 
     static class NoopActiveSpanImpl implements NoopActiveSpanSource.NoopActiveSpan {
@@ -114,6 +119,12 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         public NoopActiveSpan setOperationName(String operationName) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
+
+        @Override
+        public void finish() { }
+
+        @Override
+        public void finish(long finishMicros) { }
     }
 
     static class NoopContinuationImpl implements NoopActiveSpanSource.NoopContinuation {
