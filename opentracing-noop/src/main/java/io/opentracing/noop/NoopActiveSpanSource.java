@@ -58,11 +58,6 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         }
 
         @Override
-        public Span wrapped() {
-            return NoopSpan.INSTANCE;
-        }
-
-        @Override
         public SpanContext context() {
             return NoopSpanContextImpl.INSTANCE;
         }

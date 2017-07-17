@@ -84,8 +84,6 @@ public interface ActiveSpan extends Closeable, Span {
      */
     Continuation capture();
 
-    Span wrapped();
-
     /**
      * A {@link Continuation} can be used <em>once</em> to activate a Span along with any non-OpenTracing execution
      * context (e.g., MDC), then deactivate when processing activity moves on to another Span. (In practice, this

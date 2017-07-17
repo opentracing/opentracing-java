@@ -64,11 +64,6 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
-    public Span wrapped() {
-        return wrapped;
-    }
-
-    @Override
     public SpanContext context() {
         return wrapped.context();
     }
