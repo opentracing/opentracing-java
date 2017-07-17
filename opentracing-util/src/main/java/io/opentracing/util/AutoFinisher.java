@@ -35,19 +35,19 @@ public class AutoFinisher implements ActiveSpan.Observer {
     }
 
     @Override
-    public void onCapture(ActiveSpan span) {
+    public void onCapture(ActiveSpan captured, ActiveSpan.Continuation destination) {
         // Always increment the reference count when new Continuations are created (i.e., we assume that all
         // Continuations are eventually activate()d).
         refCount.incrementAndGet();
     }
 
     @Override
-    public void onActivate(ActiveSpan span) {}
+    public void onActivate(ActiveSpan.Continuation source, ActiveSpan justActivated) {}
 
     @Override
-    public void onDeactivate(ActiveSpan span) {
+    public void onDeactivate(ActiveSpan activeSpan) {
         if (0 == refCount.decrementAndGet()) {
-            span.finish();
+            activeSpan.finish();
         }
     }
 }

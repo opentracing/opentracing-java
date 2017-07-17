@@ -34,10 +34,6 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     private final ThreadLocalActiveSpan toRestore;
     private final Observer observer;
 
-    ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped) {
-        this(source, wrapped, null);
-    }
-
     ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, Observer observer) {
         this.source = source;
         this.wrapped = wrapped;
@@ -53,12 +49,18 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
             return;
         }
         source.tlsSnapshot.set(toRestore);
-        observer.onDeactivate(this);
+        if (observer != null) {
+            observer.onDeactivate(this);
+        }
     }
 
     @Override
     public Continuation capture() {
-        return new ThreadLocalActiveSpan.Continuation();
+        Continuation cont = new ThreadLocalActiveSpan.Continuation();
+        if (observer != null) {
+            observer.onCapture(ThreadLocalActiveSpan.this, cont);
+        }
+        return cont;
     }
 
     @Override
@@ -151,14 +153,12 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     private final class Continuation implements ActiveSpan.Continuation {
-        Continuation() {
-            observer.onCapture(ThreadLocalActiveSpan.this);
-        }
-
         @Override
         public ThreadLocalActiveSpan activate() {
             ThreadLocalActiveSpan rval = new ThreadLocalActiveSpan(source, wrapped, observer);
-            observer.onActivate(rval);
+            if (observer != null) {
+                observer.onActivate(this, rval);
+            }
             return rval;
         }
     }

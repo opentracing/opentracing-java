@@ -39,7 +39,7 @@ public class ThreadLocalActiveSpanTest {
         Span span = mock(Span.class);
 
         // Quasi try-with-resources (this is 1.6).
-        ActiveSpan activeSpan = source.makeActive(span, new AutoFinisher());
+        ActiveSpan activeSpan = source.makeActive(span);
         ActiveSpan.Continuation continued = null;
         try {
             assertNotNull(activeSpan);
@@ -72,12 +72,12 @@ public class ThreadLocalActiveSpanTest {
         Span foregroundSpan = mock(Span.class);
 
         // Quasi try-with-resources (this is 1.6).
-        ActiveSpan backgroundActive = source.makeActive(backgroundSpan, new AutoFinisher());
+        ActiveSpan backgroundActive = source.makeActive(backgroundSpan);
         try {
             assertNotNull(backgroundActive);
 
             // Activate a new ActiveSpan on top of the background one.
-            ActiveSpan foregroundActive = source.makeActive(foregroundSpan, new AutoFinisher());
+            ActiveSpan foregroundActive = source.makeActive(foregroundSpan);
             try {
                 ActiveSpan shouldBeForeground = source.activeSpan();
                 assertEquals(foregroundActive, shouldBeForeground);
@@ -105,7 +105,7 @@ public class ThreadLocalActiveSpanTest {
     public void testDeactivateWhenDifferentSpanIsActive() {
         Span span = mock(Span.class);
 
-        ActiveSpan activeSpan = source.makeActive(span, new AutoFinisher());
+        ActiveSpan activeSpan = source.makeActive(span);
         source.makeActive(mock(Span.class));
         activeSpan.deactivate();
 

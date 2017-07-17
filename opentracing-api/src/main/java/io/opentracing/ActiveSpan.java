@@ -33,6 +33,11 @@ import java.io.Closeable;
  * {@link ActiveSpan.Continuation}s, then re-{@link Continuation#activate()}d later.
  *
  * <p>
+ * Propagated {@link ActiveSpan} instances form a tree within a process, where each node is an {@link ActiveSpan} and
+ * each edge is a {@link ActiveSpan.Continuation}. The {@link ActiveSpan.Observer} interface provides visibility into
+ * the node/edge creations as well as {@link ActiveSpan} activation/deactivation lifecycles.
+ *
+ * <p>
  * NOTE: {@link ActiveSpan} extends {@link Closeable} rather than {@code AutoCloseable} in order to preserve support
  * for JDK1.6.
  *
@@ -108,9 +113,12 @@ public interface ActiveSpan extends Closeable, Span {
         ActiveSpan activate();
     }
 
+    /**
+     *
+     */
     interface Observer {
-        void onCapture(ActiveSpan span);
-        void onActivate(ActiveSpan span);
-        void onDeactivate(ActiveSpan span);
+        void onCapture(ActiveSpan captured, Continuation destination);
+        void onActivate(Continuation source, ActiveSpan justActivated);
+        void onDeactivate(ActiveSpan activeSpan);
     }
 }
