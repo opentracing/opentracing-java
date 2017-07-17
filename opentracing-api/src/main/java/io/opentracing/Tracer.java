@@ -187,6 +187,14 @@ public interface Tracer extends ActiveSpanSource {
          * @see ActiveSpan
          */
         ActiveSpan startActive();
+
+        /**
+         * Like {@link #startActive()}, but with the given {@link ActiveSpan.Observer} keeping track of the returned
+         * ActiveSpan.
+         *
+         * @param observer
+         * @return
+         */
         ActiveSpan startActive(ActiveSpan.Observer observer);
 
         /**

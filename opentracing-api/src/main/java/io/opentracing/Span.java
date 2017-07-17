@@ -18,6 +18,10 @@ import java.util.Map;
 /**
  * {@link Span} represents the OpenTracing specification's Span contract.
  *
+ * <p>
+ * Note that most application code interacts with {@link ActiveSpan} instances (which make themselves available
+ * for in-process propagation via the {@link ActiveSpanSource} interface).
+ *
  * @see ActiveSpan
  * @see Tracer.SpanBuilder#startManual()
  * @see Tracer.SpanBuilder#startActive()

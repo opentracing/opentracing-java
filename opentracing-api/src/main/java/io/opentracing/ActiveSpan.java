@@ -114,7 +114,8 @@ public interface ActiveSpan extends Closeable, Span {
     }
 
     /**
-     *
+     * The {@link ActiveSpan.Observer} interface learns of capture, activate, and deactivate calls for a given
+     * {@link ActiveSpan} instance and any of its "descendants" from a capture/activate standpoint.
      */
     interface Observer {
         void onCapture(ActiveSpan captured, Continuation destination);

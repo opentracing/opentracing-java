@@ -56,7 +56,7 @@ The common case starts an `ActiveSpan` that's automatically registered for intra
 ```java
 io.opentracing.Tracer tracer = ...;
 ...
-try (ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive()) {
+try (ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive(new AutoFinisher())) {
     // Do things.
     //
     // If we create async work, `activeSpan.capture()` allows us to pass the `ActiveSpan` along as well.
@@ -68,7 +68,7 @@ The above is semantically equivalent to the more explicit try-finally version:
 ```java
 io.opentracing.Tracer tracer = ...;
 ...
-ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive();
+ActiveSpan activeSpan = tracer.buildSpan("someWork").startActive(new AutoFinisher());
 try {
     // Do things.
 } finally {
