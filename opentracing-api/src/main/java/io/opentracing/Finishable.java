@@ -1,12 +1,12 @@
 package io.opentracing;
 
 /**
- * {@link SpanFinisher} factors out the overloaded {@link #finish()} method(s).
+ * {@link Finishable} factors out the overloaded {@link #finish()} method(s).
  *
- * @see ActiveSpan.Observer#onDeactivate(ActiveSpan, SpanFinisher)
+ * @see ActiveSpan.Observer#onDeactivate(ActiveSpan, Finishable)
  * @see Span
  */
-public interface SpanFinisher {
+public interface Finishable {
     /**
      * Sets the end timestamp to now and records the span.
      *

@@ -118,6 +118,6 @@ public interface ActiveSpan extends Closeable, BaseSpan<ActiveSpan> {
     interface Observer {
         void onCapture(ActiveSpan captured, Continuation destination);
         void onActivate(Continuation source, ActiveSpan justActivated);
-        void onDeactivate(ActiveSpan activeSpan, SpanFinisher finisher);
+        void onDeactivate(ActiveSpan activeSpan, Finishable finisher);
     }
 }

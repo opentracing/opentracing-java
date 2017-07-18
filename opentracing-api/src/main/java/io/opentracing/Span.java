@@ -25,9 +25,9 @@ package io.opentracing;
  * for in-process propagation via the {@link ActiveSpanSource} interface).
  *
  * @see ActiveSpan
- * @see SpanFinisher
+ * @see Finishable
  * @see Tracer.SpanBuilder#startManual()
  * @see Tracer.SpanBuilder#startActive()
  */
-public interface Span extends BaseSpan<Span>, SpanFinisher {
+public interface Span extends BaseSpan<Span>, Finishable {
 }
