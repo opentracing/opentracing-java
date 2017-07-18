@@ -50,7 +50,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
         }
         source.tlsSnapshot.set(toRestore);
         if (observer != null) {
-            observer.onDeactivate(this);
+            observer.onDeactivate(this, this.wrapped);
         }
     }
 
@@ -125,16 +125,6 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     public ThreadLocalActiveSpan setOperationName(String operationName) {
         wrapped.setOperationName(operationName);
         return this;
-    }
-
-    @Override
-    public void finish() {
-        wrapped.finish();
-    }
-
-    @Override
-    public void finish(long finishMicros) {
-        wrapped.finish(finishMicros);
     }
 
     @Override

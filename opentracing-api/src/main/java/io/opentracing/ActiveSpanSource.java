@@ -30,7 +30,7 @@ public interface ActiveSpanSource {
      *
      * <p>
      * If there is an {@link ActiveSpan active span}, it becomes an implicit parent of any newly-created
-     * {@link Span span} at {@link Tracer.SpanBuilder#startActive()} time (rather than at
+     * {@link BaseSpan span} at {@link Tracer.SpanBuilder#startActive()} time (rather than at
      * {@link Tracer#buildSpan(String)} time).
      *
      * @return the {@link ActiveSpan active span}, or null if none could be found.

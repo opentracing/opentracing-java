@@ -15,9 +15,10 @@ package io.opentracing.mock;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
-import io.opentracing.Span;
+import io.opentracing.BaseSpan;
 import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.References;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -222,7 +223,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanBuilder asChildOf(Span parent) {
+        public SpanBuilder asChildOf(BaseSpan parent) {
             return addReference(References.CHILD_OF, parent.context());
         }
 

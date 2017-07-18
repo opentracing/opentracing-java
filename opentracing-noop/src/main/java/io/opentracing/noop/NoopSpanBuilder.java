@@ -14,6 +14,7 @@
 package io.opentracing.noop;
 
 import io.opentracing.ActiveSpan;
+import io.opentracing.BaseSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -41,7 +42,7 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     public Tracer.SpanBuilder ignoreActiveSpan() { return this; }
 
     @Override
-    public Tracer.SpanBuilder asChildOf(Span parent) {
+    public Tracer.SpanBuilder asChildOf(BaseSpan parent) {
         return this;
     }
 

@@ -14,9 +14,9 @@
 package io.opentracing.util;
 
 import io.opentracing.ActiveSpan;
-import io.opentracing.Span;
 import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;

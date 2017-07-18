@@ -13,9 +13,10 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.Span;
 import org.junit.Assert;
 import org.junit.Test;
+
+import io.opentracing.Span;
 
 /**
  * @author Pavol Loffay

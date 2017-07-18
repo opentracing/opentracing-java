@@ -16,7 +16,7 @@ package io.opentracing;
 import java.io.Closeable;
 
 /**
- * {@link ActiveSpan} inherits all of the OpenTracing functionality in {@link Span} and layers on in-process
+ * {@link ActiveSpan} inherits all of the OpenTracing functionality in {@link BaseSpan} and layers on in-process
  * propagation capabilities.
  *
  * <p>
@@ -44,10 +44,10 @@ import java.io.Closeable;
  * @see Tracer.SpanBuilder#startActive()
  * @see Continuation#activate()
  * @see ActiveSpanSource
- * @see Span
+ * @see BaseSpan
  * @see Span
  */
-public interface ActiveSpan extends Closeable, Span {
+public interface ActiveSpan extends Closeable, BaseSpan<ActiveSpan> {
     /**
      * Mark the end of the active period for the current thread and {@link ActiveSpan}. When the last
      * {@link ActiveSpan} is deactivated for a given {@link Span}, it is automatically {@link Span#finish()}ed.
@@ -118,6 +118,6 @@ public interface ActiveSpan extends Closeable, Span {
     interface Observer {
         void onCapture(ActiveSpan captured, Continuation destination);
         void onActivate(Continuation source, ActiveSpan justActivated);
-        void onDeactivate(ActiveSpan activeSpan);
+        void onDeactivate(ActiveSpan activeSpan, SpanFinisher finisher);
     }
 }

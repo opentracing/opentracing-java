@@ -3,6 +3,7 @@ package io.opentracing.util;
 import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.SpanFinisher;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,9 +46,9 @@ public class AutoFinisher implements ActiveSpan.Observer {
     public void onActivate(ActiveSpan.Continuation source, ActiveSpan justActivated) {}
 
     @Override
-    public void onDeactivate(ActiveSpan activeSpan) {
+    public void onDeactivate(ActiveSpan activeSpan, SpanFinisher finisher) {
         if (0 == refCount.decrementAndGet()) {
-            activeSpan.finish();
+            finisher.finish();
         }
     }
 }
