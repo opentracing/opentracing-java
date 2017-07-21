@@ -38,6 +38,37 @@ import java.io.Closeable;
  * the node/edge creations as well as {@link ActiveSpan} activation/deactivation lifecycles.
  *
  * <p>
+ * Below is an illustration of how ActiveSpan and Continuation instances form a tree.
+ * <pre>
+ *
+ * ActiveSpan
+ *   |
+ *   +- .capture() -> Continuation
+ *   |                  |
+ *   |                  +- .activate() -> ActiveSpan
+ *   |                                      |
+ *   |                                      +- .capture() -> Continuation
+ *   |                                      |                  |
+ *   |                                      |                  +- .activate() -> ActiveSpan
+ *   |                                      |                                      |
+ *   |                                      |                                      +- .deactivate();
+ *   |                                      +- .capture() -> Continuation
+ *   |                                                         |
+ *   |                                                         +- .activate() -> ActiveSpan
+ *   |                                                                             |
+ *   |                                                                             +- .deactivate();
+ *   |
+ *   +- .capture() -> Continuation
+ *   |                  |
+ *   |                  +- .activate() -> ActiveSpan
+ *   |                                      |
+ *   |                                      +- .deactivate();
+ *   |
+ *   +- .deactivate();
+ *
+ * </pre>
+ *
+ * <p>
  * NOTE: {@link ActiveSpan} extends {@link Closeable} rather than {@code AutoCloseable} in order to preserve support
  * for JDK1.6.
  *
@@ -113,11 +144,11 @@ public interface ActiveSpan extends Closeable, BaseSpan<ActiveSpan> {
 
     /**
      * The {@link ActiveSpan.Observer} interface learns of capture, activate, and deactivate calls for a given
-     * {@link ActiveSpan} instance and any of its "descendants" from a capture/activate standpoint.
+     * {@link ActiveSpan} instance and any of its "descendants" in the capture/activate tree.
      */
     interface Observer {
-        void onCapture(ActiveSpan captured, Continuation destination);
-        void onActivate(Continuation source, ActiveSpan justActivated);
-        void onDeactivate(ActiveSpan activeSpan, Finishable finisher);
+        void afterCapture(ActiveSpan captured, Continuation destination);
+        void afterActivate(Continuation source, ActiveSpan justActivated);
+        void afterDeactivate(ActiveSpan deactivated, Finishable finisher);
     }
 }

@@ -1,16 +1,16 @@
 package io.opentracing.util;
 
 import io.opentracing.ActiveSpan;
+import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.Finishable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * XXX: fix comment
- * {@link AutoFinisher} is an {@link ActiveSpan} wrapper that automatically {@link Span#finish()}es the underlying
- * {@link Span} when there are zero remaining {@link ActiveSpan}s or {@link ActiveSpan.Continuation}s referencing
- * that underlying {@link Span}.
+ * {@link AutoFinisher} is an {@link ActiveSpan.Observer} that automatically {@link Span#finish()}es the
+ * underlying {@link Span} when there are zero remaining {@link ActiveSpan}s or {@link ActiveSpan.Continuation}s
+ * referencing that underlying {@link Span}.
  *
  * <p>
  * Use {@link AutoFinisher} like this:
@@ -22,8 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </code></pre>
  *
  * <p>
- * Note that {@link AutoFinisher} works by counting the number of extant {@link ActiveSpan} or
- * {@link ActiveSpan.Continuation} references to the underlying {@link Span} provided at construction time.
+ * Note that {@link AutoFinisher} works by counting the number of extant {@link ActiveSpan} and
+ * {@link ActiveSpan.Continuation} references to the underlying {@link Span} provided at
+ * {@link ActiveSpanSource#makeActive(Span, ActiveSpan.Observer)}
  * </p>
  */
 public class AutoFinisher implements ActiveSpan.Observer {
@@ -34,17 +35,17 @@ public class AutoFinisher implements ActiveSpan.Observer {
     }
 
     @Override
-    public void onCapture(ActiveSpan captured, ActiveSpan.Continuation destination) {
+    public void afterCapture(ActiveSpan captured, ActiveSpan.Continuation destination) {
         // Always increment the reference count when new Continuations are created (i.e., we assume that all
         // Continuations are eventually activate()d).
         refCount.incrementAndGet();
     }
 
     @Override
-    public void onActivate(ActiveSpan.Continuation source, ActiveSpan justActivated) {}
+    public void afterActivate(ActiveSpan.Continuation source, ActiveSpan justActivated) {}
 
     @Override
-    public void onDeactivate(ActiveSpan activeSpan, Finishable finisher) {
+    public void afterDeactivate(ActiveSpan activeSpan, Finishable finisher) {
         if (0 == refCount.decrementAndGet()) {
             finisher.finish();
         }
