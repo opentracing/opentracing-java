@@ -13,10 +13,16 @@
  */
 package io.opentracing.noop;
 
+import io.opentracing.ActiveSpanSource;
+
 public final class NoopTracerFactory {
     
     public static NoopTracer create() {
         return NoopTracerImpl.INSTANCE;
+    }
+
+    public static NoopTracer create(ActiveSpanSource spanSource) {
+        return new NoopTracerImpl(spanSource);
     }
 
     private NoopTracerFactory() {}

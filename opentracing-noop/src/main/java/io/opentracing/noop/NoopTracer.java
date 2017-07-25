@@ -14,6 +14,7 @@
 package io.opentracing.noop;
 
 import io.opentracing.ActiveSpan;
+import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -24,6 +25,16 @@ public interface NoopTracer extends Tracer {
 
 final class NoopTracerImpl implements NoopTracer {
     final static NoopTracer INSTANCE = new NoopTracerImpl();
+
+    private final ActiveSpanSource spanSource;
+
+    public NoopTracerImpl() {
+        this(NoopActiveSpanSource.INSTANCE);
+    }
+
+    public NoopTracerImpl(ActiveSpanSource spanSource) {
+        this.spanSource = spanSource;
+    }
 
     @Override
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
@@ -44,7 +55,7 @@ final class NoopTracerImpl implements NoopTracer {
 
     @Override
     public ActiveSpan makeActive(Span span) {
-        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+        return spanSource.makeActive(span);
     }
 }
 
