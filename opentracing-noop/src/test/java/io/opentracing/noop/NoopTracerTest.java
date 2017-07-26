@@ -23,7 +23,6 @@ import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopTracerFactory;
 
 public class NoopTracerTest {
 
