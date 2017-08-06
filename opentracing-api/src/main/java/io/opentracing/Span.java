@@ -18,11 +18,8 @@ import java.util.Map;
 /**
  * {@link Span} represents the OpenTracing specification's Span contract.
  *
- * <p>
- * Note that most application code interacts with {@link ActiveSpan} instances (which make themselves available
- * for in-process propagation via the {@link ActiveSpanSource} interface).
- *
- * @see ActiveSpan
+ * @see Scope
+ * @see ScopeManager
  * @see Tracer.SpanBuilder#startManual()
  * @see Tracer.SpanBuilder#startActive()
  */
@@ -164,8 +161,4 @@ public interface Span {
      * @see Span#context()
      */
     void finish(long finishMicros);
-
-    // XXX: add these back
-    // Activator defer();
-    // Activator.Scope activate();  // shorthand for `defer().activate()`
 }

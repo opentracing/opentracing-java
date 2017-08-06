@@ -13,8 +13,7 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.Activator;
-import io.opentracing.Span;
+import io.opentracing.ScopeManager;
 import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.SpanContext;
@@ -124,13 +123,12 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
-    public Activator activator() {
-        return tracer.activator();
+    public ScopeManager scopeManager() {
+        return tracer.scopeManager();
     }
 
-    @Override
-    public void setActivator(Activator activator) {
-        tracer.setActivator(activator);
+    public void setScopeManager(ScopeManager scopeManager) {
+        tracer.setScopeManager(scopeManager);
     }
 
     @Override

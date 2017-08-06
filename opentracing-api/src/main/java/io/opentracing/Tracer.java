@@ -20,8 +20,8 @@ import io.opentracing.propagation.Format;
  */
 public interface Tracer {
 
-    Activator activator();
-    void setActivator(Activator activator);
+    ScopeManager scopeManager();
+    void setScopeManager(ScopeManager scopeManager);
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
@@ -158,12 +158,12 @@ public interface Tracer {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * Returns a newly started and activated {@link Activator.Scope}.
+         * Returns a newly started and activated {@link Scope}.
          *
          * <p>
-         * The returned {@link Activator.Scope} supports try-with-resources. For example:
+         * The returned {@link Scope} supports try-with-resources. For example:
          * <pre><code>
-         *     try (Activator.Scope span = tracer.buildSpan("...").startActive()) {
+         *     try (ScopeManager.Scope span = tracer.buildSpan("...").startActive()) {
          *         // (Do work)
          *         span.setTag( ... );  // etc, etc
          *     }  // XXX Span finishes automatically unless deferred via {@link ActiveSpan#capture}
@@ -189,7 +189,7 @@ public interface Tracer {
          * @see ActiveSpanSource
          * @see ActiveSpan
          */
-        Activator.Scope startActive();
+        Scope startActive();
 
         /**
          * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the

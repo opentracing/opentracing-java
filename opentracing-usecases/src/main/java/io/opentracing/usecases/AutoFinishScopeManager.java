@@ -1,15 +1,15 @@
 package io.opentracing.usecases;
 
-import io.opentracing.Activator;
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
-import io.opentracing.Tracer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by bhs on 8/5/17.
  */
-public class AutoFinishActivator implements Activator {
+public class AutoFinishScopeManager implements ScopeManager {
     final ThreadLocal<AutoFinishScope> tlsScope = new ThreadLocal<AutoFinishScope>();
 
     @Override
@@ -30,7 +30,7 @@ public class AutoFinishActivator implements Activator {
         AutoFinishScope(AtomicInteger refCount, Span wrapped) {
             this.refCount = refCount;
             this.wrapped = wrapped;
-            this.toRestore = AutoFinishActivator.this.tlsScope.get();
+            this.toRestore = AutoFinishScopeManager.this.tlsScope.get();
             tlsScope.set(this);
         }
 

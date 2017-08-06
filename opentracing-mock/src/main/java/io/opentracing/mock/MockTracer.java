@@ -13,9 +13,10 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.Activator;
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
-import io.opentracing.noop.NoopActivator;
+import io.opentracing.noop.NoopScopeManager;
 import io.opentracing.References;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -38,7 +39,7 @@ import java.util.Map;
 public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private Activator activator;
+    private ScopeManager scopeManager;
 
     public MockTracer() {
         this(Propagator.PRINTER);
@@ -49,7 +50,7 @@ public class MockTracer implements Tracer {
      */
     public MockTracer(Propagator propagator) {
         this.propagator = propagator;
-        this.activator = NoopActivator.INSTANCE;
+        this.scopeManager = NoopScopeManager.INSTANCE;
     }
 
     /**
@@ -153,13 +154,12 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public Activator activator() {
-        return this.activator;
+    public ScopeManager scopeManager() {
+        return this.scopeManager;
     }
 
-    @Override
-    public void setActivator(Activator activator) {
-        this.activator = activator;
+    public void setScopeManager(ScopeManager scopeManager) {
+        this.scopeManager = scopeManager;
     }
 
     @Override
@@ -243,8 +243,8 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public Activator.Scope startActive() {
-            return MockTracer.this.activator().activate(this.startManual());
+        public Scope startActive() {
+            return MockTracer.this.scopeManager().activate(this.startManual());
         }
 
         @Override
@@ -258,7 +258,7 @@ public class MockTracer implements Tracer {
                 this.startMicros = MockSpan.nowMicros();
             }
             if (firstParent == null && !ignoringActiveSpan) {
-                Activator.Scope activeScope = activator().activeScope();
+                Scope activeScope = scopeManager().activeScope();
                 if (activeScope != null) {
                     firstParent = (MockSpan.MockContext) activeScope.span().context();
                 }

@@ -13,24 +13,22 @@
  */
 package io.opentracing.noop;
 
-import io.opentracing.Activator;
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
-import io.opentracing.SpanContext;
-
-import java.util.Map;
 
 /**
  * Created by bhs on 8/5/17.
  */
-public interface NoopActivator extends Activator {
-    NoopActivator INSTANCE = new NoopActivatorImpl();
+public interface NoopScopeManager extends ScopeManager {
+    NoopScopeManager INSTANCE = new NoopScopeManagerImpl();
 
     interface NoopScope extends Scope {
-        NoopScope INSTANCE = new NoopActivatorImpl.NoopScopeImpl();
+        NoopScope INSTANCE = new NoopScopeManagerImpl.NoopScopeImpl();
     }
 }
 
-class NoopActivatorImpl implements NoopActivator {
+class NoopScopeManagerImpl implements NoopScopeManager {
     @Override
     public Scope activate(Span span) {
         return null;
@@ -41,7 +39,7 @@ class NoopActivatorImpl implements NoopActivator {
         return null;
     }
 
-    static class NoopScopeImpl implements NoopActivator.NoopScope {
+    static class NoopScopeImpl implements NoopScopeManager.NoopScope {
         @Override
         public void close() {}
 

@@ -13,29 +13,27 @@
  */
 package io.opentracing.usecases;
 
-import io.opentracing.Activator;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class AutoFinishActivatorTest {
-    private AutoFinishActivator autoFinishActivator;
+public class AutoFinishScopeManagerTest {
+    private AutoFinishScopeManager autoFinishActivator;
 
     @Before
     public void before() throws Exception {
-        autoFinishActivator = new AutoFinishActivator();
+        autoFinishActivator = new AutoFinishScopeManager();
     }
 
     @Test
     public void missingActiveSpan() throws Exception {
-        Activator.Scope missingScope = autoFinishActivator.activeScope();
+        Scope missingScope = autoFinishActivator.activeScope();
         Assert.assertNull(missingScope);
     }
 
@@ -44,10 +42,10 @@ public class AutoFinishActivatorTest {
         Span span = Mockito.mock(Span.class);
 
         // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-        AutoFinishActivator.AutoFinishScope scope = autoFinishActivator.activate(span);
+        AutoFinishScopeManager.AutoFinishScope scope = autoFinishActivator.activate(span);
         try {
             Assert.assertNotNull(scope);
-            Activator.Scope otherScope = autoFinishActivator.activeScope();
+            Scope otherScope = autoFinishActivator.activeScope();
             Assert.assertEquals(otherScope, scope);
         } finally {
             scope.close();
@@ -57,7 +55,7 @@ public class AutoFinishActivatorTest {
         Mockito.verify(span).finish();
 
         // And now it's gone:
-        Activator.Scope missingScope = autoFinishActivator.activeScope();
+        Scope missingScope = autoFinishActivator.activeScope();
         Assert.assertNull(missingScope);
     }
 
@@ -65,16 +63,16 @@ public class AutoFinishActivatorTest {
     public void deferring() throws Exception {
         Span span = Mockito.mock(Span.class);
 
-        AutoFinishActivator.AutoFinishScope.Continuation continuation = null;
+        AutoFinishScopeManager.AutoFinishScope.Continuation continuation = null;
         {
             // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-            AutoFinishActivator.AutoFinishScope scope = autoFinishActivator.activate(span);
+            AutoFinishScopeManager.AutoFinishScope scope = autoFinishActivator.activate(span);
 
             // Take a reference...
             continuation = scope.defer();
             try {
                 Assert.assertNotNull(scope);
-                Activator.Scope otherScope = autoFinishActivator.activeScope();
+                Scope otherScope = autoFinishActivator.activeScope();
                 Assert.assertEquals(otherScope, scope);
             } finally {
                 scope.close();
@@ -85,7 +83,7 @@ public class AutoFinishActivatorTest {
         Mockito.verify(span, Mockito.never()).finish();
 
         // Activate the Continuation and close that second reference.
-        AutoFinishActivator.AutoFinishScope reactivated = continuation.activate();
+        AutoFinishScopeManager.AutoFinishScope reactivated = continuation.activate();
         try {
             // Nothing to do.
         } finally {
@@ -96,7 +94,7 @@ public class AutoFinishActivatorTest {
         Mockito.verify(span).finish();
 
         // And now it's gone:
-        Activator.Scope missingScope = autoFinishActivator.activeScope();
+        Scope missingScope = autoFinishActivator.activeScope();
         Assert.assertNull(missingScope);
     }
 

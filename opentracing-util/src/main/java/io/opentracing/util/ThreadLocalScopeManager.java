@@ -1,12 +1,13 @@
 package io.opentracing.util;
 
-import io.opentracing.Activator;
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 
 /**
  * Created by bhs on 8/1/17.
  */
-public class ThreadLocalActivator implements Activator {
+public class ThreadLocalScopeManager implements ScopeManager {
     final ThreadLocal<ThreadLocalScope> tlsScope = new ThreadLocal<ThreadLocalScope>();
 
     public class ThreadLocalScope implements Scope {
@@ -15,7 +16,7 @@ public class ThreadLocalActivator implements Activator {
 
         ThreadLocalScope(Span wrapped) {
             this.wrapped = wrapped;
-            this.toRestore = ThreadLocalActivator.this.tlsScope.get();
+            this.toRestore = ThreadLocalScopeManager.this.tlsScope.get();
             tlsScope.set(this);
         }
 

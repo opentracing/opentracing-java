@@ -13,7 +13,7 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.Activator;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,17 +23,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class ThreadLocalActivatorTest {
-    private ThreadLocalActivator source;
+public class ThreadLocalScopeManagerTest {
+    private ThreadLocalScopeManager source;
 
     @Before
     public void before() throws Exception {
-        source = new ThreadLocalActivator();
+        source = new ThreadLocalScopeManager();
     }
 
     @Test
     public void missingActiveSpan() throws Exception {
-        Activator.Scope missingScope = source.activeScope();
+        Scope missingScope = source.activeScope();
         assertNull(missingScope);
     }
 
@@ -42,10 +42,10 @@ public class ThreadLocalActivatorTest {
         Span span = mock(Span.class);
 
         // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-        Activator.Scope scope = source.activate(span);
+        Scope scope = source.activate(span);
         try {
             assertNotNull(scope);
-            Activator.Scope otherScope = source.activeScope();
+            Scope otherScope = source.activeScope();
             assertEquals(otherScope, scope);
         } finally {
             scope.close();
@@ -55,7 +55,7 @@ public class ThreadLocalActivatorTest {
         verify(span, never()).finish();
 
         // And now it's gone:
-        Activator.Scope missingScope = source.activeScope();
+        Scope missingScope = source.activeScope();
         assertNull(missingScope);
     }
 

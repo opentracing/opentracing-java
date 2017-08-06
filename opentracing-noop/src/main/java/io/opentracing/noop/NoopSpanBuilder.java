@@ -13,7 +13,7 @@
  */
 package io.opentracing.noop;
 
-import io.opentracing.Activator;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -66,8 +66,8 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
-    public Activator.Scope startActive() {
-        return NoopActivator.NoopScope.INSTANCE;
+    public Scope startActive() {
+        return NoopScopeManager.NoopScope.INSTANCE;
     }
 
     @Override
