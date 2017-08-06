@@ -33,6 +33,19 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     private final Span wrapped;
     private final ThreadLocalActiveSpan toRestore;
     private final Observer observer;
+    final ThreadLocal<ThreadLocalActiveSpan> tlsSnapshot = new ThreadLocal<ThreadLocalActiveSpan>();
+
+    // @Override
+    public ThreadLocalActiveSpan activeSpan() {
+        return tlsSnapshot.get();
+    }
+
+    /*
+    // @Override
+    public ActiveSpan makeActive(Span span) {
+        return new ThreadLocalActiveSpan(this, span, new AutoFinisher());
+    }
+    */
 
     ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, Observer observer) {
         this.source = source;

@@ -13,6 +13,7 @@
  */
 package io.opentracing.noop;
 
+import io.opentracing.Activator;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 

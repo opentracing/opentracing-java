@@ -13,6 +13,7 @@
  */
 package io.opentracing.util;
 
+import io.opentracing.Activator;
 import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.noop.NoopTracer;
@@ -121,6 +122,16 @@ public final class GlobalTracer implements Tracer {
      */
     public static synchronized boolean isRegistered() {
         return !(GlobalTracer.tracer instanceof NoopTracer);
+    }
+
+    @Override
+    public Activator activator() {
+        return tracer.activator();
+    }
+
+    @Override
+    public void setActivator(Activator activator) {
+        tracer.setActivator(activator);
     }
 
     @Override

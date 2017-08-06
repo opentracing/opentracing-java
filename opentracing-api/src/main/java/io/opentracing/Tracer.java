@@ -20,6 +20,9 @@ import io.opentracing.propagation.Format;
  */
 public interface Tracer extends ActiveSpanSource {
 
+    Activator activator();
+    void setActivator(Activator activator);
+
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *

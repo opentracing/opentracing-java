@@ -27,6 +27,7 @@
         <module>opentracing-noop</module>
         <module>opentracing-mock</module>
         <module>opentracing-util</module>
+        <module>opentracing-usecases</module>
     </modules>
 
     <properties>

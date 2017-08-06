@@ -13,6 +13,7 @@
  */
 package io.opentracing.noop;
 
+import io.opentracing.Activator;
 import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -24,6 +25,16 @@ public interface NoopTracer extends Tracer {
 
 final class NoopTracerImpl implements NoopTracer {
     final static NoopTracer INSTANCE = new NoopTracerImpl();
+
+    @Override
+    public Activator activator() {
+        return null;
+    }
+
+    @Override
+    public void setActivator(Activator activator) {
+
+    }
 
     @Override
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }

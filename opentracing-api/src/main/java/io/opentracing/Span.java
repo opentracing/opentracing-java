@@ -164,4 +164,8 @@ public interface Span {
      * @see Span#context()
      */
     void finish(long finishMicros);
+
+    // XXX: add these back
+    // Activator defer();
+    // Activator.Scope activate();  // shorthand for `defer().activate()`
 }

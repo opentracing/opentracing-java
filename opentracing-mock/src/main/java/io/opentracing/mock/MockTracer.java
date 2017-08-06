@@ -13,9 +13,11 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.Activator;
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
+import io.opentracing.noop.NoopActivator;
 import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.References;
 import io.opentracing.SpanContext;
@@ -40,6 +42,7 @@ public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
     private ActiveSpanSource spanSource;
+    private Activator activator;
 
     public MockTracer() {
         this(Propagator.PRINTER);
@@ -52,6 +55,7 @@ public class MockTracer implements Tracer {
     public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
         this.propagator = propagator;
         this.spanSource = spanSource;
+        this.activator = NoopActivator.INSTANCE;
     }
 
     /**
@@ -174,6 +178,16 @@ public class MockTracer implements Tracer {
                 return null;
             }
         };
+    }
+
+    @Override
+    public Activator activator() {
+        return this.activator;
+    }
+
+    @Override
+    public void setActivator(Activator activator) {
+        this.activator = activator;
     }
 
     @Override
