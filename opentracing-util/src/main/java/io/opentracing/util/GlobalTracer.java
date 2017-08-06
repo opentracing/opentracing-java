@@ -14,7 +14,6 @@
 package io.opentracing.util;
 
 import io.opentracing.Activator;
-import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
@@ -152,20 +151,5 @@ public final class GlobalTracer implements Tracer {
     @Override
     public String toString() {
         return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
-    }
-
-    @Override
-    public ActiveSpan activeSpan() {
-        return tracer.activeSpan();
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span) {
-        return tracer.makeActive(span);
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
-        return tracer.makeActive(span, observer);
     }
 }

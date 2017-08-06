@@ -14,11 +14,8 @@
 package io.opentracing.mock;
 
 import io.opentracing.Activator;
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.noop.NoopActivator;
-import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.References;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -41,28 +38,18 @@ import java.util.Map;
 public class MockTracer implements Tracer {
     private List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private ActiveSpanSource spanSource;
     private Activator activator;
 
     public MockTracer() {
         this(Propagator.PRINTER);
     }
 
-    public MockTracer(ActiveSpanSource spanSource) {
-        this(spanSource, Propagator.PRINTER);
-    }
-
-    public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
-        this.propagator = propagator;
-        this.spanSource = spanSource;
-        this.activator = NoopActivator.INSTANCE;
-    }
-
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(NoopActiveSpanSource.INSTANCE, propagator);
+        this.propagator = propagator;
+        this.activator = NoopActivator.INSTANCE;
     }
 
     /**
@@ -89,21 +76,6 @@ public class MockTracer implements Tracer {
      * Noop method called on {@link Span#finish()}.
      */
     protected void onSpanFinished(MockSpan mockSpan) {
-    }
-
-    @Override
-    public ActiveSpan activeSpan() {
-        return spanSource.activeSpan();
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span) {
-        return spanSource.makeActive(span);
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
-        return spanSource.makeActive(span, observer);
     }
 
     /**
@@ -195,15 +167,6 @@ public class MockTracer implements Tracer {
         return new SpanBuilder(operationName);
     }
 
-    private SpanContext activeSpanContext() {
-        ActiveSpan handle = this.spanSource.activeSpan();
-        if (handle == null) {
-            return null;
-        }
-
-        return handle.context();
-    }
-
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
         this.propagator.inject((MockSpan.MockContext)spanContext, format, carrier);
@@ -280,20 +243,13 @@ public class MockTracer implements Tracer {
         }
 
         @Override
+        public Activator.Scope startActive() {
+            return MockTracer.this.activator().activate(this.startManual());
+        }
+
+        @Override
         public MockSpan start() {
             return startManual();
-        }
-
-        @Override
-        public ActiveSpan startActive() {
-            MockSpan span = this.startManual();
-            return spanSource.makeActive(span);
-        }
-
-        @Override
-        public ActiveSpan startActive(ActiveSpan.Observer observer) {
-            MockSpan span = this.startManual();
-            return spanSource.makeActive(span, observer);
         }
 
         @Override
@@ -302,7 +258,10 @@ public class MockTracer implements Tracer {
                 this.startMicros = MockSpan.nowMicros();
             }
             if (firstParent == null && !ignoringActiveSpan) {
-                firstParent = (MockSpan.MockContext) activeSpanContext();
+                Activator.Scope activeScope = activator().activeScope();
+                if (activeScope != null) {
+                    firstParent = (MockSpan.MockContext) activeScope.span().context();
+                }
             }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
         }

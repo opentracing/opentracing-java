@@ -1,7 +1,6 @@
 package io.opentracing.util;
 
 import io.opentracing.Activator;
-import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 
 /**

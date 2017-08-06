@@ -18,7 +18,7 @@ import io.opentracing.propagation.Format;
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
-public interface Tracer extends ActiveSpanSource {
+public interface Tracer {
 
     Activator activator();
     void setActivator(Activator activator);
@@ -158,15 +158,15 @@ public interface Tracer extends ActiveSpanSource {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * Returns a newly started and activated {@link ActiveSpan}.
+         * Returns a newly started and activated {@link Activator.Scope}.
          *
          * <p>
-         * The returned {@link ActiveSpan} supports try-with-resources. For example:
+         * The returned {@link Activator.Scope} supports try-with-resources. For example:
          * <pre><code>
-         *     try (ActiveSpan span = tracer.buildSpan("...").startActive()) {
+         *     try (Activator.Scope span = tracer.buildSpan("...").startActive()) {
          *         // (Do work)
          *         span.setTag( ... );  // etc, etc
-         *     }  // Span finishes automatically unless deferred via {@link ActiveSpan#capture}
+         *     }  // XXX Span finishes automatically unless deferred via {@link ActiveSpan#capture}
          * </code></pre>
          *
          * <p>
@@ -189,16 +189,7 @@ public interface Tracer extends ActiveSpanSource {
          * @see ActiveSpanSource
          * @see ActiveSpan
          */
-        ActiveSpan startActive();
-
-        /**
-         * Like {@link #startActive()}, but with the given {@link ActiveSpan.Observer} keeping track of the returned
-         * ActiveSpan.
-         *
-         * @param observer
-         * @return
-         */
-        ActiveSpan startActive(ActiveSpan.Observer observer);
+        Activator.Scope startActive();
 
         /**
          * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
