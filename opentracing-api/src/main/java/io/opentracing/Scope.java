@@ -13,7 +13,7 @@ import java.io.Closeable;
  */
 public interface Scope extends Closeable {
     /**
-     * End this {@link Scope}.
+     * End this {@link Scope}, updating the {@link ScopeManager#activeScope()} in the process.
      */
     @Override
     void close();

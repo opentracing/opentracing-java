@@ -13,6 +13,7 @@
  */
 package io.opentracing.noop;
 
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 
@@ -32,6 +33,11 @@ final class NoopSpanImpl implements NoopSpan {
 
     @Override
     public void finish(long finishMicros) {}
+
+    @Override
+    public Scope activate() {
+        return NoopScopeManagerImpl.NoopScopeImpl.INSTANCE;
+    }
 
     @Override
     public NoopSpan setTag(String key, String value) { return this; }

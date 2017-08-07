@@ -161,4 +161,10 @@ public interface Span {
      * @see Span#context()
      */
     void finish(long finishMicros);
+
+    /**
+     * Defined as equivalent to calling {@code tracer.scopeManager().activate(this)} on the {@link Tracer} instance
+     * that started this {@link Span} instance.
+     */
+    Scope activate();
 }
