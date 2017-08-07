@@ -18,7 +18,7 @@ public class AutoFinishScopeManager implements ScopeManager {
     }
 
     @Override
-    public AutoFinishScope activeScope() {
+    public AutoFinishScope active() {
         return tlsScope.get();
     }
 

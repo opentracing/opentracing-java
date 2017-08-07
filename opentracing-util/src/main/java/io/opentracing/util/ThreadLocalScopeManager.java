@@ -37,7 +37,7 @@ public class ThreadLocalScopeManager implements ScopeManager {
     }
 
     @Override
-    public Scope activeScope() {
+    public Scope active() {
         return tlsScope.get();
     }
 }

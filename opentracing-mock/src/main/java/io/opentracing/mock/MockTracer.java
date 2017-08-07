@@ -258,7 +258,7 @@ public class MockTracer implements Tracer {
                 this.startMicros = MockSpan.nowMicros();
             }
             if (firstParent == null && !ignoringActiveSpan) {
-                Scope activeScope = scopeManager().activeScope();
+                Scope activeScope = scopeManager().active();
                 if (activeScope != null) {
                     firstParent = (MockSpan.MockContext) activeScope.span().context();
                 }

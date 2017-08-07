@@ -33,7 +33,7 @@ public class ThreadLocalScopeManagerTest {
 
     @Test
     public void missingActiveSpan() throws Exception {
-        Scope missingScope = source.activeScope();
+        Scope missingScope = source.active();
         assertNull(missingScope);
     }
 
@@ -45,7 +45,7 @@ public class ThreadLocalScopeManagerTest {
         Scope scope = source.activate(span);
         try {
             assertNotNull(scope);
-            Scope otherScope = source.activeScope();
+            Scope otherScope = source.active();
             assertEquals(otherScope, scope);
         } finally {
             scope.close();
@@ -55,7 +55,7 @@ public class ThreadLocalScopeManagerTest {
         verify(span, never()).finish();
 
         // And now it's gone:
-        Scope missingScope = source.activeScope();
+        Scope missingScope = source.active();
         assertNull(missingScope);
     }
 

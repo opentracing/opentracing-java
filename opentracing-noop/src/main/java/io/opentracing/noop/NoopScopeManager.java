@@ -35,7 +35,7 @@ class NoopScopeManagerImpl implements NoopScopeManager {
     }
 
     @Override
-    public Scope activeScope() {
+    public Scope active() {
         return null;
     }
 

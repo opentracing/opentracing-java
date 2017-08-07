@@ -33,7 +33,7 @@ public class AutoFinishScopeManagerTest {
 
     @Test
     public void missingActiveSpan() throws Exception {
-        Scope missingScope = autoFinishActivator.activeScope();
+        Scope missingScope = autoFinishActivator.active();
         Assert.assertNull(missingScope);
     }
 
@@ -43,7 +43,7 @@ public class AutoFinishScopeManagerTest {
 
         try (AutoFinishScopeManager.AutoFinishScope scope = autoFinishActivator.activate(span)) {
             Assert.assertNotNull(scope);
-            Scope otherScope = autoFinishActivator.activeScope();
+            Scope otherScope = autoFinishActivator.active();
             Assert.assertEquals(otherScope, scope);
         }
 
@@ -51,7 +51,7 @@ public class AutoFinishScopeManagerTest {
         Mockito.verify(span).finish();
 
         // And now it's gone:
-        Scope missingScope = autoFinishActivator.activeScope();
+        Scope missingScope = autoFinishActivator.active();
         Assert.assertNull(missingScope);
     }
 
@@ -66,7 +66,7 @@ public class AutoFinishScopeManagerTest {
                 // Take a reference...
                 continuation = scope.defer();
                 Assert.assertNotNull(scope);
-                Scope otherScope = autoFinishActivator.activeScope();
+                Scope otherScope = autoFinishActivator.active();
                 Assert.assertEquals(otherScope, scope);
             }
         }
@@ -83,7 +83,7 @@ public class AutoFinishScopeManagerTest {
         Mockito.verify(span).finish();
 
         // And now it's gone:
-        Scope missingScope = autoFinishActivator.activeScope();
+        Scope missingScope = autoFinishActivator.active();
         Assert.assertNull(missingScope);
     }
 
