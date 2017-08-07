@@ -41,14 +41,10 @@ public class AutoFinishScopeManagerTest {
     public void makeActiveSpan() throws Exception {
         Span span = Mockito.mock(Span.class);
 
-        // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-        AutoFinishScopeManager.AutoFinishScope scope = autoFinishActivator.activate(span);
-        try {
+        try (AutoFinishScopeManager.AutoFinishScope scope = autoFinishActivator.activate(span)) {
             Assert.assertNotNull(scope);
             Scope otherScope = autoFinishActivator.activeScope();
             Assert.assertEquals(otherScope, scope);
-        } finally {
-            scope.close();
         }
 
         // Make sure the Span got finish()ed.
@@ -66,16 +62,12 @@ public class AutoFinishScopeManagerTest {
         AutoFinishScopeManager.AutoFinishScope.Continuation continuation = null;
         {
             // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-            AutoFinishScopeManager.AutoFinishScope scope = autoFinishActivator.activate(span);
-
-            // Take a reference...
-            continuation = scope.defer();
-            try {
+            try (AutoFinishScopeManager.AutoFinishScope scope = autoFinishActivator.activate(span)) {
+                // Take a reference...
+                continuation = scope.defer();
                 Assert.assertNotNull(scope);
                 Scope otherScope = autoFinishActivator.activeScope();
                 Assert.assertEquals(otherScope, scope);
-            } finally {
-                scope.close();
             }
         }
 
@@ -83,11 +75,8 @@ public class AutoFinishScopeManagerTest {
         Mockito.verify(span, Mockito.never()).finish();
 
         // Activate the Continuation and close that second reference.
-        AutoFinishScopeManager.AutoFinishScope reactivated = continuation.activate();
-        try {
+        try (AutoFinishScopeManager.AutoFinishScope reactivated = continuation.activate()) {
             // Nothing to do.
-        } finally {
-            reactivated.close();
         }
 
         // Make sure the Span got finish()ed this time.
