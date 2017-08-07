@@ -20,7 +20,16 @@ import io.opentracing.propagation.Format;
  */
 public interface Tracer {
 
+    /**
+     * @return the current {@link ScopeManager}, which may be a noop but may not be null.
+     */
     ScopeManager scopeManager();
+
+    /**
+     * Set a new {@link ScopeManager}, presumably as part of initialization. The state of any already active
+     * {@link Scope} instance after this is only defined to do no harm to the process (i.e., not-crash). Again, this is
+     * only intended for use during initialization.
+     */
     void setScopeManager(ScopeManager scopeManager);
 
     /**
