@@ -28,11 +28,11 @@ final class NoopTracerImpl implements NoopTracer {
 
     private final ActiveSpanSource spanSource;
 
-    public NoopTracerImpl() {
+    NoopTracerImpl() {
         this(NoopActiveSpanSource.INSTANCE);
     }
 
-    public NoopTracerImpl(ActiveSpanSource spanSource) {
+    NoopTracerImpl(ActiveSpanSource spanSource) {
         this.spanSource = spanSource;
     }
 
