@@ -1,3 +1,16 @@
+/*
+ * Copyright 2016-2017 The OpenTracing Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package io.opentracing;
 
 import java.io.Closeable;
@@ -22,4 +35,41 @@ public interface Scope extends Closeable {
      * @return the {@link Span} that's been scoped by this {@link Scope}
      */
     Span span();
+
+    /**
+     * {@link Observer} is a simple API for observing the opening/closing of {@link Scope} instances.
+     *
+     * @see ScopeManager#activate(Span, Observer)
+     * @see Tracer.SpanBuilder#startActive(Observer)
+     * @see Span#activate(Observer)
+     */
+    interface Observer {
+        /**
+         * A trivial, static {@link Scope.Observer} that finishes the underlying {@link Span} on scope close.
+         */
+        Observer FINISH_ON_CLOSE = new FinishOnCloseScopeObserverImpl();
+
+        /**
+         * Invoked just after the {@link Scope} becomes active.
+         */
+        void onActivate(Scope scope);
+
+        /**
+         * Invoked just before the {@link Scope} closes / is deactivated.
+         */
+        void onClose(Scope scope);
+    }
+}
+
+/**
+ * @see Scope.Observer#FINISH_ON_CLOSE
+ */
+class FinishOnCloseScopeObserverImpl implements Scope.Observer {
+    @Override
+    public void onActivate(Scope scope) {}
+
+    @Override
+    public void onClose(Scope scope) {
+        scope.span().finish();
+    }
 }

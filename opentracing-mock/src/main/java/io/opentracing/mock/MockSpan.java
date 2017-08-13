@@ -122,6 +122,11 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    public Scope activate(Scope.Observer observer) {
+        return mockTracer.scopeManager().activate(this, observer);
+    }
+
+    @Override
     public MockSpan setTag(String key, String value) {
         return setObjectTag(key, value);
     }

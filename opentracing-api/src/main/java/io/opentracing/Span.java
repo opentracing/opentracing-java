@@ -167,4 +167,5 @@ public interface Span {
      * that started this {@link Span} instance.
      */
     Scope activate();
+    Scope activate(Scope.Observer observer);
 }

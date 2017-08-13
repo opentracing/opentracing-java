@@ -20,7 +20,7 @@ import io.opentracing.SpanContext;
 import java.util.Map;
 
 public interface NoopSpan extends Span {
-    static final NoopSpan INSTANCE = new NoopSpanImpl();
+    NoopSpan INSTANCE = new NoopSpanImpl();
 }
 
 final class NoopSpanImpl implements NoopSpan {
@@ -36,6 +36,11 @@ final class NoopSpanImpl implements NoopSpan {
 
     @Override
     public Scope activate() {
+        return NoopScopeManagerImpl.NoopScopeImpl.INSTANCE;
+    }
+
+    @Override
+    public Scope activate(Scope.Observer observer) {
         return NoopScopeManagerImpl.NoopScopeImpl.INSTANCE;
     }
 
