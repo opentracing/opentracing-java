@@ -44,6 +44,11 @@ class NoopScopeManagerImpl implements NoopScopeManager {
         return null;
     }
 
+    @Override
+    public boolean canDefer() {
+      return false;
+    }
+
     static class NoopScopeImpl implements NoopScopeManager.NoopScope {
         @Override
         public void close() {}

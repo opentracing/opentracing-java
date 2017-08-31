@@ -37,4 +37,10 @@ public interface ScopeManager {
      * {@link Scope#span()}
      */
     Scope active();
+
+    /**
+     * @return whether {@link Scope} instances support deferral by implementing the advanced
+     * {@link ContinuableScope} interface.
+     */
+    boolean canDefer();
 }

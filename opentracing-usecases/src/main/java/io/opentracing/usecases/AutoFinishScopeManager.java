@@ -13,6 +13,7 @@
  */
 package io.opentracing.usecases;
 
+import io.opentracing.ContinuableScope;
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
@@ -31,11 +32,21 @@ public class AutoFinishScopeManager implements ScopeManager {
     }
 
     @Override
+    public AutoFinishScope activate(Span span, Scope.Observer observer) {
+        return new AutoFinishScope(new AtomicInteger(1), span);
+    }
+
+    @Override
     public AutoFinishScope active() {
         return tlsScope.get();
     }
 
-    public class AutoFinishScope implements Scope {
+    @Override
+    public boolean canDefer() {
+      return true;
+    }
+
+    public class AutoFinishScope implements ContinuableScope {
         final AtomicInteger refCount;
         private final Span wrapped;
         private final AutoFinishScope toRestore;
@@ -47,7 +58,7 @@ public class AutoFinishScopeManager implements ScopeManager {
             tlsScope.set(this);
         }
 
-        public class Continuation {
+        public class Continuation implements ContinuableScope.Continuation {
             public Continuation() {
                 refCount.incrementAndGet();
             }
@@ -57,6 +68,7 @@ public class AutoFinishScopeManager implements ScopeManager {
             }
         }
 
+        @Override
         public Continuation defer() {
             return new Continuation();
         }

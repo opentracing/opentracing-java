@@ -66,4 +66,9 @@ public class ThreadLocalScopeManager implements ScopeManager {
     public Scope active() {
         return tlsScope.get();
     }
+
+    @Override
+    public boolean canDefer() {
+      return false;
+    }
 }
