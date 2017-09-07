@@ -23,6 +23,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
+import io.opentracing.util.ThreadLocalActiveSpanSource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class MockTracer implements Tracer {
     private ActiveSpanSource spanSource;
 
     public MockTracer() {
-        this(Propagator.PRINTER);
+        this(new ThreadLocalActiveSpanSource(), Propagator.PRINTER);
     }
 
     public MockTracer(ActiveSpanSource spanSource) {
