@@ -6,7 +6,7 @@ The `opentracing-mock` artifact (and `io.opentracing.mock.MockTracer` in particu
 
 Imagine the following (admittedly unrealistic) OpenTracing-instrumented application code:
 
-```
+```java
 public void handlePurchase(User user, Item item, Tracer tracer) {
     try (ActiveSpan span = tracer.buildSpan("handlePurchase").startActive()) {
         span.setTag("username", user.getUsername());
@@ -16,7 +16,7 @@ public void handlePurchase(User user, Item item, Tracer tracer) {
 
 Using `MockTracer`, one could write a unittest for the above instrumentation like so:
 
-```
+```java
 @Test
 public void testHandlePurchaseTracing() {
     // Initialize the MockTracer and call handlePurchase().
