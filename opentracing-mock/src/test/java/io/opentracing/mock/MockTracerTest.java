@@ -14,20 +14,24 @@
 package io.opentracing.mock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
 import io.opentracing.References;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class MockTracerTest {
     @Test
@@ -277,6 +281,18 @@ public class MockTracerTest {
 
         assertEquals(parent.context().spanId(), nextSpan.parentId());
         assertEquals(1, nextSpan.references().size());
-        assertEquals(nextSpan.references().get(0), new MockSpan.Reference(parent.context(), "a_reference"));
+        assertEquals(nextSpan.references().get(0),
+            new MockSpan.Reference(parent.context(), "a_reference"));
+    }
+
+    @Test
+    public void testDefaultConstructor() {
+        MockTracer mockTracer = new MockTracer();
+        ActiveSpan activeSpan = mockTracer.buildSpan("foo").startActive();
+        assertEquals(activeSpan, mockTracer.activeSpan());
+
+        Map<String, String> propag = new HashMap<>();
+        mockTracer.inject(activeSpan.context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));
+        assertFalse(propag.isEmpty());
     }
 }
