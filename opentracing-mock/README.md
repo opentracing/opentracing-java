@@ -20,7 +20,7 @@ Using `MockTracer`, one could write a unittest for the above instrumentation lik
 @Test
 public void testHandlePurchaseTracing() {
     // Initialize the MockTracer and call handlePurchase().
-    MockTracer tracer = new MockTracer();
+    MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource());
     foo.handlePurchase(..., ..., tracer);
     
     // Verify that the instrumentation generates the expected Span data.
