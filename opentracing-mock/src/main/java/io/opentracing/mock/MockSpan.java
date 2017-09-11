@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 
@@ -113,6 +114,16 @@ public final class MockSpan implements Span {
         this.finishMicros = finishMicros;
         this.mockTracer.appendFinishedSpan(this);
         this.finished = true;
+    }
+
+    @Override
+    public Scope activate() {
+        return mockTracer.scopeManager().activate(this);
+    }
+
+    @Override
+    public Scope activate(Scope.Observer observer) {
+        return mockTracer.scopeManager().activate(this, observer);
     }
 
     @Override

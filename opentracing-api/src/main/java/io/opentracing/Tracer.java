@@ -18,7 +18,19 @@ import io.opentracing.propagation.Format;
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
-public interface Tracer extends ActiveSpanSource {
+public interface Tracer {
+
+    /**
+     * @return the current {@link ScopeManager}, which may be a noop but may not be null.
+     */
+    ScopeManager scopeManager();
+
+    /**
+     * Set a new {@link ScopeManager}, presumably as part of initialization. The state of any already active
+     * {@link Scope} instance after this is only defined to do no harm to the process (i.e., not-crash). Again, this is
+     * only intended for use during initialization.
+     */
+    void setScopeManager(ScopeManager scopeManager);
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
@@ -111,7 +123,7 @@ public interface Tracer extends ActiveSpanSource {
          * <p>
          * If parent==null, this is a noop.
          */
-        SpanBuilder asChildOf(BaseSpan<?> parent);
+        SpanBuilder asChildOf(Span parent);
 
         /**
          * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
@@ -155,15 +167,15 @@ public interface Tracer extends ActiveSpanSource {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * Returns a newly started and activated {@link ActiveSpan}.
+         * Returns a newly started and activated {@link Scope}.
          *
          * <p>
-         * The returned {@link ActiveSpan} supports try-with-resources. For example:
+         * The returned {@link Scope} supports try-with-resources. For example:
          * <pre><code>
-         *     try (ActiveSpan span = tracer.buildSpan("...").startActive()) {
+         *     try (ScopeManager.Scope span = tracer.buildSpan("...").startActive()) {
          *         // (Do work)
          *         span.setTag( ... );  // etc, etc
-         *     }  // Span finishes automatically unless deferred via {@link ActiveSpan#capture}
+         *     }  // XXX Span finishes automatically unless deferred via {@link ActiveSpan#capture}
          * </code></pre>
          *
          * <p>
@@ -186,7 +198,8 @@ public interface Tracer extends ActiveSpanSource {
          * @see ActiveSpanSource
          * @see ActiveSpan
          */
-        ActiveSpan startActive();
+        Scope startActive();
+        Scope startActive(Scope.Observer observer);
 
         /**
          * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the

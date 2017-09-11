@@ -13,8 +13,7 @@
  */
 package io.opentracing.noop;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.Span;
+import io.opentracing.ScopeManager;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -24,6 +23,15 @@ public interface NoopTracer extends Tracer {
 
 final class NoopTracerImpl implements NoopTracer {
     final static NoopTracer INSTANCE = new NoopTracerImpl();
+
+    @Override
+    public ScopeManager scopeManager() {
+        return null;
+    }
+
+    public void setScopeManager(ScopeManager scopeManager) {
+
+    }
 
     @Override
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
@@ -36,15 +44,5 @@ final class NoopTracerImpl implements NoopTracer {
 
     @Override
     public String toString() { return NoopTracer.class.getSimpleName(); }
-
-    @Override
-    public ActiveSpan activeSpan() {
-        return null;
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span) {
-        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
-    }
 }
 
