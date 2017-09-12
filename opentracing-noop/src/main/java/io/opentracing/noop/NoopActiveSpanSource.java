@@ -19,6 +19,7 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public interface NoopActiveSpanSource extends ActiveSpanSource {
     NoopActiveSpanSource INSTANCE = new NoopActiveSpanSourceImpl();
@@ -81,7 +82,7 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         }
 
         @Override
-        public NoopActiveSpan log(long timestampMicroseconds, Map<String, ?> fields) {
+        public NoopActiveSpan log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
@@ -91,7 +92,7 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         }
 
         @Override
-        public NoopActiveSpan log(long timestampMicroseconds, String event) {
+        public NoopActiveSpan log(long timestamp, TimeUnit timestampUnit, String event) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 

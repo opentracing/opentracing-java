@@ -17,6 +17,7 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public interface NoopSpan extends Span {
     static final NoopSpan INSTANCE = new NoopSpanImpl();
@@ -31,7 +32,7 @@ final class NoopSpanImpl implements NoopSpan {
     public void finish() {}
 
     @Override
-    public void finish(long finishMicros) {}
+    public void finish(long finishTimestamp, TimeUnit finishUnit) {}
 
     @Override
     public NoopSpan setTag(String key, String value) { return this; }
@@ -46,13 +47,13 @@ final class NoopSpanImpl implements NoopSpan {
     public NoopSpan log(Map<String, ?> fields) { return this; }
 
     @Override
-    public NoopSpan log(long timestampMicroseconds, Map<String, ?> fields) { return this; }
+    public NoopSpan log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) { return this; }
 
     @Override
     public NoopSpan log(String event) { return this; }
 
     @Override
-    public NoopSpan log(long timestampMicroseconds, String event) { return this; }
+    public NoopSpan log(long timestamp, TimeUnit timestampUnit, String event) { return this; }
 
     @Override
     public NoopSpan setBaggageItem(String key, String value) { return this; }

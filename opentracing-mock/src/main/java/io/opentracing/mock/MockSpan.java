@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.opentracing.Span;
@@ -36,9 +37,11 @@ public final class MockSpan implements Span {
     private final MockTracer mockTracer;
     private MockContext context;
     private final long parentId; // 0 if there's no parent.
-    private final long startMicros;
+    private final long startTimestamp;
+    private final TimeUnit startUnit;
     private boolean finished;
-    private long finishMicros;
+    private long finishTimestamp;
+    private TimeUnit finishUnit;
     private final Map<String, Object> tags;
     private final List<LogEntry> logEntries = new ArrayList<>();
     private String operationName;
@@ -66,15 +69,16 @@ public final class MockSpan implements Span {
     public long parentId() {
         return parentId;
     }
-    public long startMicros() {
-        return startMicros;
+
+    public long startTimestamp(TimeUnit unit) {
+        return unit.convert(startTimestamp, startUnit);
     }
     /**
      * @return the finish time of the Span; only valid after a call to finish().
      */
-    public long finishMicros() {
-        assert finishMicros > 0 : "must call finish() before finishMicros()";
-        return finishMicros;
+    public long finishTimestamp(TimeUnit units) {
+        assert finishTimestamp > 0 : "must call finish() before finishTimestamp()";
+        return units.convert(finishTimestamp, finishUnit);
     }
 
     /**
@@ -104,13 +108,14 @@ public final class MockSpan implements Span {
 
     @Override
     public void finish() {
-        this.finish(nowMicros());
+        this.finish(nowMillis(), TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public synchronized void finish(long finishMicros) {
+    public synchronized void finish(long finishTimestamp, TimeUnit finishUnit) {
         finishedCheck("Finishing already finished span");
-        this.finishMicros = finishMicros;
+        this.finishTimestamp = finishTimestamp;
+        this.finishUnit = finishUnit;
         this.mockTracer.appendFinishedSpan(this);
         this.finished = true;
     }
@@ -138,24 +143,24 @@ public final class MockSpan implements Span {
 
     @Override
     public final Span log(Map<String, ?> fields) {
-        return log(nowMicros(), fields);
+        return log(nowMillis(), TimeUnit.MILLISECONDS, fields);
     }
 
     @Override
-    public final synchronized MockSpan log(long timestampMicros, Map<String, ?> fields) {
-        finishedCheck("Adding logs %s at %d to already finished span", fields, timestampMicros);
-        this.logEntries.add(new LogEntry(timestampMicros, fields));
+    public final synchronized MockSpan log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) {
+        finishedCheck("Adding logs %s at %d %s to already finished span", fields, timestamp, timestampUnit);
+        this.logEntries.add(new LogEntry(timestamp, timestampUnit, fields));
         return this;
     }
 
     @Override
     public MockSpan log(String event) {
-        return this.log(nowMicros(), event);
+        return this.log(nowMillis(), TimeUnit.MILLISECONDS, event);
     }
 
     @Override
-    public MockSpan log(long timestampMicroseconds, String event) {
-        return this.log(timestampMicroseconds, Collections.singletonMap("event", event));
+    public MockSpan log(long timestamp, TimeUnit timestampUnit, String event) {
+        return this.log(timestamp, timestampUnit, Collections.singletonMap("event", event));
     }
 
     @Override
@@ -215,16 +220,18 @@ public final class MockSpan implements Span {
     }
 
     public static final class LogEntry {
-        private final long timestampMicros;
+        private final long timestamp;
+        private final TimeUnit timestampUnit;
         private final Map<String, ?> fields;
 
-        public LogEntry(long timestampMicros, Map<String, ?> fields) {
-            this.timestampMicros = timestampMicros;
+        public LogEntry(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) {
+            this.timestamp = timestamp;
+            this.timestampUnit = timestampUnit;
             this.fields = fields;
         }
 
-        public long timestampMicros() {
-            return timestampMicros;
+        public long timestamp(TimeUnit unit) {
+            return unit.convert(timestamp, timestampUnit);
         }
 
         public Map<String, ?> fields() {
@@ -232,10 +239,11 @@ public final class MockSpan implements Span {
         }
     }
 
-    MockSpan(MockTracer tracer, String operationName, long startMicros, Map<String, Object> initialTags, MockContext parent) {
+    MockSpan(MockTracer tracer, String operationName, long startTimestamp, TimeUnit startUnit, Map<String, Object> initialTags, MockContext parent) {
         this.mockTracer = tracer;
         this.operationName = operationName;
-        this.startMicros = startMicros;
+        this.startTimestamp = startTimestamp;
+        this.startUnit = startUnit;
         if (initialTags == null) {
             this.tags = new HashMap<>();
         } else {
@@ -256,8 +264,8 @@ public final class MockSpan implements Span {
         return nextId.addAndGet(1);
     }
 
-    static long nowMicros() {
-        return System.currentTimeMillis() * 1000;
+    static long nowMillis() {
+        return System.currentTimeMillis();
     }
 
     private synchronized void finishedCheck(String format, Object... args) {

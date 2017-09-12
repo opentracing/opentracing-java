@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -204,7 +205,8 @@ public class MockTracer implements Tracer {
 
     public final class SpanBuilder implements Tracer.SpanBuilder {
         private final String operationName;
-        private long startMicros;
+        private long startTimestamp;
+        private TimeUnit startUnit;
         private MockSpan.MockContext firstParent;
         private boolean ignoringActiveSpan;
         private Map<String, Object> initialTags = new HashMap<>();
@@ -257,8 +259,9 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanBuilder withStartTimestamp(long microseconds) {
-            this.startMicros = microseconds;
+        public SpanBuilder withStartTimestamp(long startTimestamp, TimeUnit startUnit) {
+            this.startTimestamp = startTimestamp;
+            this.startUnit = startUnit;
             return this;
         }
 
@@ -275,13 +278,14 @@ public class MockTracer implements Tracer {
 
         @Override
         public MockSpan startManual() {
-            if (this.startMicros == 0) {
-                this.startMicros = MockSpan.nowMicros();
+            if (this.startTimestamp == 0) {
+                this.startTimestamp = MockSpan.nowMillis();
+                this.startUnit = TimeUnit.MILLISECONDS;
             }
             if (firstParent == null && !ignoringActiveSpan) {
                 firstParent = (MockSpan.MockContext) activeSpanContext();
             }
-            return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
+            return new MockSpan(MockTracer.this, operationName, startTimestamp, startUnit, initialTags, firstParent);
         }
     }
 }

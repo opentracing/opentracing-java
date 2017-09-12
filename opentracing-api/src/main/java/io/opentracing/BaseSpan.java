@@ -14,6 +14,7 @@
 package io.opentracing;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@link BaseSpan} represents the OpenTracing specification's span contract with the exception of methods to finish
@@ -75,14 +76,15 @@ public interface BaseSpan<S extends BaseSpan> {
      * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
      * Caveat emptor.
      *
-     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
-     *                              Span's start timestamp.
+     * @param timestamp The explicit timestamp for the log record. Must be greater than or equal to the
+     *                  Span's start timestamp.
+     * @param timestampUnit The time unit which {@code timestamp} is provided in
      * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
      *               some may also support arbitrary Objects.
      * @return the Span, for chaining
-     * @see Span#log(long, String)
+     * @see Span#log(long, TimeUnit, String)
      */
-    S log(long timestampMicroseconds, Map<String, ?> fields);
+    S log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields);
 
     /**
      * Record an event at the current walltime timestamp.
@@ -107,12 +109,13 @@ public interface BaseSpan<S extends BaseSpan> {
      span.log(timestampMicroseconds, Collections.singletonMap("event", event));
      </code></pre>
      *
-     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
-     *                              Span's start timestamp.
+     * @param timestamp The explicit timestamp for the log record. Must be greater than or equal to the
+     *                  Span's start timestamp.
+     * @param timestampUnit The time unit which {@code timestamp} is provided in
      * @param event the event value; often a stable identifier for a moment in the Span lifecycle
      * @return the Span, for chaining
      */
-    S log(long timestampMicroseconds, String event);
+    S log(long timestamp, TimeUnit timestampUnit, String event);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.

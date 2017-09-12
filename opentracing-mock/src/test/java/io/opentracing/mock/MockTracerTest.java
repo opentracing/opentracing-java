@@ -25,6 +25,8 @@ import io.opentracing.propagation.TextMapInjectAdapter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,16 +36,16 @@ public class MockTracerTest {
         // Create and finish a root Span.
         MockTracer tracer = new MockTracer();
         {
-            Span span = tracer.buildSpan("tester").withStartTimestamp(1000).start();
+            Span span = tracer.buildSpan("tester").withStartTimestamp(1000, TimeUnit.MICROSECONDS).start();
             span.setTag("string", "foo");
             span.setTag("int", 7);
             span.log("foo");
             Map<String, Object> fields = new HashMap<>();
             fields.put("f1", 4);
             fields.put("f2", "two");
-            span.log(1002, fields);
-            span.log(1003, "event name");
-            span.finish(2000);
+            span.log(1002, TimeUnit.MICROSECONDS, fields);
+            span.log(1003, TimeUnit.MICROSECONDS, "event name");
+            span.finish(2000, TimeUnit.MICROSECONDS);
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
 
@@ -54,8 +56,8 @@ public class MockTracerTest {
         assertEquals(0, finishedSpan.parentId());
         assertNotEquals(0, finishedSpan.context().traceId());
         assertNotEquals(0, finishedSpan.context().spanId());
-        assertEquals(1000, finishedSpan.startMicros());
-        assertEquals(2000, finishedSpan.finishMicros());
+        assertEquals(1000, finishedSpan.startTimestamp(TimeUnit.MICROSECONDS));
+        assertEquals(2000, finishedSpan.finishTimestamp(TimeUnit.MICROSECONDS));
         Map<String, Object> tags = finishedSpan.tags();
         assertEquals(2, tags.size());
         assertEquals(7, tags.get("int"));
@@ -69,13 +71,13 @@ public class MockTracerTest {
         }
         {
             MockSpan.LogEntry log = logs.get(1);
-            assertEquals(1002, log.timestampMicros());
+            assertEquals(1002, log.timestamp(TimeUnit.MICROSECONDS));
             assertEquals(4, log.fields().get("f1"));
             assertEquals("two", log.fields().get("f2"));
         }
         {
             MockSpan.LogEntry log = logs.get(2);
-            assertEquals(1003, log.timestampMicros());
+            assertEquals(1003, log.timestamp(TimeUnit.MICROSECONDS));
             assertEquals("event name", log.fields().get("event"));
         }
     }
@@ -85,10 +87,10 @@ public class MockTracerTest {
         // Create and finish a root Span.
         MockTracer tracer = new MockTracer();
         {
-            Span parent = tracer.buildSpan("parent").withStartTimestamp(1000).start();
-            Span child = tracer.buildSpan("child").withStartTimestamp(1100).asChildOf(parent).start();
-            child.finish(1900);
-            parent.finish(2000);
+            Span parent = tracer.buildSpan("parent").withStartTimestamp(1000, TimeUnit.MICROSECONDS).start();
+            Span child = tracer.buildSpan("child").withStartTimestamp(1100, TimeUnit.MICROSECONDS).asChildOf(parent).start();
+            child.finish(1900, TimeUnit.MICROSECONDS);
+            parent.finish(2000, TimeUnit.MICROSECONDS);
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
 
@@ -106,35 +108,36 @@ public class MockTracerTest {
     @Test
     public void testStartTimestamp() throws InterruptedException {
         MockTracer tracer = new MockTracer();
-        long startMicros;
+        long startTimestamp;
         {
             Tracer.SpanBuilder fooSpan = tracer.buildSpan("foo");
             Thread.sleep(2);
-            startMicros = System.currentTimeMillis() * 1000;
+            startTimestamp = System.currentTimeMillis();
             fooSpan.start().finish();
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
 
         Assert.assertEquals(1, finishedSpans.size());
         MockSpan span = finishedSpans.get(0);
-        Assert.assertTrue(startMicros <= span.startMicros());
-        Assert.assertTrue(System.currentTimeMillis() * 1000 >= span.finishMicros());
+        Assert.assertTrue(startTimestamp <= span.startTimestamp(TimeUnit.MILLISECONDS));
+        Assert.assertTrue(System.currentTimeMillis() >= span.finishTimestamp(TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void testStartExplicitTimestamp() throws InterruptedException {
         MockTracer tracer = new MockTracer();
         long startMicros = 2000;
+        TimeUnit startUnit = TimeUnit.MICROSECONDS;
         {
             tracer.buildSpan("foo")
-                    .withStartTimestamp(startMicros)
+                    .withStartTimestamp(startMicros, startUnit)
                     .start()
                     .finish();
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
 
         Assert.assertEquals(1, finishedSpans.size());
-        Assert.assertEquals(startMicros, finishedSpans.get(0).startMicros());
+        Assert.assertEquals(startMicros, finishedSpans.get(0).startTimestamp(startUnit));
     }
 
     @Test
