@@ -51,7 +51,8 @@ public class MultipleCallbacksTest {
 
         MockSpan parentSpan = spans.get(3);
         for (int i = 0; i < 3; i++) {
-            assertEquals(true, parentSpan.finishMicros() >= spans.get(i).finishMicros());
+            assertEquals(true, parentSpan.finishTimestamp(TimeUnit.MICROSECONDS)
+                    >= spans.get(i).finishTimestamp(TimeUnit.MICROSECONDS));
             assertEquals(parentSpan.context().traceId(), spans.get(i).context().traceId());
             assertEquals(parentSpan.context().spanId(), spans.get(i).parentId());
         }
