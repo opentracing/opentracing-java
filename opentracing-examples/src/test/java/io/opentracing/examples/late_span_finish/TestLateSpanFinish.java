@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static io.opentracing.examples.TestUtils.assertSameTrace;
 import static io.opentracing.examples.TestUtils.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -55,11 +56,7 @@ public class TestLateSpanFinish {
         assertEquals("task2", spans.get(1).operationName());
         assertEquals("parent", spans.get(2).operationName());
 
-        for (int i = 0; i < 2; i++) {
-            assertEquals(true, spans.get(2).finishMicros() >= spans.get(i).finishMicros());
-            assertEquals(spans.get(2).context().traceId(), spans.get(i).context().traceId());
-            assertEquals(spans.get(2).context().spanId(), spans.get(i).parentId());
-        }
+        assertSameTrace(spans);
 
         assertNull(tracer.activeSpan());
     }

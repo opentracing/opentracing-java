@@ -36,12 +36,12 @@ public class Client {
     }
 
 
-    public Future<Object> send(final Object message) {
+    public Future<String> send(final Object message) {
 
         final Context context = new Context();
-        return executor.submit(new Callable<Object>() {
+        return executor.submit(new Callable<String>() {
             @Override
-            public Object call() throws Exception {
+            public String call() throws Exception {
                 logger.info("send {}", message);
                 TestUtils.sleep();
                 executor.submit(new Runnable() {

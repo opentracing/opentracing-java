@@ -51,8 +51,8 @@ public class TestHandler {
 
     @Test
     public void two_requests() throws Exception {
-        Future<Object> responseFuture = client.send("message");
-        Future<Object> responseFuture2 = client.send("message2");
+        Future<String> responseFuture = client.send("message");
+        Future<String> responseFuture2 = client.send("message2");
 
         assertEquals("message:response", responseFuture.get(15, TimeUnit.SECONDS));
         assertEquals("message2:response", responseFuture2.get(15, TimeUnit.SECONDS));
@@ -65,7 +65,8 @@ public class TestHandler {
         }
 
         assertNotEquals(finished.get(0).context().traceId(), finished.get(1).context().traceId());
-        assertEquals(finished.get(0).parentId(), finished.get(1).parentId());
+        assertEquals(0, finished.get(0).parentId());
+        assertEquals(0, finished.get(1).parentId());
 
         assertNull(tracer.activeSpan());
     }
@@ -76,7 +77,7 @@ public class TestHandler {
     @Test
     public void parent_not_picked_up() throws Exception {
         try (ActiveSpan parent = tracer.buildSpan("parent").startActive()) {
-            Object response = client.send("no_parent").get(15, TimeUnit.SECONDS);
+            String response = client.send("no_parent").get(15, TimeUnit.SECONDS);
             assertEquals("no_parent:response", response);
         }
 
@@ -95,19 +96,21 @@ public class TestHandler {
     }
 
     /**
-     * Solution is bad because parent is per client (we don't have better choice)
+     * Solution is bad because parent is per client (we don't have better choice).
+     * Therefore all client requests will have the same parent.
+     * But if client is long living and injected/reused in different places then initial parent will not be correct.
      */
     @Test
     public void bad_solution_to_set_parent() throws Exception {
         Client client;
         try (ActiveSpan parent = tracer.buildSpan("parent").startActive()) {
             client = new Client(new RequestHandler(tracer, parent.context()));
-            Object response = client.send("correct_parent").get(15, TimeUnit.SECONDS);
+            String response = client.send("correct_parent").get(15, TimeUnit.SECONDS);
             assertEquals("correct_parent:response", response);
         }
 
         // Send second request, now there is no active parent, but it will be set, ups
-        Object response = client.send("wrong_parent").get(15, TimeUnit.SECONDS);
+        String response = client.send("wrong_parent").get(15, TimeUnit.SECONDS);
         assertEquals("wrong_parent:response", response);
 
         List<MockSpan> finished = tracer.finishedSpans();

@@ -26,8 +26,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.jayway.awaitility.Awaitility.await;
-import static io.opentracing.examples.TestUtils.reportedSpansSize;
+import static io.opentracing.examples.TestUtils.finishedSpansSize;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -45,7 +45,7 @@ public class TestNestedCallbacks {
             submitCallbacks(span);
         }
 
-        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(tracer), equalTo(1));
+        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(1));
 
         List<MockSpan> spans = tracer.finishedSpans();
         assertEquals(1, spans.size());

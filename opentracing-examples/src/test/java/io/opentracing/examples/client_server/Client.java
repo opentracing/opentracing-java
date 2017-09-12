@@ -34,8 +34,10 @@ public class Client {
     public void send() throws InterruptedException {
         Message message = new Message();
 
-        try (ActiveSpan activeSpan = tracer.buildSpan("send").startActive()) {
-            activeSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT);
+        try (ActiveSpan activeSpan = tracer.buildSpan("send")
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+                .withTag(Tags.COMPONENT.getKey(), "example-client")
+                .startActive()) {
             tracer.inject(activeSpan.context(), Builtin.TEXT_MAP, new TextMapInjectAdapter(message));
             queue.put(message);
         }

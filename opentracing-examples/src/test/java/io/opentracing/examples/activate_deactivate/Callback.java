@@ -22,7 +22,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Callback which executed at some unpredictable time. We don't know when it is started, when it is
+ * Callback which executed at some time. We don't know when it is started, when it is
  * completed. We cannot check status of it (started or completed)
  */
 public class Callback implements Runnable {
@@ -48,7 +48,7 @@ public class Callback implements Runnable {
         ActiveSpan activeSpan = continuation.activate();
 
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.SECONDS.sleep(1); // without sleep first callback can finish before second is started
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

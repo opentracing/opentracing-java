@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import static com.jayway.awaitility.Awaitility.await;
+import static io.opentracing.examples.TestUtils.finishedSpansSize;
 import static io.opentracing.examples.TestUtils.getOneByTag;
-import static io.opentracing.examples.TestUtils.reportedSpansSize;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,7 +58,7 @@ public class TestClientServer {
         Client client = new Client(queue, tracer);
         client.send();
 
-        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(tracer), equalTo(2));
+        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(2));
 
         List<MockSpan> finished = tracer.finishedSpans();
         assertEquals(2, finished.size());

@@ -64,7 +64,7 @@ public class RequestHandler {
         logger.info("after response {}", response);
 
         Object spanObject = context.get("span");
-        if (spanObject != null && spanObject instanceof Span) {
+        if (spanObject instanceof Span) {
             Span span = (Span) spanObject;
             span.finish();
         }

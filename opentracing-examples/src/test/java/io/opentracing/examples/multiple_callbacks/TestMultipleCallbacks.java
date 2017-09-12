@@ -23,8 +23,8 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.jayway.awaitility.Awaitility.await;
-import static io.opentracing.examples.TestUtils.reportedSpansSize;
+import static io.opentracing.examples.TestUtils.finishedSpansSize;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -43,7 +43,7 @@ public class TestMultipleCallbacks {
             client.send("task3", span, 100);
         }
 
-        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(tracer), equalTo(4));
+        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(4));
 
         List<MockSpan> spans = tracer.finishedSpans();
         assertEquals(4, spans.size());

@@ -34,8 +34,10 @@ public class Server extends Thread {
 
     private void process(Message message) {
         SpanContext context = tracer.extract(Builtin.TEXT_MAP, new TextMapExtractAdapter(message));
-        try (ActiveSpan activeSpan = tracer.buildSpan("receive").asChildOf(context).startActive()) {
-            activeSpan.setTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER);
+        try (ActiveSpan activeSpan = tracer.buildSpan("receive")
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
+                .withTag(Tags.COMPONENT.getKey(), "example-server")
+                .asChildOf(context).startActive()) {
         }
     }
 
@@ -43,15 +45,12 @@ public class Server extends Thread {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
 
-            Message message;
             try {
-                message = this.queue.take();
+                process(queue.take());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
             }
-
-            process(message);
         }
     }
 }

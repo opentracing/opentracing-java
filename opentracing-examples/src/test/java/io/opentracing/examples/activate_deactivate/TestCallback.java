@@ -29,8 +29,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.jayway.awaitility.Awaitility.await;
-import static io.opentracing.examples.TestUtils.reportedSpansSize;
+import static io.opentracing.examples.TestUtils.finishedSpansSize;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 
@@ -49,7 +49,7 @@ public class TestCallback {
         entryThread.join(10_000);
         // Entry thread is completed but Callback is still running (or even not started)
 
-        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(tracer), equalTo(1));
+        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(1));
 
         List<MockSpan> finished = tracer.finishedSpans();
         assertEquals(1, finished.size());
@@ -64,7 +64,7 @@ public class TestCallback {
         entryThread.join(10_000);
         // Entry thread is completed but Callbacks are still running (or even not started)
 
-        await().atMost(15, TimeUnit.SECONDS).until(reportedSpansSize(tracer), equalTo(1));
+        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(1));
 
         List<MockSpan> finished = tracer.finishedSpans();
         assertEquals(1, finished.size());
