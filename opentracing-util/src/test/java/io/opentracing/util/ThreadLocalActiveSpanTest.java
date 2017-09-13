@@ -13,18 +13,17 @@
  */
 package io.opentracing.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ThreadLocalActiveSpanTest {
     private ThreadLocalActiveSpanSource source;
@@ -110,5 +109,53 @@ public class ThreadLocalActiveSpanTest {
         activeSpan.deactivate();
 
         verify(span, times(0)).finish();
+    }
+
+    @Test
+    @SuppressWarnings("deprecated")
+    public void testLogEventWithTimestampInMicroseconds() {
+        Span span = mock(Span.class);
+
+        long now = System.currentTimeMillis() * 1000L;
+        ActiveSpan activeSpan = source.makeActive(span);
+        activeSpan.log(now, "event");
+
+        verify(span).log(now, TimeUnit.MICROSECONDS, "event");
+    }
+
+    @Test
+    public void testLogEventWithTimestamp() {
+        Span span = mock(Span.class);
+
+        long now = System.currentTimeMillis();
+        ActiveSpan activeSpan = source.makeActive(span);
+        activeSpan.log(now, TimeUnit.MILLISECONDS, "event");
+
+        verify(span).log(now, TimeUnit.MILLISECONDS, "event");
+    }
+
+    @Test
+    @SuppressWarnings("deprecated")
+    public void testLogFieldsWithTimestampInMicroseconds() {
+        Span span = mock(Span.class);
+        Map<String, ?> fields = Collections.emptyMap();
+
+        long now = System.currentTimeMillis() * 1000L;
+        ActiveSpan activeSpan = source.makeActive(span);
+        activeSpan.log(now, fields);
+
+        verify(span).log(now, TimeUnit.MICROSECONDS, fields);
+    }
+
+    @Test
+    public void testLogFieldsWithTimestamp() {
+        Span span = mock(Span.class);
+        Map<String, ?> fields = Collections.emptyMap();
+
+        long now = System.currentTimeMillis();
+        ActiveSpan activeSpan = source.makeActive(span);
+        activeSpan.log(now, TimeUnit.MILLISECONDS, fields);
+
+        verify(span).log(now, TimeUnit.MILLISECONDS, fields);
     }
 }

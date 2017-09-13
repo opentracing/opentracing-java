@@ -13,22 +13,22 @@
  */
 package io.opentracing.mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class MockTracerTest {
     @Test
@@ -124,6 +124,23 @@ public class MockTracerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecated")
+    public void testStartExplicitTimestampInMicroseconds() throws InterruptedException {
+        MockTracer tracer = new MockTracer();
+        long startMicros = 2000;
+        {
+            tracer.buildSpan("foo")
+                    .withStartTimestamp(startMicros)
+                    .startManual()
+                    .finish();
+        }
+        List<MockSpan> finishedSpans = tracer.finishedSpans();
+
+        Assert.assertEquals(1, finishedSpans.size());
+        Assert.assertEquals(startMicros, finishedSpans.get(0).startTimestamp(TimeUnit.MICROSECONDS));
+    }
+
+    @Test
     public void testStartExplicitTimestamp() throws InterruptedException {
         MockTracer tracer = new MockTracer();
         long startMicros = 2000;
@@ -131,7 +148,7 @@ public class MockTracerTest {
         {
             tracer.buildSpan("foo")
                     .withStartTimestamp(startMicros, startUnit)
-                    .start()
+                    .startManual()
                     .finish();
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
