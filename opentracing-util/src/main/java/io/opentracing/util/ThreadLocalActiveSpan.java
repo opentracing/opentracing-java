@@ -92,6 +92,12 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     @Override
+    @Deprecated
+    public ActiveSpan log(long timestampMicroseconds, Map<String, ?> fields) {
+        return log(timestampMicroseconds, TimeUnit.MICROSECONDS, fields);
+    }
+
+    @Override
     public ThreadLocalActiveSpan log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) {
         wrapped.log(timestamp, timestampUnit, fields);
         return this;
@@ -101,6 +107,12 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     public ThreadLocalActiveSpan log(String event) {
         wrapped.log(event);
         return this;
+    }
+
+    @Override
+    @Deprecated
+    public ActiveSpan log(long timestampMicroseconds, String event) {
+        return log(timestampMicroseconds, TimeUnit.MICROSECONDS, event);
     }
 
     @Override

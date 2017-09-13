@@ -63,11 +63,18 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
+    @Deprecated
+    public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
+        return this;
+    }
+
+    @Override
     public Tracer.SpanBuilder withStartTimestamp(long startTimestamp, TimeUnit startUnit) {
         return this;
     }
 
     @Override
+    @Deprecated
     public Span start() {
         return startManual();
     }

@@ -153,6 +153,14 @@ public interface Tracer extends ActiveSpanSource {
         /** Same as {@link Span#setTag(String, Number)}, but for the span being built. */
         SpanBuilder withTag(String key, Number value);
 
+        /**
+         * Specify a timestamp of when the Span was started, represented in microseconds since epoch.
+         *
+         * @deprecated Use {@link #withStartTimestamp(long, TimeUnit)} instead
+         */
+        @Deprecated
+        SpanBuilder withStartTimestamp(long microseconds);
+
         /** Specify a timestamp of when the Span was started, since the epoch. */
         SpanBuilder withStartTimestamp(long startTimestamp, TimeUnit startUnit);
 

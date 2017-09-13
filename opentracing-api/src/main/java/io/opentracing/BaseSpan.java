@@ -76,6 +76,23 @@ public interface BaseSpan<S extends BaseSpan> {
      * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
      * Caveat emptor.
      *
+     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
+     *                              Span's start timestamp.
+     * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
+     *               some may also support arbitrary Objects.
+     * @return the Span, for chaining
+     * @see Span#log(long, String)
+     * @deprecated Use the {@link #log(long, TimeUnit, Map)} instead
+     */
+    @Deprecated
+    S log(long timestampMicroseconds, Map<String, ?> fields);
+
+    /**
+     * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
+     *
+     * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
+     * Caveat emptor.
+     *
      * @param timestamp The explicit timestamp for the log record. Must be greater than or equal to the
      *                  Span's start timestamp.
      * @param timestampUnit The time unit which {@code timestamp} is provided in
@@ -99,6 +116,24 @@ public interface BaseSpan<S extends BaseSpan> {
      * @return the Span, for chaining
      */
     S log(String event);
+
+    /**
+     * Record an event at a specific timestamp.
+     *
+     * Shorthand for
+     *
+     * <pre><code>
+     span.log(timestampMicroseconds, Collections.singletonMap("event", event));
+     </code></pre>
+     *
+     * @param timestampMicroseconds The explicit timestamp for the log record. Must be greater than or equal to the
+     *                              Span's start timestamp.
+     * @param event the event value; often a stable identifier for a moment in the Span lifecycle
+     * @return the Span, for chaining
+     * @deprecated Use the {@link #log(long, TimeUnit, String)} instead
+     */
+    @Deprecated
+    S log(long timestampMicroseconds, String event);
 
     /**
      * Record an event at a specific timestamp.

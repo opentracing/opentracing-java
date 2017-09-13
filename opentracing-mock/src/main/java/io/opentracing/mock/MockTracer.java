@@ -16,11 +16,11 @@ package io.opentracing.mock;
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
 import io.opentracing.BaseSpan;
-import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.util.ThreadLocalActiveSpanSource;
@@ -259,6 +259,12 @@ public class MockTracer implements Tracer {
         }
 
         @Override
+        @Deprecated
+        public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
+            return withStartTimestamp(microseconds, TimeUnit.MICROSECONDS);
+        }
+
+        @Override
         public SpanBuilder withStartTimestamp(long startTimestamp, TimeUnit startUnit) {
             this.startTimestamp = startTimestamp;
             this.startUnit = startUnit;
@@ -266,6 +272,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
+        @Deprecated
         public MockSpan start() {
             return startManual();
         }

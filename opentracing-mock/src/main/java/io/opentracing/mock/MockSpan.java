@@ -13,6 +13,9 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,9 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -112,6 +112,12 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    @Deprecated
+    public void finish(long finishMicros) {
+        finish(finishMicros, TimeUnit.MICROSECONDS);
+    }
+
+    @Override
     public synchronized void finish(long finishTimestamp, TimeUnit finishUnit) {
         finishedCheck("Finishing already finished span");
         this.finishTimestamp = finishTimestamp;
@@ -147,6 +153,12 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    @Deprecated
+    public Span log(long timestampMicroseconds, Map<String, ?> fields) {
+        return log(timestampMicroseconds, TimeUnit.MICROSECONDS, fields);
+    }
+
+    @Override
     public final synchronized MockSpan log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) {
         finishedCheck("Adding logs %s at %d %s to already finished span", fields, timestamp, timestampUnit);
         this.logEntries.add(new LogEntry(timestamp, timestampUnit, fields));
@@ -156,6 +168,12 @@ public final class MockSpan implements Span {
     @Override
     public MockSpan log(String event) {
         return this.log(nowMillis(), TimeUnit.MILLISECONDS, event);
+    }
+
+    @Override
+    @Deprecated
+    public Span log(long timestampMicroseconds, String event) {
+        return log(timestampMicroseconds, TimeUnit.MICROSECONDS, event);
     }
 
     @Override

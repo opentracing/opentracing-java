@@ -32,6 +32,10 @@ final class NoopSpanImpl implements NoopSpan {
     public void finish() {}
 
     @Override
+    @Deprecated
+    public void finish(long finishMicros) {}
+
+    @Override
     public void finish(long finishTimestamp, TimeUnit finishUnit) {}
 
     @Override
@@ -47,10 +51,22 @@ final class NoopSpanImpl implements NoopSpan {
     public NoopSpan log(Map<String, ?> fields) { return this; }
 
     @Override
+    @Deprecated
+    public Span log(long timestampMicroseconds, Map<String, ?> fields) {
+        return this;
+    }
+
+    @Override
     public NoopSpan log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) { return this; }
 
     @Override
     public NoopSpan log(String event) { return this; }
+
+    @Override
+    @Deprecated
+    public Span log(long timestampMicroseconds, String event) {
+        return this;
+    }
 
     @Override
     public NoopSpan log(long timestamp, TimeUnit timestampUnit, String event) { return this; }

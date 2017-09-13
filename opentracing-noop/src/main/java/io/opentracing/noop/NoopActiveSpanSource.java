@@ -82,12 +82,24 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
         }
 
         @Override
+        @Deprecated
+        public ActiveSpan log(long timestampMicroseconds, Map<String, ?> fields) {
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+        }
+
+        @Override
         public NoopActiveSpan log(long timestamp, TimeUnit timestampUnit, Map<String, ?> fields) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
         @Override
         public NoopActiveSpan log(String event) {
+            return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+        }
+
+        @Override
+        @Deprecated
+        public ActiveSpan log(long timestampMicroseconds, String event) {
             return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
         }
 
