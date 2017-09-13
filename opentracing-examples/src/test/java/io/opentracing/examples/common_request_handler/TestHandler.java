@@ -22,7 +22,6 @@ import io.opentracing.util.ThreadLocalActiveSpanSource;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -129,15 +128,16 @@ public class TestHandler {
     }
 
     private static MockSpan getOneByOperationName(List<MockSpan> spans, String name) {
-        List<MockSpan> found = new ArrayList<>();
+        MockSpan found = null;
         for (MockSpan span : spans) {
             if (name.equals(span.operationName())) {
-                found.add(span);
+                if (found != null) {
+                    throw new IllegalArgumentException("there is more than one span with operation name '"
+                            + name + "'");
+                }
+                found = span;
             }
         }
-        if (found.size() > 1) {
-            throw new RuntimeException("Ups, it's too much");
-        }
-        return found.isEmpty() ? null : found.get(0);
+        return found;
     }
 }

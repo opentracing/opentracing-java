@@ -39,15 +39,15 @@ public class TestLateSpanFinish {
 
     @Test
     public void test() throws Exception {
-    /* Create a Span manually and use it as parent of a pair of subtasks */
+        // Create a Span manually and use it as parent of a pair of subtasks
         Span parentSpan = tracer.buildSpan("parent").startManual();
         submitTasks(parentSpan);
 
-    /* Wait for the threadpool to be done first, instead of polling/waiting */
+        // Wait for the threadpool to be done first, instead of polling/waiting
         executor.shutdown();
         executor.awaitTermination(15, TimeUnit.SECONDS);
 
-    /* Late-finish the parent Span now */
+        // Late-finish the parent Span now
         parentSpan.finish();
 
         List<MockSpan> spans = tracer.finishedSpans();
@@ -61,8 +61,11 @@ public class TestLateSpanFinish {
         assertNull(tracer.activeSpan());
     }
 
-    /* Fire away a few subtasks, passing a parent Span whose lifetime
-     * is not tied at-all to the children */
+
+    /**
+     * Fire away a few subtasks, passing a parent Span whose lifetime
+     * is not tied at-all to the children
+     */
     private void submitTasks(final Span parentSpan) {
 
         executor.submit(new Runnable() {

@@ -42,7 +42,7 @@ public class TestActiveSpanReplacement {
 
     @Test
     public void test() throws Exception {
-    /* Start an isolated task and query for its result in another task/thread */
+        // Start an isolated task and query for its result in another task/thread
         try (ActiveSpan span = tracer.buildSpan("initial").startActive()) {
             submitAnotherTask(span);
         }
@@ -51,16 +51,15 @@ public class TestActiveSpanReplacement {
 
         List<MockSpan> spans = tracer.finishedSpans();
         assertEquals(3, spans.size());
-        assertEquals("initial", spans.get(0).operationName()); /* Isolated task. */
+        assertEquals("initial", spans.get(0).operationName()); // Isolated task
         assertEquals("subtask", spans.get(1).operationName());
         assertEquals("task", spans.get(2).operationName());
 
-    /* task/subtask are part of the same trace,
-     * and subtask is a child of task */
+        // task/subtask are part of the same trace, and subtask is a child of task
         assertEquals(spans.get(1).context().traceId(), spans.get(2).context().traceId());
         assertEquals(spans.get(2).context().spanId(), spans.get(1).parentId());
 
-    /* initial task is not related in any way to those two tasks */
+        // initial task is not related in any way to those two tasks
         assertNotEquals(spans.get(0).context().traceId(), spans.get(1).context().traceId());
         assertEquals(0, spans.get(0).parentId());
 
@@ -73,15 +72,15 @@ public class TestActiveSpanReplacement {
         executor.submit(new Runnable() {
             @Override
             public void run() {
-        /* Create a new Span for this task */
+                // Create a new Span for this task
                 try (ActiveSpan taskSpan = tracer.buildSpan("task").startActive()) {
 
-          /* Simulate work strictly related to the initial Span. */
+                    // Simulate work strictly related to the initial Span
                     try (ActiveSpan initialSpan = cont.activate()) {
                         sleep(50);
                     }
 
-          /* Restore the span for this task and create a subspan */
+                    // Restore the span for this task and create a subspan
                     try (ActiveSpan subTask = tracer.buildSpan("subtask").startActive()) {
                     }
                 }

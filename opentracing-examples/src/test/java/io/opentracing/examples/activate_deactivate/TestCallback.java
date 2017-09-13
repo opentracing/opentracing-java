@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,14 +39,12 @@ public class TestCallback {
 
     private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
             Propagator.TEXT_MAP);
-    private final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
 
     @Test
-    public void test() throws Exception {
+    public void test_one_callback() throws Exception {
         Thread entryThread = entryThread();
         entryThread.start();
-        entryThread.join(10_000);
-        // Entry thread is completed but Callback is still running (or even not started)
 
         await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(1));
 
@@ -74,9 +71,8 @@ public class TestCallback {
     }
 
     private int getTestTagsCount(MockSpan mockSpan) {
-        Map<String, Object> tags = mockSpan.tags();
         int tagCounter = 0;
-        for (String tagKey : tags.keySet()) {
+        for (String tagKey : mockSpan.tags().keySet()) {
             if (tagKey.startsWith("test_tag_")) {
                 tagCounter++;
             }
