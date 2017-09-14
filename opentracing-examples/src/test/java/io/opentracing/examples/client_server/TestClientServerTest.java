@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class TestClientServer {
+public class TestClientServerTest {
 
     private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
             Propagator.TEXT_MAP);

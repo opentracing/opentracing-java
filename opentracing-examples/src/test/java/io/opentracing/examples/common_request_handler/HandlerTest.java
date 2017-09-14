@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNull;
  * executed concurrently in different threads which are reused (common pool). Therefore we cannot
  * use current active span and activate span. So one issue here is setting correct parent span.
  */
-public class TestHandler {
+public class HandlerTest {
 
     private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
             Propagator.TEXT_MAP);

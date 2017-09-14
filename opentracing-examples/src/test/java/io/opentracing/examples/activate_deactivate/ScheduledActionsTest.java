@@ -33,9 +33,9 @@ import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 
-public class TestScheduledActions {
+public class ScheduledActionsTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestScheduledActions.class);
+    private static final Logger logger = LoggerFactory.getLogger(ScheduledActionsTest.class);
 
     private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
             Propagator.TEXT_MAP);

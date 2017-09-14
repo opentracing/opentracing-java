@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.examples.nested_callbacks;
+package io.opentracing.examples.active_span_replacement;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.mock.MockSpan;
@@ -21,73 +21,68 @@ import io.opentracing.util.ThreadLocalActiveSpanSource;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static io.opentracing.examples.TestUtils.finishedSpansSize;
+import static io.opentracing.examples.TestUtils.sleep;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 
-public class TestNestedCallbacks {
+public class ActiveSpanReplacementTest {
 
     private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
             Propagator.TEXT_MAP);
+
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     @Test
     public void test() throws Exception {
-
-        try (ActiveSpan span = tracer.buildSpan("one").startActive()) {
-            submitCallbacks(span);
+        // Start an isolated task and query for its result in another task/thread
+        try (ActiveSpan span = tracer.buildSpan("initial").startActive()) {
+            submitAnotherTask(span);
         }
 
-        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(1));
+        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(3));
 
         List<MockSpan> spans = tracer.finishedSpans();
-        assertEquals(1, spans.size());
-        assertEquals("one", spans.get(0).operationName());
+        assertEquals(3, spans.size());
+        assertEquals("initial", spans.get(0).operationName()); // Isolated task
+        assertEquals("subtask", spans.get(1).operationName());
+        assertEquals("task", spans.get(2).operationName());
 
-        Map<String, Object> tags = spans.get(0).tags();
-        assertEquals(3, tags.size());
-        for (int i = 1; i <= 3; i++) {
-            assertEquals(Integer.toString(i), tags.get("key" + i));
-        }
+        // task/subtask are part of the same trace, and subtask is a child of task
+        assertEquals(spans.get(1).context().traceId(), spans.get(2).context().traceId());
+        assertEquals(spans.get(2).context().spanId(), spans.get(1).parentId());
+
+        // initial task is not related in any way to those two tasks
+        assertNotEquals(spans.get(0).context().traceId(), spans.get(1).context().traceId());
+        assertEquals(0, spans.get(0).parentId());
 
         assertNull(tracer.activeSpan());
     }
 
-    private void submitCallbacks(ActiveSpan span) {
+    private void submitAnotherTask(ActiveSpan span) {
         final ActiveSpan.Continuation cont = span.capture();
 
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                try (ActiveSpan span = cont.activate()) {
-                    span.setTag("key1", "1");
-                    final ActiveSpan.Continuation cont = span.capture();
+                // Create a new Span for this task
+                try (ActiveSpan taskSpan = tracer.buildSpan("task").startActive()) {
 
-                    executor.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            try (ActiveSpan span = cont.activate()) {
-                                span.setTag("key2", "2");
-                                final ActiveSpan.Continuation cont = span.capture();
+                    // Simulate work strictly related to the initial Span
+                    try (ActiveSpan initialSpan = cont.activate()) {
+                        sleep(50);
+                    }
 
-                                executor.submit(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try (ActiveSpan span = cont.activate()) {
-                                            span.setTag("key3", "3");
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
+                    // Restore the span for this task and create a subspan
+                    try (ActiveSpan subTask = tracer.buildSpan("subtask").startActive()) {
+                    }
                 }
             }
         });

@@ -11,25 +11,26 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.examples.multiple_callbacks;
+package io.opentracing.examples.listener_per_request;
 
-import io.opentracing.ActiveSpan;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
+import io.opentracing.tag.Tags;
 import io.opentracing.util.ThreadLocalActiveSpanSource;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import static io.opentracing.examples.TestUtils.finishedSpansSize;
-import static org.awaitility.Awaitility.await;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static io.opentracing.examples.TestUtils.getOneByTag;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class TestMultipleCallbacks {
+/**
+ * Each request has own instance of ResponseListener
+ */
+public class ListenerTest {
 
     private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
             Propagator.TEXT_MAP);
@@ -37,25 +38,12 @@ public class TestMultipleCallbacks {
     @Test
     public void test() throws Exception {
         Client client = new Client(tracer);
-        try (ActiveSpan span = tracer.buildSpan("parent").startActive()) {
-            client.send("task1", span, 300);
-            client.send("task2", span, 200);
-            client.send("task3", span, 100);
-        }
+        Object response = client.send("message").get();
+        assertEquals("message:response", response);
 
-        await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(4));
-
-        List<MockSpan> spans = tracer.finishedSpans();
-        assertEquals(4, spans.size());
-        assertEquals("parent", spans.get(3).operationName());
-
-        MockSpan parentSpan = spans.get(3);
-        for (int i = 0; i < 3; i++) {
-            assertEquals(true, parentSpan.finishMicros() >= spans.get(i).finishMicros());
-            assertEquals(parentSpan.context().traceId(), spans.get(i).context().traceId());
-            assertEquals(parentSpan.context().spanId(), spans.get(i).parentId());
-        }
-
+        List<MockSpan> finished = tracer.finishedSpans();
+        assertEquals(1, finished.size());
+        assertNotNull(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CLIENT));
         assertNull(tracer.activeSpan());
     }
 }

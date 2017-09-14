@@ -31,7 +31,7 @@ import static io.opentracing.examples.TestUtils.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TestLateSpanFinish {
+public class LateSpanFinishTest {
 
     private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
             Propagator.TEXT_MAP);
