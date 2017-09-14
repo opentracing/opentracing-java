@@ -7,8 +7,8 @@ Goal of these examples is to
 
 List of patterns:
 
-- **activate_deactivate** - callbacks finish at some time.   
-It shows continuation as a solution to finish span when last callback is completed.
+- **activate_deactivate** - actions are executed by scheduler.   
+It shows continuation as a solution to finish span when last action is completed.
 - **active_span_replacement** - start an isolated task and query for its result in another task/thread
 - **client_server** - typical client-server example
 - **common_request_handler** - one request handler for all requests

@@ -18,24 +18,21 @@ import io.opentracing.ActiveSpan.Continuation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Callback which executed at some time. We don't know when it is started, when it is
- * completed. We cannot check status of it (started or completed)
+ * Runnable Action. Scheduler submit it for execution.
  */
-public class Callback implements Runnable {
+public class RunnableAction implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(Callback.class);
-
-    private final Random random = new Random();
+    private static final Logger logger = LoggerFactory.getLogger(RunnableAction.class);
 
     private final Continuation continuation;
 
-    Callback(ActiveSpan activeSpan) {
+    RunnableAction(ActiveSpan activeSpan) {
         continuation = activeSpan.capture();
-        logger.info("Callback created");
+        logger.info("Action created");
     }
 
     /**
@@ -44,19 +41,19 @@ public class Callback implements Runnable {
      */
     @Override
     public void run() {
-        logger.info("Callback started");
+        logger.info("Action started");
         ActiveSpan activeSpan = continuation.activate();
 
         try {
-            TimeUnit.SECONDS.sleep(1); // without sleep first callback can finish before second is started
+            TimeUnit.SECONDS.sleep(1); // without sleep first action can finish before second is started
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         // set random tag starting with 'test_tag_' to test that finished span has all of them
-        activeSpan.setTag("test_tag_" + random.nextInt(), "random");
+        activeSpan.setTag("test_tag_" + ThreadLocalRandom.current().nextInt(), "random");
 
         activeSpan.deactivate();
-        logger.info("Callback finished");
+        logger.info("Action finished");
     }
 }
