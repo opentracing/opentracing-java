@@ -152,4 +152,9 @@ public final class GlobalTracer implements Tracer {
     public ActiveSpan makeActive(Span span) {
         return tracer.makeActive(span);
     }
+
+    @Override
+    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
+        return tracer.makeActive(span, observer);
+    }
 }

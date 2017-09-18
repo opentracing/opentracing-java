@@ -41,6 +41,11 @@ class NoopActiveSpanSourceImpl implements NoopActiveSpanSource {
     }
 
     @Override
+    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
+        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+    }
+
+    @Override
     public ActiveSpan activeSpan() { return null; }
 
     static class NoopActiveSpanImpl implements NoopActiveSpanSource.NoopActiveSpan {

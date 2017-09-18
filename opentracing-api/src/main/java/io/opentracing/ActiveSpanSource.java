@@ -26,8 +26,7 @@ package io.opentracing;
 public interface ActiveSpanSource {
 
     /**
-     * Return the {@link ActiveSpan active span}. This does not affect the internal reference count for the
-     * {@link ActiveSpan}.
+     * Return the {@link ActiveSpan active span}.
      *
      * <p>
      * If there is an {@link ActiveSpan active span}, it becomes an implicit parent of any newly-created
@@ -39,12 +38,18 @@ public interface ActiveSpanSource {
     ActiveSpan activeSpan();
 
     /**
+     * @see #makeActive(Span, ActiveSpan.Observer)
+     */
+    ActiveSpan makeActive(Span span);
+    /**
      * Wrap and "make active" a {@link Span} by encapsulating it – and any active state (e.g., MDC state) in the
      * current thread – in a new {@link ActiveSpan}.
      *
      * @param span the Span to wrap in an {@link ActiveSpan}
+     * @param observer the observer that learns of activations, deactivations, and captures related to the returned
+     *                 {@link ActiveSpan}. May be null (which implies "no observer")
      * @return an {@link ActiveSpan} that encapsulates the given {@link Span} and any other
      *     {@link ActiveSpanSource}-specific context (e.g., the MDC context map)
      */
-    ActiveSpan makeActive(Span span);
+    ActiveSpan makeActive(Span span, ActiveSpan.Observer observer);
 }

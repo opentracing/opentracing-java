@@ -99,6 +99,11 @@ public class MockTracer implements Tracer {
         return spanSource.makeActive(span);
     }
 
+    @Override
+    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
+        return spanSource.makeActive(span, observer);
+    }
+
     /**
      * Propagator allows the developer to intercept and verify any calls to inject() and/or extract().
      *
@@ -271,6 +276,12 @@ public class MockTracer implements Tracer {
         public ActiveSpan startActive() {
             MockSpan span = this.startManual();
             return spanSource.makeActive(span);
+        }
+
+        @Override
+        public ActiveSpan startActive(ActiveSpan.Observer observer) {
+            MockSpan span = this.startManual();
+            return spanSource.makeActive(span, observer);
         }
 
         @Override

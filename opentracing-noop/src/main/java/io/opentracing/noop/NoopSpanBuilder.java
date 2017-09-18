@@ -77,6 +77,11 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
+    public ActiveSpan startActive(ActiveSpan.Observer observer) {
+        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+    }
+
+    @Override
     public Span startManual() {
         return NoopSpanImpl.INSTANCE;
     }

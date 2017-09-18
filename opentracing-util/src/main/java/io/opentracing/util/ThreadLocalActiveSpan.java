@@ -14,7 +14,6 @@
 package io.opentracing.util;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.ActiveSpanSource;
@@ -33,13 +32,13 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     private final ThreadLocalActiveSpanSource source;
     private final Span wrapped;
     private final ThreadLocalActiveSpan toRestore;
-    private final AtomicInteger refCount;
+    private final Observer observer;
 
-    ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, AtomicInteger refCount) {
+    ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, Observer observer) {
         this.source = source;
-        this.refCount = refCount;
         this.wrapped = wrapped;
         this.toRestore = source.tlsSnapshot.get();
+        this.observer = observer;
         source.tlsSnapshot.set(this);
     }
 
@@ -50,15 +49,18 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
             return;
         }
         source.tlsSnapshot.set(toRestore);
-
-        if (0 == refCount.decrementAndGet()) {
-            wrapped.finish();
+        if (observer != null) {
+            observer.afterDeactivate(this, this.wrapped);
         }
     }
 
     @Override
     public Continuation capture() {
-        return new ThreadLocalActiveSpan.Continuation();
+        Continuation cont = new ThreadLocalActiveSpan.Continuation();
+        if (observer != null) {
+            observer.afterCapture(ThreadLocalActiveSpan.this, cont);
+        }
+        return cont;
     }
 
     @Override
@@ -136,13 +138,13 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     }
 
     private final class Continuation implements ActiveSpan.Continuation {
-        Continuation() {
-            refCount.incrementAndGet();
-        }
-
         @Override
         public ThreadLocalActiveSpan activate() {
-            return new ThreadLocalActiveSpan(source, wrapped, refCount);
+            ThreadLocalActiveSpan rval = new ThreadLocalActiveSpan(source, wrapped, observer);
+            if (observer != null) {
+                observer.afterActivate(this, rval);
+            }
+            return rval;
         }
     }
 

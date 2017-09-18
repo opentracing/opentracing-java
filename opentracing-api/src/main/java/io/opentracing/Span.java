@@ -20,29 +20,14 @@ package io.opentracing;
  * <p>{@link Span}s are created by the {@link Tracer.SpanBuilder#startManual} method; see {@link ActiveSpan} for
  * a {@link BaseSpan} extension designed for automatic in-process propagation.
  *
- * @see ActiveSpan for automatic propagation (recommended for most intstrumentation!)
+ * <p>
+ * Note that most application code interacts with {@link ActiveSpan} instances (which make themselves available
+ * for in-process propagation via the {@link ActiveSpanSource} interface).
+ *
+ * @see ActiveSpan
+ * @see Finishable
+ * @see Tracer.SpanBuilder#startManual()
+ * @see Tracer.SpanBuilder#startActive()
  */
-public interface Span extends BaseSpan<Span> {
-    /**
-     * Sets the end timestamp to now and records the span.
-     *
-     * <p>With the exception of calls to {@link #context}, this should be the last call made to the span instance.
-     * Future calls to {@link #finish} are defined as noops, and future calls to methods other than {@link #context}
-     * lead to undefined behavior.
-     *
-     * @see Span#context()
-     */
-    void finish();
-
-    /**
-     * Sets an explicit end timestamp and records the span.
-     *
-     * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
-     * do otherwise leads to undefined behavior.
-     *
-     * @param finishMicros an explicit finish time, in microseconds since the epoch
-     *
-     * @see Span#context()
-     */
-    void finish(long finishMicros);
+public interface Span extends BaseSpan<Span>, Finishable {
 }

@@ -46,5 +46,10 @@ final class NoopTracerImpl implements NoopTracer {
     public ActiveSpan makeActive(Span span) {
         return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
     }
+
+    @Override
+    public ActiveSpan makeActive(Span span, ActiveSpan.Observer observer) {
+        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+    }
 }
 
