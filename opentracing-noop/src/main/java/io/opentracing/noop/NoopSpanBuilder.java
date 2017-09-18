@@ -21,6 +21,7 @@ import io.opentracing.Tracer;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public interface NoopSpanBuilder extends Tracer.SpanBuilder, NoopSpanContext {
     static final NoopSpanBuilder INSTANCE = new NoopSpanBuilderImpl();
@@ -62,11 +63,18 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
+    @Deprecated
     public Tracer.SpanBuilder withStartTimestamp(long microseconds) {
         return this;
     }
 
     @Override
+    public Tracer.SpanBuilder withStartTimestamp(long startTimestamp, TimeUnit startUnit) {
+        return this;
+    }
+
+    @Override
+    @Deprecated
     public Span start() {
         return startManual();
     }

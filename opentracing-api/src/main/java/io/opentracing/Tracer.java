@@ -15,6 +15,8 @@ package io.opentracing;
 
 import io.opentracing.propagation.Format;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
@@ -151,8 +153,16 @@ public interface Tracer extends ActiveSpanSource {
         /** Same as {@link Span#setTag(String, Number)}, but for the span being built. */
         SpanBuilder withTag(String key, Number value);
 
-        /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
+        /**
+         * Specify a timestamp of when the Span was started, represented in microseconds since epoch.
+         *
+         * @deprecated Use {@link #withStartTimestamp(long, TimeUnit)} instead
+         */
+        @Deprecated
         SpanBuilder withStartTimestamp(long microseconds);
+
+        /** Specify a timestamp of when the Span was started, since the epoch. */
+        SpanBuilder withStartTimestamp(long startTimestamp, TimeUnit startUnit);
 
         /**
          * Returns a newly started and activated {@link ActiveSpan}.

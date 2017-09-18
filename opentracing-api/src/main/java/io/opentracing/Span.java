@@ -13,6 +13,8 @@
  */
 package io.opentracing;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Represents an in-flight Span that's <strong>manually propagated</strong> within the given process. Most of
  * the API lives in {@link BaseSpan}.
@@ -43,6 +45,21 @@ public interface Span extends BaseSpan<Span> {
      * @param finishMicros an explicit finish time, in microseconds since the epoch
      *
      * @see Span#context()
+     * @deprecated Use {@link #finish(long, TimeUnit)} instead
      */
+    @Deprecated
     void finish(long finishMicros);
+
+    /**
+     * Sets an explicit end timestamp and records the span.
+     *
+     * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
+     * do otherwise leads to undefined behavior.
+     *
+     * @param finishTimestamp an explicit finish time stamp, since the epoch
+     * @param finishUnit unit that {@code finishTimestamp} is provided in
+     *
+     * @see Span#context()
+     */
+    void finish(long finishTimestamp, TimeUnit finishUnit);
 }
