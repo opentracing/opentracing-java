@@ -57,7 +57,7 @@ public class Actor implements AutoCloseable {
                       .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
                       .startActive()) {
                 phaser.arriveAndAwaitAdvance(); // child tracer started
-                System.out.println("received " + message);
+                child.log("received " + message);
                 phaser.arriveAndAwaitAdvance(); // assert size
               }
               phaser.arriveAndAwaitAdvance(); // child tracer finished
