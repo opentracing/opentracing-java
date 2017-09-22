@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.examples.async_propagation;
+package io.opentracing.examples.actor_propagation;
 
 import io.opentracing.ActiveSpan;
 import io.opentracing.mock.MockSpan;
@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static io.opentracing.examples.TestUtils.getOneByTag;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,18 +34,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * These tests are intended to simulate the kind of async models that are common in java async
  * frameworks.
  *
- * <ul>
- *   <li>Actor ask/tell
- *   <li>Promises with callbacks
- *   <li>Work split by suspend/resume
- * </ul>
- *
  * For improved readability, ignore the phaser lines as those are there to ensure deterministic
  * execution for the tests without sleeps.
  *
  * @author tylerbenson
  */
-public class AsyncPropagationTest {
+public class ActorPropagationTest {
 
   private final MockTracer tracer =
       new MockTracer(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
@@ -128,86 +121,5 @@ public class AsyncPropagationTest {
       assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_PRODUCER)).isNotNull();
       assertThat(tracer.activeSpan()).isNull();
     }
-  }
-
-  @Test
-  public void testPromiseCallback() {
-    phaser.register(); // register test thread
-    final AtomicReference<String> successResult = new AtomicReference<>();
-    final AtomicReference<Throwable> errorResult = new AtomicReference<>();
-    try (PromiseContext context = new PromiseContext(phaser, 2)) {
-      try (ActiveSpan parent =
-          tracer
-              .buildSpan("promises")
-              .withTag(Tags.COMPONENT.getKey(), "example-promises")
-              .startActive()) {
-
-        Promise<String> promise1 = new Promise<>(context, tracer);
-
-        promise1.onSuccess(
-            new Promise.SuccessCallback<String>() {
-              @Override
-              public void accept(String s) {
-                successResult.set(s);
-                phaser.arriveAndAwaitAdvance(); // result set
-              }
-            });
-
-        Promise promise2 = new Promise(context, tracer);
-
-        promise2.onError(
-            new Promise.ErrorCallback() {
-              @Override
-              public void accept(Throwable t) {
-                errorResult.set(t);
-                phaser.arriveAndAwaitAdvance(); // result set
-              }
-            });
-        assertThat(tracer.finishedSpans().size()).isEqualTo(0);
-        promise1.success("success!");
-        promise2.error(new Exception("some error."));
-      }
-
-      phaser.arriveAndAwaitAdvance(); // wait for results to be set
-      assertThat(successResult.get()).isEqualTo("success!");
-      assertThat(errorResult.get()).hasMessage("some error.");
-
-      phaser.arriveAndAwaitAdvance(); // wait for traces to be reported
-      List<MockSpan> finished = tracer.finishedSpans();
-      assertThat(finished.size()).isEqualTo(3);
-      assertThat(getOneByTag(finished, Tags.COMPONENT, "example-promises")).isNotNull();
-      assertThat(getOneByTag(finished, Tags.COMPONENT, "example-promises").parentId()).isEqualTo(0);
-      long parentId = getOneByTag(finished, Tags.COMPONENT, "example-promises").context().spanId();
-      assertThat(getOneByTag(finished, Tags.COMPONENT, "success")).isNotNull();
-      assertThat(getOneByTag(finished, Tags.COMPONENT, "success").parentId()).isEqualTo(parentId);
-      assertThat(getOneByTag(finished, Tags.COMPONENT, "error")).isNotNull();
-      assertThat(getOneByTag(finished, Tags.COMPONENT, "error").parentId()).isEqualTo(parentId);
-    }
-  }
-
-  @Test
-  public void testContinuationInterleaving() {
-    SuspendResume job1 = new SuspendResume(1, tracer);
-    SuspendResume job2 = new SuspendResume(2, tracer);
-
-    // Pretend that the framework is controlling actual execution here.
-    job1.doPart("some work for 1");
-    job2.doPart("some work for 2");
-    job1.doPart("other work for 1");
-    job2.doPart("other work for 2");
-    job2.doPart("more work for 2");
-    job1.doPart("more work for 1");
-
-    job1.done();
-    job2.done();
-
-    List<MockSpan> finished = tracer.finishedSpans();
-    assertThat(finished.size()).isEqualTo(2);
-
-    assertThat(finished.get(0).operationName()).isEqualTo("job 1");
-    assertThat(finished.get(1).operationName()).isEqualTo("job 2");
-
-    assertThat(finished.get(0).parentId()).isEqualTo(0);
-    assertThat(finished.get(1).parentId()).isEqualTo(0);
   }
 }
