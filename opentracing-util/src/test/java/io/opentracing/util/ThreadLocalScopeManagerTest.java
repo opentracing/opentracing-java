@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -59,4 +60,43 @@ public class ThreadLocalScopeManagerTest {
         assertNull(missingScope);
     }
 
+    @Test
+    public void activateSpanClose() throws Exception {
+        Span span = mock(Span.class);
+
+        // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
+        Scope scope = source.activate(span, true);
+        try {
+            assertNotNull(scope);
+            assertNotNull(source.active());
+        } finally {
+            scope.close();
+        }
+
+        // Make sure the Span got finish()ed.
+        verify(span, times(1)).finish();
+
+        // Verify it's gone.
+        assertNull(source.active());
+    }
+
+    @Test
+    public void activateSpanNoClose() throws Exception {
+        Span span = mock(Span.class);
+
+        // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
+        Scope scope = source.activate(span, false);
+        try {
+            assertNotNull(scope);
+            assertNotNull(source.active());
+        } finally {
+            scope.close();
+        }
+
+        // Make sure the Span did *not* get finish()ed.
+        verify(span, never()).finish();
+
+        // Verify it's gone.
+        assertNull(source.active());
+    }
 }
