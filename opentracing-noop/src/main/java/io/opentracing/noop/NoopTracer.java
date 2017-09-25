@@ -26,7 +26,7 @@ final class NoopTracerImpl implements NoopTracer {
 
     @Override
     public ScopeManager scopeManager() {
-        return null;
+        return NoopScopeManager.INSTANCE;
     }
 
     @Override
