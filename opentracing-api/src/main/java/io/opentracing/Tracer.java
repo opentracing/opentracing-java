@@ -168,7 +168,38 @@ public interface Tracer {
          *     try (Scope scope = tracer.buildSpan("...").startActive()) {
          *         // (Do work)
          *         scope.span().setTag( ... );  // etc, etc
-         *     }  // XXX Span finishes automatically
+         *     }
+         *     // Span finishes automatically when the Scope is closed,
+         *     // following the default behavior of ScopeManager.activate(Span)
+         * </code></pre>
+         *
+         * <p>
+         * For detailed information, see {@link SpanBuilder#startActive(boolean)}
+         *
+         * <p>
+         * Note: {@link SpanBuilder#startActive()} is a shorthand for
+         * {@code tracer.scopeManager().activate(spanBuilder.startManual())}.
+         *
+         * @return a {@link Scope}, already registered via the {@link ScopeManager}
+         *
+         * @see ScopeManager
+         * @see Scope
+         * @see SpanBuilder#startActive(boolean)
+         */
+        Scope startActive();
+
+        /**
+         * Returns a newly started and activated {@link Scope}.
+         *
+         * <p>
+         * The returned {@link Scope} supports try-with-resources. For example:
+         * <pre><code>
+         *     try (Scope scope = tracer.buildSpan("...").startActive(false)) {
+         *         // (Do work)
+         *         scope.span().setTag( ... );  // etc, etc
+         *     }
+         *     // Span does not finish automatically when the Scope is closed as
+         *     // 'finishOnClose' is false
          * </code></pre>
          *
          * <p>
@@ -183,16 +214,16 @@ public interface Tracer {
          * {@link SpanBuilder#startManual()} or {@link SpanBuilder#startActive} is invoked.
          *
          * <p>
-         * Note: {@link SpanBuilder#startActive()} is a shorthand for
-         * {@code tracer.scopeManager().activate(spanBuilder.startManual())}.
+         * Note: {@link SpanBuilder#startActive(boolean)} is a shorthand for
+         * {@code tracer.scopeManager().activate(spanBuilder.startManual(), finishSpanOnClose)}.
          *
-         * @return an {@link Scope}, already registered via the {@link ScopeManager}
+         * @param finishSpanOnClose whether span should automatically be finished when {@link Scope#close()} is called
+         * @return a {@link Scope}, already registered via the {@link ScopeManager}
          *
          * @see ScopeManager
          * @see Scope
          */
-        Scope startActive();
-        Scope startActive(boolean finishOnClose);
+        Scope startActive(boolean finishSpanOnClose);
 
         /**
          * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
