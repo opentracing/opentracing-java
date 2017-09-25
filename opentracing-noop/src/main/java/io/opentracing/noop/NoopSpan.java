@@ -19,7 +19,7 @@ import io.opentracing.SpanContext;
 import java.util.Map;
 
 public interface NoopSpan extends Span {
-    NoopSpan INSTANCE = new NoopSpanImpl();
+    static final NoopSpan INSTANCE = new NoopSpanImpl();
 }
 
 final class NoopSpanImpl implements NoopSpan {
