@@ -34,7 +34,7 @@ public class MockTracerTest {
         // Create and finish a root Span.
         MockTracer tracer = new MockTracer();
         {
-            Span span = tracer.buildSpan("tester").withStartTimestamp(1000).start();
+            Span span = tracer.buildSpan("tester").withStartTimestamp(1000).startManual();
             span.setTag("string", "foo");
             span.setTag("int", 7);
             span.log("foo");
@@ -85,8 +85,8 @@ public class MockTracerTest {
         // Create and finish a root Span.
         MockTracer tracer = new MockTracer();
         {
-            Span parent = tracer.buildSpan("parent").withStartTimestamp(1000).start();
-            Span child = tracer.buildSpan("child").withStartTimestamp(1100).asChildOf(parent).start();
+            Span parent = tracer.buildSpan("parent").withStartTimestamp(1000).startManual();
+            Span child = tracer.buildSpan("child").withStartTimestamp(1100).asChildOf(parent).startManual();
             child.finish(1900);
             parent.finish(2000);
         }
@@ -111,7 +111,7 @@ public class MockTracerTest {
             Tracer.SpanBuilder fooSpan = tracer.buildSpan("foo");
             Thread.sleep(2);
             startMicros = System.currentTimeMillis() * 1000;
-            fooSpan.start().finish();
+            fooSpan.startManual().finish();
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
 
@@ -128,7 +128,7 @@ public class MockTracerTest {
         {
             tracer.buildSpan("foo")
                     .withStartTimestamp(startMicros)
-                    .start()
+                    .startManual()
                     .finish();
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();
@@ -144,7 +144,7 @@ public class MockTracerTest {
         injectMap.put("foobag", "donttouch");
         {
             Span parentSpan = tracer.buildSpan("foo")
-                    .start();
+                    .startManual();
             parentSpan.setBaggageItem("foobag", "fooitem");
             parentSpan.finish();
 
@@ -155,7 +155,7 @@ public class MockTracerTest {
 
             Span childSpan = tracer.buildSpan("bar")
                     .asChildOf(extract)
-                    .start();
+                    .startManual();
             childSpan.setBaggageItem("barbag", "baritem");
             childSpan.finish();
         }
@@ -176,7 +176,7 @@ public class MockTracerTest {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
         {
             Span parentSpan = tracer.buildSpan("foo")
-                    .start();
+                    .startManual();
             parentSpan.finish();
 
             HashMap<String, String> injectMap = new HashMap<>();
@@ -187,7 +187,7 @@ public class MockTracerTest {
 
             tracer.buildSpan("bar")
                     .asChildOf(extract)
-                    .start()
+                    .startManual()
                     .finish();
         }
         List<MockSpan> finishedSpans = tracer.finishedSpans();

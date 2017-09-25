@@ -85,6 +85,7 @@ public class MockTracer implements Tracer {
     /**
      * Noop method called on {@link Span#finish()}.
      */
+    @SuppressWarnings({"WeakerAccess", "unused"}) // API method
     protected void onSpanFinished(MockSpan mockSpan) {
     }
 
@@ -113,8 +114,11 @@ public class MockTracer implements Tracer {
         };
 
         Propagator TEXT_MAP = new Propagator() {
+            @SuppressWarnings("WeakerAccess") // API field value
             public static final String SPAN_ID_KEY = "spanid";
+            @SuppressWarnings("WeakerAccess") // API field value
             public static final String TRACE_ID_KEY = "traceid";
+            @SuppressWarnings("WeakerAccess") // API field value
             public static final String BAGGAGE_KEY_PREFIX = "baggage-";
 
             @Override
@@ -258,6 +262,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
+        @Deprecated
         public MockSpan start() {
             return startManual();
         }

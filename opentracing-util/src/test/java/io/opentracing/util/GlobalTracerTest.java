@@ -123,6 +123,7 @@ public class GlobalTracerTest {
     public void testDelegation_inject() {
         Tracer mockTracer = mock(Tracer.class);
         SpanContext mockContext = mock(SpanContext.class);
+        @SuppressWarnings("unchecked")
         Format<Object> mockFormat = mock(Format.class);
         Object mockCarrier = mock(Object.class);
         GlobalTracer.register(mockTracer);
@@ -135,6 +136,7 @@ public class GlobalTracerTest {
     @Test
     public void testDelegation_extract() {
         Tracer mockTracer = mock(Tracer.class);
+        @SuppressWarnings("unchecked")
         Format<Object> mockFormat = mock(Format.class);
         Object mockCarrier = mock(Object.class);
         GlobalTracer.register(mockTracer);
