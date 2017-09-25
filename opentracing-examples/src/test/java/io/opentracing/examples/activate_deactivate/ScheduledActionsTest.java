@@ -13,11 +13,12 @@
  */
 package io.opentracing.examples.activate_deactivate;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
+import io.opentracing.examples.AutoFinishScope;
+import io.opentracing.examples.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class ScheduledActionsTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduledActionsTest.class);
 
-    private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
+    private final MockTracer tracer = new MockTracer(new AutoFinishScopeManager(),
             Propagator.TEXT_MAP);
     private final ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
 
@@ -88,8 +89,8 @@ public class ScheduledActionsTest {
             @Override
             public void run() {
                 logger.info("Entry thread started");
-                try (ActiveSpan activeSpan = tracer.buildSpan("parent").startActive()) {
-                    Runnable action = new RunnableAction(activeSpan);
+                try (Scope scope = tracer.buildSpan("parent").startActive()) {
+                    Runnable action = new RunnableAction((AutoFinishScope)scope);
 
                     // Action is executed at some time and we are not able to check status
                     service.schedule(action, 500, TimeUnit.MILLISECONDS);
@@ -107,9 +108,9 @@ public class ScheduledActionsTest {
             @Override
             public void run() {
                 logger.info("Entry thread 2x started");
-                try (ActiveSpan activeSpan = tracer.buildSpan("parent").startActive()) {
-                    Runnable action = new RunnableAction(activeSpan);
-                    Runnable action2 = new RunnableAction(activeSpan);
+                try (Scope scope = tracer.buildSpan("parent").startActive()) {
+                    Runnable action = new RunnableAction((AutoFinishScope)scope);
+                    Runnable action2 = new RunnableAction((AutoFinishScope)scope);
 
                     Random random = new Random();
 

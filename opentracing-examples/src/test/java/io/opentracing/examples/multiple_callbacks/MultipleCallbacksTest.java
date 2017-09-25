@@ -13,11 +13,11 @@
  */
 package io.opentracing.examples.multiple_callbacks;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
+import io.opentracing.examples.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,16 +31,16 @@ import static org.junit.Assert.assertNull;
 
 public class MultipleCallbacksTest {
 
-    private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
+    private final MockTracer tracer = new MockTracer(new AutoFinishScopeManager(),
             Propagator.TEXT_MAP);
 
     @Test
     public void test() throws Exception {
         Client client = new Client(tracer);
-        try (ActiveSpan span = tracer.buildSpan("parent").startActive()) {
-            client.send("task1", span, 300);
-            client.send("task2", span, 200);
-            client.send("task3", span, 100);
+        try (Scope scope = tracer.buildSpan("parent").startActive()) {
+            client.send("task1", 300);
+            client.send("task2", 200);
+            client.send("task3", 100);
         }
 
         await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(4));
@@ -56,6 +56,6 @@ public class MultipleCallbacksTest {
             assertEquals(parentSpan.context().spanId(), spans.get(i).parentId());
         }
 
-        assertNull(tracer.activeSpan());
+        assertNull(tracer.scopeManager().active());
     }
 }
