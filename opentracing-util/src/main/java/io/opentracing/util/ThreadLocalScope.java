@@ -44,8 +44,9 @@ public class ThreadLocalScope implements Scope {
             return;
         }
 
-        if (finishOnClose)
+        if (finishOnClose) {
             wrapped.finish();
+        }
 
         scopeManager.tlsScope.set(toRestore);
     }
