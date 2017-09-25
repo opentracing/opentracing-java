@@ -13,11 +13,12 @@
  */
 package io.opentracing.examples.nested_callbacks;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Test;
 
 import java.util.List;
@@ -34,15 +35,15 @@ import static org.junit.Assert.assertNull;
 
 public class NestedCallbacksTest {
 
-    private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
+    private final MockTracer tracer = new MockTracer(new ThreadLocalScopeManager(),
             Propagator.TEXT_MAP);
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     @Test
     public void test() throws Exception {
 
-        try (ActiveSpan span = tracer.buildSpan("one").startActive()) {
-            submitCallbacks(span);
+        try (Scope scope = tracer.buildSpan("one").startActive(false)) {
+            submitCallbacks(scope.span());
         }
 
         await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(1));
@@ -57,30 +58,27 @@ public class NestedCallbacksTest {
             assertEquals(Integer.toString(i), tags.get("key" + i));
         }
 
-        assertNull(tracer.activeSpan());
+        assertNull(tracer.scopeManager().active());
     }
 
-    private void submitCallbacks(ActiveSpan span) {
-        final ActiveSpan.Continuation cont = span.capture();
+    private void submitCallbacks(final Span span) {
 
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                try (ActiveSpan span = cont.activate()) {
+                try (Scope scope = tracer.scopeManager().activate(span, false)) {
                     span.setTag("key1", "1");
-                    final ActiveSpan.Continuation cont = span.capture();
 
                     executor.submit(new Runnable() {
                         @Override
                         public void run() {
-                            try (ActiveSpan span = cont.activate()) {
+                            try (Scope scope = tracer.scopeManager().activate(span, false)) {
                                 span.setTag("key2", "2");
-                                final ActiveSpan.Continuation cont = span.capture();
 
                                 executor.submit(new Runnable() {
                                     @Override
                                     public void run() {
-                                        try (ActiveSpan span = cont.activate()) {
+                                        try (Scope scope = tracer.scopeManager().activate(span)) {
                                             span.setTag("key3", "3");
                                         }
                                     }

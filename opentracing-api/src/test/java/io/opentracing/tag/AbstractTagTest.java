@@ -17,10 +17,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Test;
-
-import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
+import org.junit.Test;
 
 /**
  * @author Pavol Loffay
@@ -40,18 +38,6 @@ public class AbstractTagTest {
         String key = "bar";
 
         Span activeSpan = mock(Span.class);
-        StringTag tag = new StringTag(key);
-        tag.set(activeSpan, value);
-
-        verify(activeSpan).setTag(key, value);
-    }
-
-    @Test
-    public void testSetTagOnActiveSpan() {
-        String value = "foo";
-        String key = "bar";
-
-        ActiveSpan activeSpan = mock(ActiveSpan.class);
         StringTag tag = new StringTag(key);
         tag.set(activeSpan, value);
 

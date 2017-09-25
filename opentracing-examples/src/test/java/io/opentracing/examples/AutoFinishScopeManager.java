@@ -11,21 +11,29 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.tag;
+package io.opentracing.examples;
 
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 
-public class StringTag extends AbstractTag<String> {
-    public StringTag(String key) {
-        super(key);
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class AutoFinishScopeManager implements ScopeManager {
+    final ThreadLocal<AutoFinishScope> tlsScope = new ThreadLocal<AutoFinishScope>();
+
+    @Override
+    public AutoFinishScope activate(Span span) {
+        return new AutoFinishScope(this, new AtomicInteger(1), span);
     }
 
     @Override
-    public void set(Span span, String tagValue) {
-        span.setTag(super.key, tagValue);
+    public AutoFinishScope activate(Span span, boolean finishOnClose) {
+        return new AutoFinishScope(this, new AtomicInteger(1), span);
     }
 
-    public void set(Span span, StringTag tag) {
-        span.setTag(super.key, tag.key);
+    @Override
+    public AutoFinishScope active() {
+        return tlsScope.get();
     }
+
 }
