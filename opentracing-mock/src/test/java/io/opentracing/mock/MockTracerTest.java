@@ -25,7 +25,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -288,11 +288,11 @@ public class MockTracerTest {
     @Test
     public void testDefaultConstructor() {
         MockTracer mockTracer = new MockTracer();
-        ActiveSpan activeSpan = mockTracer.buildSpan("foo").startActive();
-        assertEquals(activeSpan, mockTracer.activeSpan());
+        Scope activeSpan = mockTracer.buildSpan("foo").startActive();
+        assertEquals(activeSpan, mockTracer.scopeManager().active());
 
         Map<String, String> propag = new HashMap<>();
-        mockTracer.inject(activeSpan.context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));
+        mockTracer.inject(activeSpan.span().context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));
         assertFalse(propag.isEmpty());
     }
 

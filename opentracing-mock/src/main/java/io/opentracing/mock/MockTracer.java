@@ -18,17 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
-import io.opentracing.BaseSpan;
-import io.opentracing.References;
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
+import io.opentracing.noop.NoopScopeManager;
+import io.opentracing.References;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopActiveSpanSource;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -41,26 +40,26 @@ import io.opentracing.util.ThreadLocalActiveSpanSource;
 public class MockTracer implements Tracer {
     private final List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private final ActiveSpanSource spanSource;
+    private final ScopeManager scopeManager;
 
     public MockTracer() {
-        this(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
+        this(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
     }
 
-    public MockTracer(ActiveSpanSource spanSource) {
-        this(spanSource, Propagator.TEXT_MAP);
+    public MockTracer(ScopeManager scopeManager) {
+        this(scopeManager, Propagator.TEXT_MAP);
     }
 
-    public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
+    public MockTracer(ScopeManager scopeManager, Propagator propagator) {
+        this.scopeManager = scopeManager;
         this.propagator = propagator;
-        this.spanSource = spanSource;
     }
 
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(NoopActiveSpanSource.INSTANCE, propagator);
+        this(NoopScopeManager.INSTANCE, propagator);
     }
 
     /**
@@ -87,16 +86,6 @@ public class MockTracer implements Tracer {
      * Noop method called on {@link Span#finish()}.
      */
     protected void onSpanFinished(MockSpan mockSpan) {
-    }
-
-    @Override
-    public ActiveSpan activeSpan() {
-        return spanSource.activeSpan();
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span) {
-        return spanSource.makeActive(span);
     }
 
     /**
@@ -174,17 +163,22 @@ public class MockTracer implements Tracer {
     }
 
     @Override
+    public ScopeManager scopeManager() {
+        return this.scopeManager;
+    }
+
+    @Override
     public SpanBuilder buildSpan(String operationName) {
         return new SpanBuilder(operationName);
     }
 
     private SpanContext activeSpanContext() {
-        ActiveSpan handle = this.spanSource.activeSpan();
+        Scope handle = this.scopeManager.active();
         if (handle == null) {
             return null;
         }
 
-        return handle.context();
+        return handle.span().context();
     }
 
     @Override
@@ -219,7 +213,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanBuilder asChildOf(BaseSpan parent) {
+        public SpanBuilder asChildOf(Span parent) {
             if (parent == null) {
                 return this;
             }
@@ -265,15 +259,18 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        @Deprecated
-        public MockSpan start() {
-            return startManual();
+        public Scope startActive() {
+            return MockTracer.this.scopeManager().activate(this.startManual());
         }
 
         @Override
-        public ActiveSpan startActive() {
-            MockSpan span = this.startManual();
-            return spanSource.makeActive(span);
+        public Scope startActive(boolean finishOnClose) {
+            return MockTracer.this.scopeManager().activate(this.startManual(), finishOnClose);
+        }
+
+        @Override
+        public MockSpan start() {
+            return startManual();
         }
 
         @Override

@@ -13,12 +13,12 @@
  */
 package io.opentracing.examples.common_request_handler;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertNull;
  */
 public class HandlerTest {
 
-    private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
+    private final MockTracer tracer = new MockTracer(new ThreadLocalScopeManager(),
             Propagator.TEXT_MAP);
     private final Client client = new Client(new RequestHandler(tracer));
 
@@ -67,7 +67,7 @@ public class HandlerTest {
         assertEquals(0, finished.get(0).parentId());
         assertEquals(0, finished.get(1).parentId());
 
-        assertNull(tracer.activeSpan());
+        assertNull(tracer.scopeManager().active());
     }
 
     /**
@@ -75,7 +75,7 @@ public class HandlerTest {
      */
     @Test
     public void parent_not_picked_up() throws Exception {
-        try (ActiveSpan parent = tracer.buildSpan("parent").startActive()) {
+        try (Scope parent = tracer.buildSpan("parent").startActive()) {
             String response = client.send("no_parent").get(15, TimeUnit.SECONDS);
             assertEquals("no_parent:response", response);
         }
@@ -102,8 +102,8 @@ public class HandlerTest {
     @Test
     public void bad_solution_to_set_parent() throws Exception {
         Client client;
-        try (ActiveSpan parent = tracer.buildSpan("parent").startActive()) {
-            client = new Client(new RequestHandler(tracer, parent.context()));
+        try (Scope parent = tracer.buildSpan("parent").startActive()) {
+            client = new Client(new RequestHandler(tracer, parent.span().context()));
             String response = client.send("correct_parent").get(15, TimeUnit.SECONDS);
             assertEquals("correct_parent:response", response);
         }
