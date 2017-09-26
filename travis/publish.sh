@@ -90,7 +90,7 @@ safe_checkout_remote_branch() {
   # and we want that branch to be master or 0.0.0. which has been checked before.
   # But we also want to make sure that we build and release exactly the tagged version,
   # so we verify that the remote branch is where our tag is.
-  git checkout -B "${TRAVIS_BRANCH}"
+  git checkout -B `release_version | sed 's/-RC[[:digit:]]\+//'`
   git fetch origin "${TRAVIS_BRANCH}":origin/"${TRAVIS_BRANCH}"
   commit_local="$(git show --pretty='format:%H' ${TRAVIS_BRANCH})"
   commit_remote="$(git show --pretty='format:%H' origin/${TRAVIS_BRANCH})"
