@@ -33,7 +33,7 @@ public class MockSpanTest {
             span.setOperationName("bar");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Fall through
+            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
@@ -48,7 +48,7 @@ public class MockSpanTest {
             span.setTag("bar", "foo");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Fall through
+            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
@@ -63,7 +63,7 @@ public class MockSpanTest {
             span.log("bar");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Fall through
+            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
@@ -78,7 +78,7 @@ public class MockSpanTest {
             span.setBaggageItem("foo", "bar");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Fall through
+            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
