@@ -85,16 +85,17 @@ release_version() {
     echo "${TRAVIS_TAG}" | sed 's/^release-//'
 }
 
-safe_checkout_master() {
-  # We need to be on a branch for release:perform to be able to create commits, and we want that branch to be master.
-  # But we also want to make sure that we build and release exactly the tagged version, so we verify that the remote
-  # master is where our tag is.
-  git checkout -B master
-  git fetch origin master:origin/master
-  commit_local_master="$(git show --pretty='format:%H' master)"
-  commit_remote_master="$(git show --pretty='format:%H' origin/master)"
-  if [ "$commit_local_master" != "$commit_remote_master" ]; then
-    echo "Master on remote 'origin' has commits since the version under release, aborting"
+safe_checkout_remote_branch() {
+  # We need to be on a branch for release:perform to be able to create commits,
+  # and we want that branch to be master or 0.0.0. which has been checked before.
+  # But we also want to make sure that we build and release exactly the tagged version,
+  # so we verify that the remote branch is where our tag is.
+  git checkout -B "${TRAVIS_BRANCH}"
+  git fetch origin "${TRAVIS_BRANCH}":origin/"${TRAVIS_BRANCH}"
+  commit_local="$(git show --pretty='format:%H' ${TRAVIS_BRANCH})"
+  commit_remote="$(git show --pretty='format:%H' origin/${TRAVIS_BRANCH})"
+  if [ "$commit_local" != "$commit_remote" ]; then
+    echo "${TRAVIS_BRANCH} on remote 'origin' has commits since the version under release, aborting"
     exit 1
   fi
 }
@@ -125,7 +126,7 @@ elif is_travis_branch_master_or_release; then
 
 # If we are on a release tag, the following will update any version references and push a version tag for deployment.
 elif build_started_by_tag; then
-  safe_checkout_master
+  safe_checkout_remote_branch
   ./mvnw --batch-mode -s ./.settings.xml -Prelease -nsu -DreleaseVersion="$(release_version)" -Darguments="-DskipTests" release:prepare
 fi
 
