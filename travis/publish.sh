@@ -86,9 +86,10 @@ release_version() {
 }
 
 safe_checkout_remote_branch() {
-  # We need to be on a branch for release:perform to be able to create commits, and we want that branch to be master.
-  # But we also want to make sure that we build and release exactly the tagged version, so we verify that the remote
-  # master is where our tag is.
+  # We need to be on a branch for release:perform to be able to create commits,
+  # and we want that branch to be master or 0.0.0. which has been checked before.
+  # But we also want to make sure that we build and release exactly the tagged version,
+  # so we verify that the remote branch is where our tag is.
   git checkout -B "${TRAVIS_BRANCH}"
   git fetch origin "${TRAVIS_BRANCH}":origin/"${TRAVIS_BRANCH}"
   commit_local="$(git show --pretty='format:%H' ${TRAVIS_BRANCH})"
