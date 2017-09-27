@@ -26,14 +26,13 @@ public class MockSpanTest {
     @Test
     public void testSetOperationNameAfterFinish() {
         MockTracer tracer = new MockTracer();
-        Span span = tracer.buildSpan("foo").startManual();
+        Span span = tracer.buildSpan("foo").start();
         span.finish();
 
         try {
             span.setOperationName("bar");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
@@ -41,14 +40,13 @@ public class MockSpanTest {
     @Test
     public void testSetTagAfterFinish() {
         MockTracer tracer = new MockTracer();
-        Span span = tracer.buildSpan("foo").startManual();
+        Span span = tracer.buildSpan("foo").start();
         span.finish();
 
         try {
             span.setTag("bar", "foo");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
@@ -56,14 +54,13 @@ public class MockSpanTest {
     @Test
     public void testAddLogAfterFinish() {
         MockTracer tracer = new MockTracer();
-        Span span = tracer.buildSpan("foo").startManual();
+        Span span = tracer.buildSpan("foo").start();
         span.finish();
 
         try {
             span.log("bar");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
@@ -71,14 +68,13 @@ public class MockSpanTest {
     @Test
     public void testAddBaggageAfterFinish() {
         MockTracer tracer = new MockTracer();
-        Span span = tracer.buildSpan("foo").startManual();
+        Span span = tracer.buildSpan("foo").start();
         span.finish();
 
         try {
             span.setBaggageItem("foo", "bar");
             Assert.fail();
         } catch (RuntimeException ex) {
-            // Comment to prevent empty block warning
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
