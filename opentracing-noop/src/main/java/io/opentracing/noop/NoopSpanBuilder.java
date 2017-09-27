@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 
 public interface NoopSpanBuilder extends Tracer.SpanBuilder, NoopSpanContext {
-    static final NoopSpanBuilder INSTANCE = new NoopSpanBuilderImpl();
+    NoopSpanBuilder INSTANCE = new NoopSpanBuilderImpl();
 }
 
 final class NoopSpanBuilderImpl implements NoopSpanBuilder {
@@ -67,6 +67,7 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
+    @Deprecated
     public Span start() {
         return startManual();
     }
@@ -83,7 +84,7 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
 
     @Override
     public Iterable<Map.Entry<String, String>> baggageItems() {
-        return Collections.EMPTY_MAP.entrySet();
+        return Collections.<String, String>emptyMap().entrySet();
     }
 
     @Override
