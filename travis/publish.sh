@@ -36,11 +36,11 @@ is_pull_request() {
 }
 
 is_travis_branch_master_or_release() {
-  if [[ "${TRAVIS_BRANCH}" == "master" || "${TRAVIS_BRANCH}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  if [[ "${TRAVIS_BRANCH}" == "master" || "${TRAVIS_BRANCH}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "[Publishing] Travis branch is ${TRAVIS_BRANCH}"
     return 0
   else
-    echo "[Not Publishing] Travis branch is not master or 0.0.0"
+    echo "[Not Publishing] Travis branch is not master or v0.0.0"
     return 1
   fi
 }
@@ -87,10 +87,10 @@ release_version() {
 
 safe_checkout_remote_branch() {
   # We need to be on a branch for release:perform to be able to create commits,
-  # and we want that branch to be master or 0.0.0. which has been checked before.
+  # and we want that branch to be master or v0.0.0. which has been checked before.
   # But we also want to make sure that we build and release exactly the tagged version,
   # so we verify that the remote branch is where our tag is.
-  git checkout -B `release_version | sed 's/-RC[[:digit:]]\+//'`
+  git checkout -B v`release_version | sed 's/-RC[[:digit:]]\+//'`
   git fetch origin "${TRAVIS_BRANCH}":origin/"${TRAVIS_BRANCH}"
   commit_local="$(git show --pretty='format:%H' ${TRAVIS_BRANCH})"
   commit_remote="$(git show --pretty='format:%H' origin/${TRAVIS_BRANCH})"
