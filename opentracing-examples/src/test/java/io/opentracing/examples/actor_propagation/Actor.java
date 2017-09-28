@@ -16,7 +16,6 @@ package io.opentracing.examples.actor_propagation;
 import io.opentracing.ActiveSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,7 +51,7 @@ public class Actor implements AutoCloseable {
             try (ActiveSpan parent = continuation.activate()) {
               try (ActiveSpan child =
                   tracer
-                      .buildSpan("sent")
+                      .buildSpan("received")
                       .asChildOf(parent)
                       .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
                       .startActive()) {
@@ -80,8 +79,7 @@ public class Actor implements AutoCloseable {
                 try (ActiveSpan parent = continuation.activate()) {
                   try (ActiveSpan child =
                       tracer
-                          .buildSpan("sent")
-                          .asChildOf(parent)
+                          .buildSpan("received")
                           .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
                           .startActive()) {
                     phaser.arriveAndAwaitAdvance(); // child tracer started

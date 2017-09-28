@@ -16,7 +16,6 @@ package io.opentracing.examples.promise_propagation;
 import io.opentracing.ActiveSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
-
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -58,7 +57,6 @@ public class Promise<T> {
                     tracer
                         .buildSpan("success")
                         .withTag(Tags.COMPONENT.getKey(), "success")
-                        .asChildOf(parent)
                         .startActive()) {
                   pair.callback.accept(result);
                 }
@@ -80,7 +78,6 @@ public class Promise<T> {
                     tracer
                         .buildSpan("error")
                         .withTag(Tags.COMPONENT.getKey(), "error")
-                        .asChildOf(parent)
                         .startActive()) {
                   pair.callback.accept(error);
                 }
