@@ -13,7 +13,8 @@
  */
 package io.opentracing.examples.suspend_resume_propagation;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
 
@@ -22,7 +23,7 @@ public class SuspendResume {
 
   private final int id;
   private final MockTracer tracer;
-  private ActiveSpan.Continuation continuation;
+  private Span span;
 
   public SuspendResume(int id, MockTracer tracer) {
     this.id = id;
@@ -30,23 +31,22 @@ public class SuspendResume {
     // Passed along here for testing. Normally should be referenced via GlobalTracer.get().
     this.tracer = tracer;
 
-    try (ActiveSpan span =
+    try (Scope scope =
         tracer
             .buildSpan("job " + id)
             .withTag(Tags.COMPONENT.getKey(), "suspend-resume")
-            .startActive()) {
-      continuation = span.capture();
+            .startActive(false)) {
+      span = scope.span();
     }
   }
 
   public void doPart(String name) {
-    try (ActiveSpan span = continuation.activate()) {
-      continuation = span.capture(); // prepare for the next part.
-      span.log("part: " + name);
+    try (Scope scope = tracer.scopeManager().activate(span, false)) {
+      scope.span().log("part: " + name);
     }
   }
 
   public void done() {
-    continuation.activate().deactivate();
+    span.finish();
   }
 }
