@@ -15,17 +15,12 @@ package io.opentracing.tag;
 
 import io.opentracing.Span;
 
-public class StringTag extends AbstractTag<String> {
-    public StringTag(String key) {
+public class IntOrStringTag extends IntTag {
+    public IntOrStringTag(String key) {
         super(key);
     }
 
-    @Override
     public void set(Span span, String tagValue) {
         span.setTag(super.key, tagValue);
-    }
-
-    public void set(Span span, StringTag tag) {
-        span.setTag(super.key, tag.key);
     }
 }

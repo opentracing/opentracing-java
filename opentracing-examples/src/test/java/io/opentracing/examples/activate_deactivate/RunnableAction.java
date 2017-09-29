@@ -13,8 +13,8 @@
  */
 package io.opentracing.examples.activate_deactivate;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpan.Continuation;
+import io.opentracing.examples.AutoFinishScope;
+import io.opentracing.examples.AutoFinishScope.Continuation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +30,8 @@ public class RunnableAction implements Runnable {
 
     private final Continuation continuation;
 
-    RunnableAction(ActiveSpan activeSpan) {
-        continuation = activeSpan.capture();
+    RunnableAction(AutoFinishScope scope) {
+        continuation = scope.capture();
         logger.info("Action created");
     }
 
@@ -42,7 +42,7 @@ public class RunnableAction implements Runnable {
     @Override
     public void run() {
         logger.info("Action started");
-        ActiveSpan activeSpan = continuation.activate();
+        AutoFinishScope scope = continuation.activate();
 
         try {
             TimeUnit.SECONDS.sleep(1); // without sleep first action can finish before second is started
@@ -51,9 +51,9 @@ public class RunnableAction implements Runnable {
         }
 
         // set random tag starting with 'test_tag_' to test that finished span has all of them
-        activeSpan.setTag("test_tag_" + ThreadLocalRandom.current().nextInt(), "random");
+        scope.span().setTag("test_tag_" + ThreadLocalRandom.current().nextInt(), "random");
 
-        activeSpan.deactivate();
+        scope.close();
         logger.info("Action finished");
     }
 }

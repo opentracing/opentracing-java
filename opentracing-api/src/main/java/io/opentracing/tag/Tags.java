@@ -63,7 +63,7 @@ public final class Tags {
     /**
      * PEER_HOST_IPV4 records IPv4 host address of the peer.
      */
-    public static final IntTag PEER_HOST_IPV4 = new IntTag("peer.ipv4");
+    public static final IntOrStringTag PEER_HOST_IPV4 = new IntOrStringTag("peer.ipv4");
 
     /**
      * PEER_HOST_IPV6 records the IPv6 host address of the peer.
