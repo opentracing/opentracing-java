@@ -263,6 +263,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
+        @Deprecated
         public MockSpan start() {
             return startManual();
         }
