@@ -87,15 +87,19 @@ release_version() {
 
 safe_checkout_remote_branch() {
   # We need to be on a branch for release:perform to be able to create commits,
-  # and we want that branch to be master or v0.0.0. which has been checked before.
+  # and we want that branch to be master or v0.0.0 (for RCs). which has been checked before.
   # But we also want to make sure that we build and release exactly the tagged version,
   # so we verify that the remote branch is where our tag is.
-  git checkout -B v`release_version | sed 's/-RC[[:digit:]]\+//'`
-  git fetch origin "${TRAVIS_BRANCH}":origin/"${TRAVIS_BRANCH}"
-  commit_local="$(git show --pretty='format:%H' ${TRAVIS_BRANCH})"
-  commit_remote="$(git show --pretty='format:%H' origin/${TRAVIS_BRANCH})"
+  checkoutBranch=master
+  if [[ "${TRAVIS_BRANCH}" =~ ^release-[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\-RC[[:digit:]]+$ ]]; then
+    checkoutBranch=v`release_version | sed 's/-RC[[:digit:]]\+//'`
+  fi
+  git checkout -B "${checkoutBranch}"
+  git fetch origin "${checkoutBranch}":origin/"${checkoutBranch}"
+  commit_local="$(git show --pretty='format:%H' ${checkoutBranch})"
+  commit_remote="$(git show --pretty='format:%H' origin/${checkoutBranch})"
   if [ "$commit_local" != "$commit_remote" ]; then
-    echo "${TRAVIS_BRANCH} on remote 'origin' has commits since the version under release, aborting"
+    echo "${checkoutBranch} on remote 'origin' has commits since the version under release, aborting"
     exit 1
   fi
 }
