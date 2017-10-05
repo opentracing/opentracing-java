@@ -68,6 +68,7 @@ public class ThreadLocalActiveSpanTest {
 
         //back in main thread it should restore the MDC
         assertEquals(MDC.get("thread"), null);
+        assertEquals(MDC.get("main"), "a");
 
     }
 
