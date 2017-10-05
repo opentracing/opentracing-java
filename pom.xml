@@ -118,6 +118,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.25</version>
+            </dependency>
+
+            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>opentracing-api</artifactId>
                 <version>${project.version}</version>
@@ -185,6 +191,7 @@
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

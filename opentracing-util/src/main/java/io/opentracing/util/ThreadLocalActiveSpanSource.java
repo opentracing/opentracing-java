@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see Tracer#activeSpan()
  */
 public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
+
     final ThreadLocal<ThreadLocalActiveSpan> tlsSnapshot = new ThreadLocal<ThreadLocalActiveSpan>();
 
     @Override

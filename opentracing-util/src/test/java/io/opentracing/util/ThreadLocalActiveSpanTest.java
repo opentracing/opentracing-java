@@ -25,6 +25,11 @@ import io.opentracing.ActiveSpan;
 import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.MDC;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ThreadLocalActiveSpanTest {
     private ThreadLocalActiveSpanSource source;
@@ -32,6 +37,38 @@ public class ThreadLocalActiveSpanTest {
     @Before
     public void before() throws Exception {
         source = new ThreadLocalActiveSpanSource();
+    }
+
+    @Test
+    public void continuationMultipleThreads() throws Exception {
+
+        MDC.put("main", "a");
+        Span span = mock(Span.class);
+        ActiveSpan activeSpan = source.makeActive(span);
+        assertEquals(MDC.get("main"), "a");
+
+        final ActiveSpan.Continuation continuation = activeSpan.capture();
+        ExecutorService service = Executors.newFixedThreadPool(2);
+        Future future = service.submit(new Runnable() {
+            @Override
+            public void run() {
+                ActiveSpan contSpan = continuation.activate();
+                MDC.put("thread", "b");
+
+                //MDC should be copied to thread - so check that main thread inside
+                assertEquals(MDC.get("main"), "a");
+                assertEquals(MDC.get("thread"), "b");
+
+                contSpan.deactivate();
+            }
+        });
+
+        //Wait for Runnable to complete so we know that MDC was touched.
+        future.get();
+
+        //back in main thread it should restore the MDC
+        assertEquals(MDC.get("thread"), null);
+
     }
 
     @Test

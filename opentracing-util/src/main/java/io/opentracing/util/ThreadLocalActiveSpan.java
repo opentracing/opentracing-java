@@ -21,6 +21,7 @@ import io.opentracing.ActiveSpanSource;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import org.slf4j.MDC;
 
 /**
  * {@link ThreadLocalActiveSpan} is a simple {@link ActiveSpan} implementation that relies on Java's
@@ -35,12 +36,17 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
     private final ThreadLocalActiveSpan toRestore;
     private final AtomicInteger refCount;
 
+    private final Map<String, String> contextToRestore;
+
     ThreadLocalActiveSpan(ThreadLocalActiveSpanSource source, Span wrapped, AtomicInteger refCount) {
         this.source = source;
         this.refCount = refCount;
         this.wrapped = wrapped;
         this.toRestore = source.tlsSnapshot.get();
         source.tlsSnapshot.set(this);
+
+        //store copy
+        contextToRestore = MDC.getCopyOfContextMap();
     }
 
     @Override
@@ -50,6 +56,7 @@ public class ThreadLocalActiveSpan implements ActiveSpan {
             return;
         }
         source.tlsSnapshot.set(toRestore);
+        MDC.setContextMap(contextToRestore);
 
         if (0 == refCount.decrementAndGet()) {
             wrapped.finish();
