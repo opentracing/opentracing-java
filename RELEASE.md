@@ -16,7 +16,14 @@ This repo uses semantic versions. Please keep this in mind when choosing version
 
    This part is controlled by [`travis/publish.sh`](travis/publish.sh). It creates a bunch of new commits, bumps
    the version, publishes artifacts, and syncs to Maven Central.
-   
+
+## Release candidates
+
+Repository supports releasing release candidates from branches `v.N.M.L`. The version schema
+for release candidates is `N.M.L-RCH`, where `H` denotes a release candidate version.
+
+To release the first release candidate switch to a branch `v.3.7.1`/`HEAD` and push a tag `release-3.7.1-RC1`.
+
 ## Credentials
 
 Credentials of various kind are needed for the release process to work. If you notice something
