@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 
+import static io.opentracing.examples.TestUtils.getByTag;
 import static io.opentracing.examples.TestUtils.getOneByTag;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,26 +61,27 @@ public class ActorPropagationTest {
               .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
               .withTag(Tags.COMPONENT.getKey(), "example-actor")
               .startActive()) {
-        actor.tell("my message");
+        actor.tell("my message 1");
+        actor.tell("my message 2");
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
       assertThat(tracer.finishedSpans().size()).isEqualTo(0);
       phaser.arriveAndAwaitAdvance(); // continue...
 
       phaser.arriveAndAwaitAdvance(); // child tracer finished
-      assertThat(tracer.finishedSpans().size()).isEqualTo(1);
-      assertThat(getOneByTag(tracer.finishedSpans(), Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER))
-          .isNotNull();
+      assertThat(tracer.finishedSpans().size()).isEqualTo(2);
+      assertThat(getByTag(tracer.finishedSpans(), Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER))
+          .hasSize(2);
       phaser.arriveAndAwaitAdvance(); // continue...
 
       phaser.arriveAndAwaitAdvance(); // parent tracer finished
       List<MockSpan> finished = tracer.finishedSpans();
       phaser.arriveAndDeregister(); // continue...
 
-      assertThat(finished.size()).isEqualTo(2);
+      assertThat(finished.size()).isEqualTo(3);
       assertThat(finished.get(0).context().traceId())
           .isEqualTo(finished.get(1).context().traceId());
-      assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).isNotNull();
+      assertThat(getByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).hasSize(2);
       assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_PRODUCER)).isNotNull();
       assertThat(tracer.activeSpan()).isNull();
     }
@@ -89,35 +91,39 @@ public class ActorPropagationTest {
   public void testActorAsk() throws ExecutionException, InterruptedException {
     try (Actor actor = new Actor(tracer, phaser)) {
       phaser.register();
-      Future<String> future;
+      Future<String> future1;
+      Future<String> future2;
       try (ActiveSpan parent =
           tracer
               .buildSpan("actorAsk")
               .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
               .withTag(Tags.COMPONENT.getKey(), "example-actor")
               .startActive()) {
-        future = actor.ask("my message");
+        future1 = actor.ask("my message 1");
+        future2 = actor.ask("my message 2");
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
       assertThat(tracer.finishedSpans().size()).isEqualTo(0);
       phaser.arriveAndAwaitAdvance(); // continue...
 
       phaser.arriveAndAwaitAdvance(); // child tracer finished
-      assertThat(tracer.finishedSpans().size()).isEqualTo(1);
-      assertThat(getOneByTag(tracer.finishedSpans(), Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER))
-          .isNotNull();
+      assertThat(tracer.finishedSpans().size()).isEqualTo(2);
+      assertThat(getByTag(tracer.finishedSpans(), Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER))
+          .hasSize(2);
       phaser.arriveAndAwaitAdvance(); // continue...
 
       phaser.arriveAndAwaitAdvance(); // parent tracer finished
       List<MockSpan> finished = tracer.finishedSpans();
       phaser.arriveAndDeregister(); // continue...
 
-      String message = future.get(); // This really should be a non-blocking callback...
-      assertThat(message).isEqualTo("received my message");
-      assertThat(finished.size()).isEqualTo(2);
+      String message1 = future1.get(); // This really should be a non-blocking callback...
+      String message2 = future2.get(); // This really should be a non-blocking callback...
+      assertThat(message1).isEqualTo("received my message 1");
+      assertThat(message2).isEqualTo("received my message 2");
+      assertThat(finished.size()).isEqualTo(3);
       assertThat(finished.get(0).context().traceId())
           .isEqualTo(finished.get(1).context().traceId());
-      assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).isNotNull();
+      assertThat(getByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).hasSize(2);
       assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_PRODUCER)).isNotNull();
       assertThat(tracer.activeSpan()).isNull();
     }
