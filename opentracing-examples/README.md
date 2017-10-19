@@ -16,4 +16,5 @@ It shows continuation as a solution to finish span when last action is completed
 - **listener_per_request** - one listener per request
 - **multiple_callbacks** - many callbacks spawned at the same time
 - **nested_callbacks** - one callback at the time, defined in a pipeline fashion
+- **slf4j_mdc_debug_id** - keep debug_id of the active Span inside MDC
 
