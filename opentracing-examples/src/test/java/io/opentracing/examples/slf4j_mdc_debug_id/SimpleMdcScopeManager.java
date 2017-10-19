@@ -33,9 +33,9 @@ public class SimpleMdcScopeManager implements ScopeManager {
     }
 
     /**
-     * @param mdcKey        MDC key which value will be set to debug_id
+     * @param mdcKey  MDC key which value will be set to debug_id
      * @param debugId debug_id provider - specific to a Tracer implementation
-     * @param wrapped       ScopeManager to wrap
+     * @param wrapped ScopeManager to wrap
      */
     public SimpleMdcScopeManager(String mdcKey, DebugIdProvider debugId, ScopeManager wrapped) {
         this.mdcKey = mdcKey;
