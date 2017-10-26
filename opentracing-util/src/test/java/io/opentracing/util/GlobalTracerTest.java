@@ -13,53 +13,30 @@
  */
 package io.opentracing.util;
 
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopSpanBuilder;
-import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.propagation.Format;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GlobalTracerTest {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
-    private static void _setGlobal(Tracer tracer) {
-        try {
-            Field globalTracerField = GlobalTracer.class.getDeclaredField("tracer");
-            globalTracerField.setAccessible(true);
-            globalTracerField.set(null, tracer);
-            globalTracerField.setAccessible(false);
-        } catch (Exception e) {
-            throw new RuntimeException("Error reflecting globalTracer: " + e.getMessage(), e);
-        }
-    }
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+
+public class GlobalTracerTest {
 
     @Before
     @After
     public void clearGlobalTracer() {
-        _setGlobal(NoopTracerFactory.create());
+        GlobalTracerTestUtil.resetGlobalTracer();
     }
 
     @Test
