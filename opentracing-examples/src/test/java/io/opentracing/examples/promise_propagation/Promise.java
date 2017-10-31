@@ -13,9 +13,8 @@
  */
 package io.opentracing.examples.promise_propagation;
 
+import io.opentracing.References;
 import io.opentracing.Scope;
-import io.opentracing.examples.AutoFinishScope;
-import io.opentracing.examples.AutoFinishScope.Continuation;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
 import java.util.Collection;
@@ -25,44 +24,41 @@ import java.util.LinkedList;
 public class Promise<T> {
   private final PromiseContext context;
   private final MockTracer tracer;
-  private final AutoFinishScope activeScope;
+  private final Scope parentScope;
 
-  private final Collection<Pair<SuccessCallback<T>>> successCallbacks = new LinkedList<>();
-  private final Collection<Pair<ErrorCallback>> errorCallbacks = new LinkedList<>();
+  private final Collection<SuccessCallback<T>> successCallbacks = new LinkedList<>();
+  private final Collection<ErrorCallback> errorCallbacks = new LinkedList<>();
 
   public Promise(PromiseContext context, MockTracer tracer) {
     this.context = context;
 
     // Passed along here for testing. Normally should be referenced via GlobalTracer.get().
     this.tracer = tracer;
-    activeScope = (AutoFinishScope)tracer.scopeManager().active();
+    parentScope = tracer.scopeManager().active();
   }
 
   public void onSuccess(SuccessCallback<T> successCallback) {
-    Continuation capture = activeScope.capture();
-    successCallbacks.add(new Pair<>(capture, successCallback));
+    successCallbacks.add(successCallback);
   }
 
   public void onError(ErrorCallback errorCallback) {
-    Continuation capture = activeScope.capture();
-    errorCallbacks.add(new Pair<>(capture, errorCallback));
+    errorCallbacks.add(errorCallback);
   }
 
   public void success(final T result) {
-    for (final Pair<SuccessCallback<T>> pair : successCallbacks) {
+    for (final SuccessCallback<T> callback : successCallbacks) {
       context.submit(
           new Runnable() {
             @Override
             public void run() {
-              try (Scope parent = pair.capture.activate()) {
                 try (Scope child =
                     tracer
                         .buildSpan("success")
+                            .addReference(References.FOLLOWS_FROM, parentScope.span().context())
                         .withTag(Tags.COMPONENT.getKey(), "success")
                         .startActive()) {
-                  pair.callback.accept(result);
+                  callback.accept(result);
                 }
-              }
               context.getPhaser().arriveAndAwaitAdvance(); // trace reported
             }
           });
@@ -70,20 +66,19 @@ public class Promise<T> {
   }
 
   public void error(final Throwable error) {
-    for (final Pair<ErrorCallback> pair : errorCallbacks) {
+    for (final ErrorCallback callback : errorCallbacks) {
       context.submit(
           new Runnable() {
             @Override
             public void run() {
-              try (Scope parent = pair.capture.activate()) {
                 try (Scope child =
                     tracer
                         .buildSpan("error")
+                            .addReference(References.FOLLOWS_FROM, parentScope.span().context())
                         .withTag(Tags.COMPONENT.getKey(), "error")
                         .startActive()) {
-                  pair.callback.accept(error);
+                  callback.accept(error);
                 }
-              }
               context.getPhaser().arriveAndAwaitAdvance(); // trace reported
             }
           });
@@ -98,16 +93,5 @@ public class Promise<T> {
   public interface ErrorCallback {
     /** @param t the error result of the promise */
     void accept(Throwable t);
-  }
-
-  private class Pair<C> {
-
-    final Continuation capture;
-    final C callback;
-
-    public Pair(Continuation capture, C callback) {
-      this.capture = capture;
-      this.callback = callback;
-    }
   }
 }

@@ -14,17 +14,16 @@
 package io.opentracing.examples.promise_propagation;
 
 import io.opentracing.Scope;
-import io.opentracing.examples.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
 import io.opentracing.tag.Tags;
-import org.junit.Before;
-import org.junit.Test;
-
+import io.opentracing.util.ThreadLocalScopeManager;
 import java.util.List;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.Before;
+import org.junit.Test;
 
 import static io.opentracing.examples.TestUtils.getByTag;
 import static io.opentracing.examples.TestUtils.getOneByTag;
@@ -42,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PromisePropagationTest {
 
   private final MockTracer tracer =
-      new MockTracer(new AutoFinishScopeManager(), Propagator.TEXT_MAP);
+          new MockTracer(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
   private Phaser phaser;
 
   @Before
@@ -69,7 +68,7 @@ public class PromisePropagationTest {
             new Promise.SuccessCallback<String>() {
               @Override
               public void accept(String s) {
-                tracer.activeSpan().log("Promised 1 " + s);
+                tracer.scopeManager().active().span().log("Promised 1 " + s);
                 successResult1.set(s);
                 phaser.arriveAndAwaitAdvance(); // result set
               }
@@ -78,7 +77,7 @@ public class PromisePropagationTest {
                 new Promise.SuccessCallback<String>() {
                   @Override
                   public void accept(String s) {
-                    tracer.activeSpan().log("Promised 2 " + s);
+                    tracer.scopeManager().active().span().log("Promised 2 " + s);
                     successResult2.set(s);
                     phaser.arriveAndAwaitAdvance(); // result set
                   }

@@ -13,6 +13,7 @@
  */
 package io.opentracing.examples.actor_propagation;
 
+import io.opentracing.References;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.mock.MockTracer;
@@ -43,56 +44,48 @@ public class Actor implements AutoCloseable {
   }
 
   public void tell(final String message) {
-    Span span = tracer.scopeManager().active().span();
+    final Span parent = tracer.scopeManager().active().span();
     phaser.register();
     executor.submit(
         new Runnable() {
           @Override
           public void run() {
-            try (Scope parent = tracer.scopeManager().activate(span)) {
-              try (Scope child =
-                  tracer
-                      .buildSpan("received")
-                      .asChildOf(parent.span())
-                      .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                      .startActive()) {
-                phaser.arriveAndAwaitAdvance(); // child tracer started
-                child.span().log("received " + message);
-                phaser.arriveAndAwaitAdvance(); // assert size
-              }
-              phaser.arriveAndAwaitAdvance(); // child tracer finished
+            try (Scope child =
+                tracer
+                    .buildSpan("received")
+                    .addReference(References.FOLLOWS_FROM, parent.context())
+                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
+                    .startActive()) {
+              phaser.arriveAndAwaitAdvance(); // child tracer started
+              child.span().log("received " + message);
               phaser.arriveAndAwaitAdvance(); // assert size
             }
-            phaser.arriveAndAwaitAdvance(); // parent tracer finished
-            phaser.arriveAndDeregister(); // assert size
+            phaser.arriveAndAwaitAdvance(); // child tracer finished
+            phaser.arriveAndAwaitAdvance(); // assert size
           }
         });
   }
 
   public Future<String> ask(final String message) {
-    Span span = tracer.scopeManager().active().span();
+    final Span parent = tracer.scopeManager().active().span();
     phaser.register();
     Future<String> future =
         executor.submit(
             new Callable<String>() {
               @Override
               public String call() throws Exception {
-                try (Scope parent = tracer.scopeManager().activate(span)) {
-                  try (Scope child =
-                      tracer
-                          .buildSpan("received")
-                          .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                          .startActive()) {
-                    phaser.arriveAndAwaitAdvance(); // child tracer started
-                    phaser.arriveAndAwaitAdvance(); // assert size
-                    return "received " + message;
-                  } finally {
-                    phaser.arriveAndAwaitAdvance(); // child tracer finished
-                    phaser.arriveAndAwaitAdvance(); // assert size
-                  }
+                try (Scope child =
+                    tracer
+                        .buildSpan("received")
+                        .addReference(References.FOLLOWS_FROM, parent.context())
+                        .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
+                        .startActive()) {
+                  phaser.arriveAndAwaitAdvance(); // child tracer started
+                  phaser.arriveAndAwaitAdvance(); // assert size
+                  return "received " + message;
                 } finally {
-                  phaser.arriveAndAwaitAdvance(); // parent tracer finished
-                  phaser.arriveAndDeregister(); // assert size
+                  phaser.arriveAndAwaitAdvance(); // child tracer finished
+                  phaser.arriveAndAwaitAdvance(); // assert size
                 }
               }
             });

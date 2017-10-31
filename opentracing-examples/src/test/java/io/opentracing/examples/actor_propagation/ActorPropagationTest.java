@@ -65,18 +65,16 @@ public class ActorPropagationTest {
         actor.tell("my message 2");
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
-      assertThat(tracer.finishedSpans().size()).isEqualTo(0);
+      assertThat(tracer.finishedSpans().size()).isEqualTo(1); // Parent should be reported
       phaser.arriveAndAwaitAdvance(); // continue...
 
       phaser.arriveAndAwaitAdvance(); // child tracer finished
-      assertThat(tracer.finishedSpans().size()).isEqualTo(2);
+      assertThat(tracer.finishedSpans().size()).isEqualTo(3);
       assertThat(getByTag(tracer.finishedSpans(), Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER))
           .hasSize(2);
-      phaser.arriveAndAwaitAdvance(); // continue...
-
-      phaser.arriveAndAwaitAdvance(); // parent tracer finished
-      List<MockSpan> finished = tracer.finishedSpans();
       phaser.arriveAndDeregister(); // continue...
+
+      List<MockSpan> finished = tracer.finishedSpans();
 
       assertThat(finished.size()).isEqualTo(3);
       assertThat(finished.get(0).context().traceId())
@@ -103,18 +101,16 @@ public class ActorPropagationTest {
         future2 = actor.ask("my message 2");
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
-      assertThat(tracer.finishedSpans().size()).isEqualTo(0);
+      assertThat(tracer.finishedSpans().size()).isEqualTo(1);
       phaser.arriveAndAwaitAdvance(); // continue...
 
       phaser.arriveAndAwaitAdvance(); // child tracer finished
-      assertThat(tracer.finishedSpans().size()).isEqualTo(2);
+      assertThat(tracer.finishedSpans().size()).isEqualTo(3);
       assertThat(getByTag(tracer.finishedSpans(), Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER))
           .hasSize(2);
-      phaser.arriveAndAwaitAdvance(); // continue...
-
-      phaser.arriveAndAwaitAdvance(); // parent tracer finished
-      List<MockSpan> finished = tracer.finishedSpans();
       phaser.arriveAndDeregister(); // continue...
+
+      List<MockSpan> finished = tracer.finishedSpans();
 
       String message1 = future1.get(); // This really should be a non-blocking callback...
       String message2 = future2.get(); // This really should be a non-blocking callback...
