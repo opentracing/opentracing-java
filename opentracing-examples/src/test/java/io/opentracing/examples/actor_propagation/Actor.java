@@ -34,7 +34,7 @@ public class Actor implements AutoCloseable {
     this.tracer = tracer;
 
     this.phaser = phaser;
-    executor = Executors.newSingleThreadExecutor();
+    executor = Executors.newFixedThreadPool(2);
   }
 
   @Override
