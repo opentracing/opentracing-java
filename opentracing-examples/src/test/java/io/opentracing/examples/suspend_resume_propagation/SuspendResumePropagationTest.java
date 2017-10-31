@@ -16,7 +16,7 @@ package io.opentracing.examples.suspend_resume_propagation;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SuspendResumePropagationTest {
 
   private final MockTracer tracer =
-      new MockTracer(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
+      new MockTracer(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
   private Phaser phaser;
 
   @Before

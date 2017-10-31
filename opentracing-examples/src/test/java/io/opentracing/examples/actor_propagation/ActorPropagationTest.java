@@ -13,12 +13,12 @@
  */
 package io.opentracing.examples.actor_propagation;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ActorPropagationTest {
 
   private final MockTracer tracer =
-      new MockTracer(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
+      new MockTracer(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
   private Phaser phaser;
 
   @Before
@@ -55,7 +55,7 @@ public class ActorPropagationTest {
   public void testActorTell() {
     try (Actor actor = new Actor(tracer, phaser)) {
       phaser.register();
-      try (ActiveSpan parent =
+      try (Scope parent =
           tracer
               .buildSpan("actorTell")
               .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
@@ -83,7 +83,7 @@ public class ActorPropagationTest {
           .isEqualTo(finished.get(1).context().traceId());
       assertThat(getByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).hasSize(2);
       assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_PRODUCER)).isNotNull();
-      assertThat(tracer.activeSpan()).isNull();
+      assertThat(tracer.scopeManager().active()).isNull();
     }
   }
 
@@ -93,7 +93,7 @@ public class ActorPropagationTest {
       phaser.register();
       Future<String> future1;
       Future<String> future2;
-      try (ActiveSpan parent =
+      try (Scope parent =
           tracer
               .buildSpan("actorAsk")
               .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
@@ -125,7 +125,7 @@ public class ActorPropagationTest {
           .isEqualTo(finished.get(1).context().traceId());
       assertThat(getByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).hasSize(2);
       assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_PRODUCER)).isNotNull();
-      assertThat(tracer.activeSpan()).isNull();
+      assertThat(tracer.scopeManager().active()).isNull();
     }
   }
 }

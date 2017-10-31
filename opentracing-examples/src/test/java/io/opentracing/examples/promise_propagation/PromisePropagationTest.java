@@ -13,12 +13,12 @@
  */
 package io.opentracing.examples.promise_propagation;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
+import io.opentracing.examples.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PromisePropagationTest {
 
   private final MockTracer tracer =
-      new MockTracer(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
+      new MockTracer(new AutoFinishScopeManager(), Propagator.TEXT_MAP);
   private Phaser phaser;
 
   @Before
@@ -57,7 +57,7 @@ public class PromisePropagationTest {
     final AtomicReference<String> successResult2 = new AtomicReference<>();
     final AtomicReference<Throwable> errorResult = new AtomicReference<>();
     try (PromiseContext context = new PromiseContext(phaser, 3)) {
-      try (ActiveSpan parent =
+      try (Scope parent =
           tracer
               .buildSpan("promises")
               .withTag(Tags.COMPONENT.getKey(), "example-promises")
