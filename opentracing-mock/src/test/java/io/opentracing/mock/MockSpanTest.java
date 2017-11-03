@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.noop.NoopSpan;
 
 /**
  * @author Pavol Loffay
@@ -85,5 +86,12 @@ public class MockSpanTest {
         Tracer tracer = new MockTracer();
         Span span = tracer.buildSpan("foo").startManual();
         Assert.assertSame(span, span.unwrap(MockSpan.class));
+    }
+
+    @Test
+    public void testUnwrapWrongInstance() throws Exception {
+        Tracer tracer = new MockTracer();
+        Span span = tracer.buildSpan("foo").startManual();
+        Assert.assertNull(span.unwrap(NoopSpan.class));
     }
 }

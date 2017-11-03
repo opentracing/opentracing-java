@@ -34,7 +34,7 @@ final class NoopSpanImpl implements NoopSpan {
     public void finish(long finishMicros) {}
 
     @Override
-    public <T> T unwrap(Class<T> clazz) {
+    public <T extends Span> T unwrap(Class<T> clazz) {
         if (clazz.isInstance(this)) {
             return clazz.cast(this);
         } else {

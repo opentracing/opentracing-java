@@ -177,5 +177,5 @@ public interface Span {
      * @return an object that is an instance of the provided class, or <code>null</code> if there is no such class in
      * the wrapper hierarchy.
      */
-    <T> T unwrap(java.lang.Class<T> clazz);
+    <T extends Span> T unwrap(java.lang.Class<T> clazz);
 }

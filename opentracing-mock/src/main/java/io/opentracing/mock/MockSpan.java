@@ -116,7 +116,7 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public <T> T unwrap(Class<T> clazz) {
+    public <T extends Span> T unwrap(Class<T> clazz) {
         if (clazz.isInstance(this)) {
             return clazz.cast(this);
         } else {
