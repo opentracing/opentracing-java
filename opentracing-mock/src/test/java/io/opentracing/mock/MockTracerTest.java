@@ -16,6 +16,7 @@ package io.opentracing.mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -208,5 +209,74 @@ public class MockTracerTest {
         assertEquals(1, mockTracer.finishedSpans().size());
         mockTracer.reset();
         assertEquals(0, mockTracer.finishedSpans().size());
+    }
+
+    @Test
+    public void testFollowFromReference() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+
+        final MockSpan followingSpan = tracer.buildSpan("follows")
+            .addReference(References.FOLLOWS_FROM, precedent.context())
+            .startManual();
+
+        assertEquals(precedent.context().spanId(), followingSpan.parentId());
+        assertEquals(1, followingSpan.references().size());
+
+        final MockSpan.Reference followsFromRef = followingSpan.references().get(0);
+
+        assertEquals(new MockSpan.Reference(precedent.context(), References.FOLLOWS_FROM), followsFromRef);
+    }
+
+    @Test
+    public void testMultiReferences() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan parent = tracer.buildSpan("parent").startManual();
+        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+
+        final MockSpan followingSpan = tracer.buildSpan("follows")
+            .addReference(References.FOLLOWS_FROM, precedent.context())
+            .asChildOf(parent.context())
+            .startManual();
+
+        assertEquals(parent.context().spanId(), followingSpan.parentId());
+        assertEquals(2, followingSpan.references().size());
+
+        final MockSpan.Reference followsFromRef = followingSpan.references().get(0);
+        final MockSpan.Reference parentRef = followingSpan.references().get(1);
+
+        assertEquals(new MockSpan.Reference(precedent.context(), References.FOLLOWS_FROM), followsFromRef);
+        assertEquals(new MockSpan.Reference(parent.context(), References.CHILD_OF), parentRef);
+    }
+
+    @Test
+    public void testMultiReferencesBaggage() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan parent = tracer.buildSpan("parent").startManual();
+        parent.setBaggageItem("parent", "foo");
+        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+        precedent.setBaggageItem("precedent", "bar");
+
+        final MockSpan followingSpan = tracer.buildSpan("follows")
+            .addReference(References.FOLLOWS_FROM, precedent.context())
+            .asChildOf(parent.context())
+            .startManual();
+
+        assertEquals("foo", followingSpan.getBaggageItem("parent"));
+        assertEquals("bar", followingSpan.getBaggageItem("precedent"));
+    }
+
+    @Test
+    public void testNonStandardReference() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan parent = tracer.buildSpan("parent").startManual();
+
+        final MockSpan nextSpan = tracer.buildSpan("follows")
+            .addReference("a_reference", parent.context())
+            .startManual();
+
+        assertEquals(parent.context().spanId(), nextSpan.parentId());
+        assertEquals(1, nextSpan.references().size());
+        assertEquals(nextSpan.references().get(0), new MockSpan.Reference(parent.context(), "a_reference"));
     }
 }
