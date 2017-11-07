@@ -108,15 +108,37 @@ Consider the case where a `Span`'s lifetime logically starts in one thread and e
 ---------------------------------------------------------> time
 ```
 
-The `"ServiceHandlerSpan"` is _active_ while it's running FunctionA and FunctionB, and inactive while it's waiting on an RPC (presumably modelled as its own Span, though that's not the concern here).
+The `"ServiceHandlerSpan"` is _active_ while it's running FunctionA and FunctionB, and inactive while it's waiting on an RPC (typically modelled as its own Span).
 
-**The `ActiveSpanSource` API makes it easy to `capture()` the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` implements `ActiveSpanSource`. These are the steps:
+**The `ActiveSpanSource` API makes it easy to `capture()` the Span and execution context in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` implements `ActiveSpanSource`. These are the steps to hand a span from the end of `FunctionA` to the beginning of `FunctionB`:
 
-1. Start an `ActiveSpan` via `Tracer.startActive()` (or, if the `Span` was already started manually via `startManual()`, call `ActiveSpanSource#makeActive(span)`)
-2. In the method that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#capture()` to obtain an `ActiveSpan.Continuation`
-3. In the closure/`Runnable`/`Future`/etc itself, invoke `ActiveSpan.Continuation#activate` to re-activate the `ActiveSpan`, then `deactivate()` it when the Span is no longer active (or use try-with-resources for less typing).
+1. In the method that *allocates* the closure/`Runnable`/`Future`/etc, call `ActiveSpan#capture()` to obtain an `ActiveSpan.Continuation`
+2. In the closure/`Runnable`/`Future`/etc itself, invoke `ActiveSpan.Continuation#activate` to re-activate the `ActiveSpan`, then `deactivate()` it when the Span is no longer active (or use try-with-resources for less typing).
 
 For example:
+```java
+...
+    // STEP 1 ABOVE: capture the ActiveSpan
+    final ActiveSpan.Continuation cont = tracer.activeSpan().capture();
+    doAsyncWork(new Runnable() {
+        @Override
+        public void run() {
+
+            // STEP 2 ABOVE: use the Continuation to reactivate the Span in the callback.
+            try (ActiveSpan activeSpan = cont.activate()) {
+                ...
+            }
+        }
+    });
+```
+
+To model the entire example, we need to:
+1. Start an `ActiveSpan` via `Tracer.startActive()` (or, if the `Span` was already started manually via `startManual()`, call `ActiveSpanSource#makeActive(span)`).
+2. At the end of FunctionA create a span to represent the RPC we're going to wait on and capture it.
+3. At the start of Function B activate the continuation, then create a follow-on span to track the work in functionB and whatever follows, and close the RPC span.
+   An alternative to a new span would be to also capture the service level span and just reactivate it as the active Span.
+
+With a follow-on span:
 
 ```java
 io.opentracing.Tracer tracer = ...;
@@ -125,20 +147,53 @@ io.opentracing.Tracer tracer = ...;
 try (ActiveSpan serviceSpan = tracer.buildSpan("ServiceHandlerSpan").startActive()) {
     ...
 
-    // STEP 2 ABOVE: capture the ActiveSpan
-    final ActiveSpan.Continuation cont = serviceSpan.capture();
-    doAsyncWork(new Runnable() {
-        @Override
-        public void run() {
-
-            // STEP 3 ABOVE: use the Continuation to reactivate the Span in the callback.
-            try (ActiveSpan activeSpan = cont.activate()) {
-                ...
+    // STEP 2 ABOVE: make a new span and capture it
+    try (ActiveSpan RPCSpan = tracer.buildSpan("RPCCall").startActive()) {
+        final ActiveSpan.Continuation cont = RPCSpan.capture();
+        doAsyncWork(new Runnable() {
+            @Override
+            public void run() {
+                // STEP 3 ABOVE: use the Continuation to reactivate the Span in the callback.
+                SpanContext context = null;
+                try (ActiveSpan activeSpan = cont.activate()) { context = activeSpan.context(); }
+                try (ActiveSpan functionBSpan = tracer.buildSpan("FunctionB+")
+                        .ignoreActiveSpan().addReference(references.FOLLOW_FROM, context).startActive() {
+                ... the rest of function B 
+                }
             }
         }
     });
 }
 ```
+
+Returning to the parent span:
+```java
+io.opentracing.Tracer tracer = ...;
+...
+// STEP 1 ABOVE: start the ActiveSpan
+try (ActiveSpan serviceSpan = tracer.buildSpan("ServiceHandlerSpan").startActive()) {
+    ...
+
+    // STEP 2 ABOVE: make a new span and capture it
+    try (ActiveSpan RPCSpan = tracer.buildSpan("RPCCall").startActive()) {
+        final ActiveSpan.Continuation rpccont = RPCSpan.capture();
+        final ActiveSpan.Continuation servicecont = serviceSpan.capture();
+        doAsyncWork(new Runnable() {
+            @Override
+            public void run() {
+                // STEP 3 ABOVE: use the Continuations to reactivate the Span in the callback.
+                try (ActiveSpan resumedServiceSpan = servicecont.activate()) { 
+                    try (ActiveSpan resumedRPCSpan = rpccont.activate() {
+                    ... add any RPC metadata needed here.
+                    }
+                    ... perform the rest of functionB here
+                }
+            }
+        }
+    });
+}
+```
+
 
 In practice, all of this is most fluently accomplished through the use of an OpenTracing-aware `ExecutorService` and/or `Runnable`/`Callable` adapter; they factor out most of the typing.
 
