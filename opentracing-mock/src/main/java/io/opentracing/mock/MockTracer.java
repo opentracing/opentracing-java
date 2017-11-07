@@ -205,7 +205,7 @@ public class MockTracer implements Tracer {
     public final class SpanBuilder implements Tracer.SpanBuilder {
         private final String operationName;
         private long startMicros;
-        private MockSpan.MockContext firstParent;
+        private List<MockSpan.Reference> references = new ArrayList<>();
         private boolean ignoringActiveSpan;
         private Map<String, Object> initialTags = new HashMap<>();
 
@@ -231,9 +231,8 @@ public class MockTracer implements Tracer {
 
         @Override
         public SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
-            if (firstParent == null && (
-                    referenceType.equals(References.CHILD_OF) || referenceType.equals(References.FOLLOWS_FROM))) {
-                this.firstParent = (MockSpan.MockContext)referencedContext;
+            if (referencedContext != null) {
+                this.references.add(new MockSpan.Reference((MockSpan.MockContext) referencedContext, referenceType));
             }
             return this;
         }
@@ -279,10 +278,11 @@ public class MockTracer implements Tracer {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
             }
-            if (firstParent == null && !ignoringActiveSpan) {
-                firstParent = (MockSpan.MockContext) activeSpanContext();
+            SpanContext activeSpanContext = activeSpanContext();
+            if(references.isEmpty() && !ignoringActiveSpan && activeSpanContext != null) {
+                references.add(new MockSpan.Reference((MockSpan.MockContext) activeSpanContext, References.CHILD_OF));
             }
-            return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
+            return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, references);
         }
     }
 }
