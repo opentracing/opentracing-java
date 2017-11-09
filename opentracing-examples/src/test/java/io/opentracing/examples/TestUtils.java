@@ -17,6 +17,7 @@ import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.AbstractTag;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,18 +38,27 @@ public class TestUtils {
         };
     }
 
-    public static MockSpan getOneByTag(List<MockSpan> spans, AbstractTag key, Object value) {
-        MockSpan found = null;
+    public static List<MockSpan> getByTag(List<MockSpan> spans, AbstractTag key, Object value) {
+        List<MockSpan> found = new ArrayList<>(spans.size());
         for (MockSpan span : spans) {
             if (span.tags().get(key.getKey()).equals(value)) {
-                if (found != null) {
-                    throw new IllegalArgumentException("there is more than one span with tag '"
-                            + key.getKey() + "' and value '" + value + "'");
-                }
-                found = span;
+                found.add(span);
             }
         }
         return found;
+    }
+
+    public static MockSpan getOneByTag(List<MockSpan> spans, AbstractTag key, Object value) {
+        List<MockSpan> found = getByTag(spans, key, value);
+        if (found.size() > 1) {
+            throw new IllegalArgumentException("there is more than one span with tag '"
+                    + key.getKey() + "' and value '" + value + "'");
+        }
+        if (found.isEmpty()) {
+            return null;
+        } else {
+            return found.get(0);
+        }
     }
 
     public static void sleep() {
