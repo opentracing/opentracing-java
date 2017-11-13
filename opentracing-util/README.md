@@ -37,7 +37,7 @@ GlobalTracer.register(configuredTracer);
 Once initialized, all application code can instrument tracing by starting new spans like:
 
 ```java
-try (Span span = GlobalTracer.get().buildSpan("someOperation").startActive()) {
+try (Scope scope = GlobalTracer.get().buildSpan("someOperation").startActive()) {
     // ... Traced block of code ...
 }
 ```

@@ -8,8 +8,8 @@ Imagine the following (admittedly unrealistic) OpenTracing-instrumented applicat
 
 ```java
 public void handlePurchase(User user, Item item, Tracer tracer) {
-    try (ActiveSpan span = tracer.buildSpan("handlePurchase").startActive()) {
-        span.setTag("username", user.getUsername());
+    try (Scope scope = tracer.buildSpan("handlePurchase").startActive()) {
+        scope.span().setTag("username", user.getUsername());
     }
 }
 ```
