@@ -42,7 +42,7 @@ public class NestedCallbacksTest {
     @Test
     public void test() throws Exception {
 
-        try (Scope scope = tracer.buildSpan("one").startActive(false)) {
+        try (Scope scope = tracer.buildSpan("one").startActive()) {
             submitCallbacks(scope.span());
         }
 
@@ -78,7 +78,7 @@ public class NestedCallbacksTest {
                                 executor.submit(new Runnable() {
                                     @Override
                                     public void run() {
-                                        try (Scope scope = tracer.scopeManager().activate(span)) {
+                                        try (Scope scope = tracer.scopeManager().activate(span, true)) {
                                             span.setTag("key3", "3");
                                         }
                                     }

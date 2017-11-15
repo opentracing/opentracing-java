@@ -39,7 +39,7 @@ public class ThreadLocalScopeManagerTest {
     }
 
     @Test
-    public void activateSpan() throws Exception {
+    public void defaultActivate() throws Exception {
         Span span = mock(Span.class);
 
         // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
@@ -53,7 +53,7 @@ public class ThreadLocalScopeManagerTest {
         }
 
         // Make sure the Span got finish()ed.
-        verify(span, times(1)).finish();
+        verify(span, times(0)).finish();
 
         // And now it's gone:
         Scope missingScope = source.active();
@@ -61,7 +61,7 @@ public class ThreadLocalScopeManagerTest {
     }
 
     @Test
-    public void activateSpanClose() throws Exception {
+    public void finishSpanClose() throws Exception {
         Span span = mock(Span.class);
 
         // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
@@ -81,7 +81,7 @@ public class ThreadLocalScopeManagerTest {
     }
 
     @Test
-    public void activateSpanNoClose() throws Exception {
+    public void dontFinishSpanNoClose() throws Exception {
         Span span = mock(Span.class);
 
         // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.

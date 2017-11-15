@@ -37,7 +37,8 @@ public class Server extends Thread {
         try (Scope scope = tracer.buildSpan("receive")
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
                 .withTag(Tags.COMPONENT.getKey(), "example-server")
-                .asChildOf(context).startActive()) {
+                .asChildOf(context)
+            .startActive(true)) {
         }
     }
 

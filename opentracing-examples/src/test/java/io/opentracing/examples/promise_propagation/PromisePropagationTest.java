@@ -60,7 +60,7 @@ public class PromisePropagationTest {
           tracer
               .buildSpan("promises")
               .withTag(Tags.COMPONENT.getKey(), "example-promises")
-              .startActive()) {
+              .startActive(true)) {
 
         Promise<String> successPromise = new Promise<>(context, tracer);
 

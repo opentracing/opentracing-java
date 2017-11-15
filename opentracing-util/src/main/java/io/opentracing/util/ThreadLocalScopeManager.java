@@ -27,7 +27,7 @@ public class ThreadLocalScopeManager implements ScopeManager {
 
     @Override
     public Scope activate(Span span) {
-        return new ThreadLocalScope(this, span, true);
+        return new ThreadLocalScope(this, span, false);
     }
 
     @Override

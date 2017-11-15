@@ -72,8 +72,8 @@ public class LateSpanFinishTest {
             @Override
             public void run() {
                 // Alternative to calling makeActive() is to pass it manually to asChildOf() for each created Span.
-                try (Scope scope = tracer.scopeManager().activate(parentSpan, false)) {
-                    try (Scope childScope1 = tracer.buildSpan("task1").startActive()) {
+                try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
+                    try (Scope childScope1 = tracer.buildSpan("task1").startActive(true)) {
                         sleep(55);
                     }
                 }
@@ -83,8 +83,8 @@ public class LateSpanFinishTest {
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                try (Scope span = tracer.scopeManager().activate(parentSpan, false)) {
-                    try (Scope childScope2 = tracer.buildSpan("task2").startActive()) {
+                try (Scope span = tracer.scopeManager().activate(parentSpan)) {
+                    try (Scope childScope2 = tracer.buildSpan("task2").startActive(true)) {
                         sleep(85);
                     }
                 }

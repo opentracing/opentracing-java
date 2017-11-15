@@ -165,11 +165,16 @@ public interface Tracer {
          * <p>
          * The returned {@link Scope} supports try-with-resources. For example:
          * <pre><code>
-         *     try (Scope scope = tracer.buildSpan("...").startActive()) {
+         *     Span span = tracer.buildSpan("...").startManual();
+         *     try (Scope scope = tracer.scopeManager().activate(span))
          *         // (Do work)
          *         scope.span().setTag( ... );  // etc, etc
+         *     } catch(Exception ex) {
+         *       Tags.ERROR.set(span, true)'
+         *     } finally {
+         *       span.finish();
          *     }
-         *     // Span finishes automatically when the Scope is closed,
+         *     // Span is not automatically finished when the Scope is closed,
          *     // following the default behavior of ScopeManager.activate(Span)
          * </code></pre>
          *
@@ -194,12 +199,12 @@ public interface Tracer {
          * <p>
          * The returned {@link Scope} supports try-with-resources. For example:
          * <pre><code>
-         *     try (Scope scope = tracer.buildSpan("...").startActive(false)) {
+         *     try (Scope scope = tracer.buildSpan("...").startActive(true)) {
          *         // (Do work)
          *         scope.span().setTag( ... );  // etc, etc
          *     }
-         *     // Span does not finish automatically when the Scope is closed as
-         *     // 'finishOnClose' is false
+         *     // Span does finish automatically when the Scope is closed as
+         *     // 'finishOnClose' is true
          * </code></pre>
          *
          * <p>

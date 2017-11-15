@@ -27,7 +27,7 @@ public interface ScopeManager {
      *
      * @param span the {@link Span} that should become the {@link #active()}
      * @return a {@link Scope} instance to control the end of the active period for the {@link Span}.
-     * Span will automatically be finished when {@link Scope#close()} is called. It is a
+     * Span will not automatically be finished when {@link Scope#close()} is called. It is a
      * programming error to neglect to call {@link Scope#close()} on the returned instance.
      */
     Scope activate(Span span);
