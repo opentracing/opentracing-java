@@ -13,8 +13,6 @@
  */
 package io.opentracing.v_030;
 
-import io.opentracing.SpanContext;
-
 import java.io.Closeable;
 
 /**

@@ -11,26 +11,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.noop.v_030;
+package io.opentracing.v_030;
 
-import io.opentracing.v_030.SpanContext;
-
-import java.util.Collections;
 import java.util.Map;
 
-
-public interface NoopSpanContext extends SpanContext {
-}
-
-final class NoopSpanContextImpl implements NoopSpanContext {
-    static final NoopSpanContextImpl INSTANCE = new NoopSpanContextImpl();
-
-    @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String toString() { return NoopSpanContext.class.getSimpleName(); }
-
+/**
+ * SpanContext represents Span state that must propagate to descendant Spans and across process boundaries.
+ * This interface is the same as io.opentracing.SpanContext, as is provided under this package
+ * in order to keep API uniformity.
+ */
+public interface SpanContext extends io.opentracing.SpanContext {
 }

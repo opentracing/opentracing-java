@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.opentracing.SpanContext;
 import io.opentracing.v_030.Span;
+import io.opentracing.v_030.SpanContext;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to

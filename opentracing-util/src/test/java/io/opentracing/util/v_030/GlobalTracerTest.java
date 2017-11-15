@@ -26,8 +26,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import io.opentracing.SpanContext;
 import io.opentracing.propagation.Format;
+import io.opentracing.v_030.SpanContext;
 import io.opentracing.v_030.Tracer;
 import io.opentracing.noop.v_030.NoopSpanBuilder;
 import io.opentracing.noop.v_030.NoopTracerFactory;

@@ -13,10 +13,10 @@
  */
 package io.opentracing.noop.v_030;
 
-import io.opentracing.SpanContext;
 import io.opentracing.v_030.ActiveSpan;
 import io.opentracing.v_030.BaseSpan;
 import io.opentracing.v_030.Span;
+import io.opentracing.v_030.SpanContext;
 import io.opentracing.v_030.Tracer;
 
 import java.util.Collections;

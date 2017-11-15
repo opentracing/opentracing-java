@@ -16,10 +16,10 @@ package io.opentracing.util.v_030;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.opentracing.SpanContext;
 import io.opentracing.v_030.ActiveSpan;
 import io.opentracing.v_030.ActiveSpanSource;
 import io.opentracing.v_030.Span;
+import io.opentracing.v_030.SpanContext;
 import io.opentracing.v_030.Tracer;
 
 /**

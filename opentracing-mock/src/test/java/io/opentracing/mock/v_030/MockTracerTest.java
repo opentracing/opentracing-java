@@ -16,11 +16,11 @@ package io.opentracing.mock.v_030;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import io.opentracing.SpanContext;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
 import io.opentracing.v_030.Span;
+import io.opentracing.v_030.SpanContext;
 import io.opentracing.v_030.Tracer;
 import java.util.HashMap;
 import java.util.List;

@@ -13,7 +13,6 @@
  */
 package io.opentracing.v_030;
 
-import io.opentracing.SpanContext;
 import io.opentracing.propagation.Format;
 
 /**

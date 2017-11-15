@@ -14,13 +14,13 @@
 package io.opentracing.mock.v_030;
 
 import io.opentracing.References;
-import io.opentracing.SpanContext;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.v_030.ActiveSpan;
 import io.opentracing.v_030.ActiveSpanSource;
 import io.opentracing.v_030.BaseSpan;
 import io.opentracing.v_030.Span;
+import io.opentracing.v_030.SpanContext;
 import io.opentracing.v_030.Tracer;
 import io.opentracing.noop.v_030.NoopActiveSpanSource;
 import io.opentracing.util.v_030.ThreadLocalActiveSpanSource;
