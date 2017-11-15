@@ -83,14 +83,15 @@ public class TestUtils {
         Collections.sort(spans, new Comparator<MockSpan>() {
             @Override
             public int compare(MockSpan o1, MockSpan o2) {
-                return Long.compare(o1.startMicros(), o2.startMicros());
+                return Long.compare(o1.startTimestamp(TimeUnit.MICROSECONDS), o2.startTimestamp(TimeUnit.MICROSECONDS));
             }
         });
     }
 
     public static void assertSameTrace(List<MockSpan> spans) {
         for (int i = 0; i < spans.size() - 1; i++) {
-            assertEquals(true, spans.get(spans.size() - 1).finishMicros() >= spans.get(i).finishMicros());
+            assertEquals(true, spans.get(spans.size() - 1).finishTimestamp(TimeUnit.MICROSECONDS)
+                    >= spans.get(i).finishTimestamp(TimeUnit.MICROSECONDS));
             assertEquals(spans.get(spans.size() - 1).context().traceId(), spans.get(i).context().traceId());
             assertEquals(spans.get(spans.size() - 1).context().spanId(), spans.get(i).parentId());
         }

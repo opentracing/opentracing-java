@@ -14,6 +14,7 @@
 package io.opentracing;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@link Span} represents the OpenTracing specification's Span contract.
@@ -79,8 +80,26 @@ public interface Span {
      *               some may also support arbitrary Objects.
      * @return the Span, for chaining
      * @see Span#log(long, String)
+     * @deprecated Use {@link #log(long, TimeUnit, Map)}
      */
+    @Deprecated
     Span log(long timestampMicroseconds, Map<String, ?> fields);
+
+    /**
+     * Like log(Map&lt;String, Object&gt;), but with an explicit timestamp.
+     *
+     * <p><strong>CAUTIONARY NOTE:</strong> not all Tracer implementations support key:value log fields end-to-end.
+     * Caveat emptor.
+     *
+     * @param timestamp The explicit timestamp for the log record in {@code timeUnit} units since the epoch. Must
+     *                  be greater than or equal to the Span's start timestamp.
+     * @param timeUnit  The unit ot time that {@code timestamp} is specified in
+     * @param fields key:value log fields. Tracer implementations should support String, numeric, and boolean values;
+     *               some may also support arbitrary Objects.
+     * @return the Span, for chaining
+     * @see Span#log(long, String)
+     */
+    Span log(long timestamp, TimeUnit timeUnit, Map<String, ?> fields);
 
     /**
      * Record an event at the current walltime timestamp.
@@ -109,8 +128,27 @@ public interface Span {
      *                              Span's start timestamp.
      * @param event the event value; often a stable identifier for a moment in the Span lifecycle
      * @return the Span, for chaining
+     * @deprecated Use {@link #log(long, TimeUnit, String)}
      */
+    @Deprecated
     Span log(long timestampMicroseconds, String event);
+
+    /**
+     * Record an event at a specific timestamp.
+     *
+     * Shorthand for
+     *
+     * <pre><code>
+     span.log(timestamp, timeUnit, Collections.singletonMap("event", event));
+     </code></pre>
+     *
+     * @param timestamp The explicit timestamp for the log record in {@code timeUnit} units since the epoch. Must
+     *                  be greater than or equal to the Span's start timestamp.
+     * @param timeUnit  The unit ot time that {@code timestamp} is specified in
+     * @param event the event value; often a stable identifier for a moment in the Span lifecycle
+     * @return the Span, for chaining
+     */
+    Span log(long timestamp, TimeUnit timeUnit, String event);
 
     /**
      * Sets a baggage item in the Span (and its SpanContext) as a key/value pair.
@@ -159,6 +197,21 @@ public interface Span {
      * @param finishMicros an explicit finish time, in microseconds since the epoch
      *
      * @see Span#context()
+     * @deprecated Use {@link #finish(long,TimeUnit)}
      */
+    @Deprecated
     void finish(long finishMicros);
+
+    /**
+     * Sets an explicit end timestamp and records the span.
+     *
+     * <p>With the exception of calls to Span.context(), this should be the last call made to the span instance, and to
+     * do otherwise leads to undefined behavior.
+     *
+     * @param finishTimestamp an explicit finish time, in {@code finishUnit}s since the epoch
+     * @param finishUnit time unit that {@code finishTimestamp} is specified in
+     *
+     * @see Span#context()
+     */
+    void finish(long finishTimestamp, TimeUnit finishUnit);
 }
