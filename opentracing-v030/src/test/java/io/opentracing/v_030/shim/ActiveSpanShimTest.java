@@ -44,11 +44,6 @@ public class ActiveSpanShimTest {
         shim = new TracerShim(mockTracer);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void capture() {
-        shim.buildSpan("one").startActive().capture();
-    }
-
     @Test
     public void log() {
         shim.buildSpan("one").startActive()
