@@ -13,14 +13,14 @@
  */
 package io.opentracing.v_030.tag;
 
-import io.opentracing.v_030.Span;
+import io.opentracing.v_030.BaseSpan;
 
 public class IntOrStringTag extends IntTag {
     public IntOrStringTag(String key) {
         super(key);
     }
 
-    public void set(Span span, String tagValue) {
+    public void set(BaseSpan<?> span, String tagValue) {
         span.setTag(super.key, tagValue);
     }
 }

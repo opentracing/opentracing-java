@@ -24,6 +24,7 @@ import io.opentracing.v_030.Span;
 import io.opentracing.v_030.SpanContext;
 import io.opentracing.v_030.Tracer;
 import io.opentracing.v_030.shim.TracerShim;
+import io.opentracing.v_030.tag.Tags;
 
 import java.util.List;
 import java.util.Map;
@@ -97,4 +98,18 @@ public class ActiveSpanShimTest {
         assertEquals(true, tags.get("boolean"));
         assertEquals(13, tags.get("number"));
     }
+
+    @Test
+    public void setTagIndirectly() {
+        ActiveSpan span = shim.buildSpan("one").startActive();
+        Tags.COMPONENT.set(span, "shim");
+        span.close();
+
+        List<MockSpan> finishedSpans = mockTracer.finishedSpans();
+        assertEquals(1, finishedSpans.size());
+
+        Map<String, Object> tags = mockTracer.finishedSpans().get(0).tags();
+        assertEquals("shim", tags.get(Tags.COMPONENT.getKey()));
+    }
+
 }

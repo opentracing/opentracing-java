@@ -13,7 +13,7 @@
  */
 package io.opentracing.v_030.tag;
 
-import io.opentracing.v_030.Span;
+import io.opentracing.v_030.BaseSpan;
 
 public abstract class AbstractTag<T> {
     protected final String key;
@@ -26,5 +26,5 @@ public abstract class AbstractTag<T> {
         return key;
     }
 
-    protected abstract void set(Span span, T tagValue);
+    protected abstract void set(BaseSpan<?> span, T tagValue);
 }

@@ -13,7 +13,7 @@
  */
 package io.opentracing.v_030.tag;
 
-import io.opentracing.v_030.Span;
+import io.opentracing.v_030.BaseSpan;
 
 public class IntTag extends AbstractTag<Integer> {
     public IntTag(String key) {
@@ -21,7 +21,7 @@ public class IntTag extends AbstractTag<Integer> {
     }
 
     @Override
-    public void set(Span span, Integer tagValue) {
+    public void set(BaseSpan<?> span, Integer tagValue) {
         span.setTag(super.key, tagValue);
     }
 }
