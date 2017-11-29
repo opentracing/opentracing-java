@@ -203,8 +203,7 @@ public interface Tracer {
          *         // (Do work)
          *         scope.span().setTag( ... );  // etc, etc
          *     }
-         *     // Span does finish automatically when the Scope is closed as
-         *     // 'finishOnClose' is true
+         *     // Span does finish automatically only when 'finishSpanOnClose' is true
          * </code></pre>
          *
          * <p>

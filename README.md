@@ -44,7 +44,7 @@ if (scope != null) {
 ### Starting a new Span
 
 The common case starts an `Scope` that's automatically registered for intra-process propagation via `ScopeManager`.
-Note that the default behaviour of `startActive()` is not to finish the span on `Scope.close()`.
+Note that the default behaviour of `startActive()` does not finish the span on `Scope.close()`.
 This was made on purpose because `try-with-resources` construct would finished the span before
 `catch` or `finally` blocks are executed, which makes logging exceptions impossible.
 This behaviour can be overridden by `startActive(finishOnClose)` which is demonstrated later in this section.
@@ -56,7 +56,7 @@ Span span = tracer.buildSpan("someWork").startManual();
 try (Scope scope = tracer.scopeManager().activate(span))
     // Do things.
 } catch {
-    Tags.ERROR.set(span(), true);
+    Tags.ERROR.set(scope.span(), true);
 } finally {
     span.finish();
 }
@@ -70,7 +70,7 @@ io.opentracing.Tracer tracer = ...;
 try (Scope scope = tracer.buildSpan("someWork").startActive(true)) {
     // Do things.
     //
-    // If we create async work, `scope.span()` allows us to pass the `Span` along as well.
+    // `scope.span()` allows us to pass the `Span` to newly created threads.
 }
 ```
 
