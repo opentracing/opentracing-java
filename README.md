@@ -43,10 +43,10 @@ if (scope != null) {
 
 ### Starting a new Span
 
-The common case starts an `Scope` that's automatically registered for intra-process propagation via `ScopeManager`.
+The common case starts a `Scope` that's automatically registered for intra-process propagation via `ScopeManager`.
 Note that the default behaviour of `startActive()` does not finish the span on `Scope.close()`.
-This was made on purpose because `try-with-resources` construct would finished the span before
-`catch` or `finally` blocks are executed, which makes logging exceptions impossible.
+This decision was made on purpose because the `try-with-resources` construct would finish the span before
+the `catch` or `finally` blocks are executed, which makes logging exceptions and setting tags impossible.
 This behaviour can be overridden by `startActive(finishOnClose)` which is demonstrated later in this section.
 
 ```java
@@ -87,7 +87,7 @@ try {
 }
 ```
 
-**If there is an `Scope`, it will act as the parent to any newly started `Span`** unless 
+**If there is a `Scope`, it will act as the parent to any newly started `Span`** unless 
 the programmer invokes `ignoreActiveSpan()` at `buildSpan()` time or specified parent context explicitly:
 
 ```java

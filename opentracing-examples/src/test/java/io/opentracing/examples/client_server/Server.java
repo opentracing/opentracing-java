@@ -35,10 +35,10 @@ public class Server extends Thread {
     private void process(Message message) {
         SpanContext context = tracer.extract(Builtin.TEXT_MAP, new TextMapExtractAdapter(message));
         try (Scope scope = tracer.buildSpan("receive")
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
-                .withTag(Tags.COMPONENT.getKey(), "example-server")
-                .asChildOf(context)
-            .startActive(true)) {
+              .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
+              .withTag(Tags.COMPONENT.getKey(), "example-server")
+              .asChildOf(context)
+              .startActive(true)) {
         }
     }
 

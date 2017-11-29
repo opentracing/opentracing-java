@@ -52,7 +52,7 @@ public class ThreadLocalScopeManagerTest {
             scope.close();
         }
 
-        // Make sure the Span got finish()ed.
+        // Make sure the Span is not finished.
         verify(span, times(0)).finish();
 
         // And now it's gone:
