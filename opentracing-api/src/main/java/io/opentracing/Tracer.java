@@ -226,7 +226,7 @@ public interface Tracer {
         Scope startActive(boolean finishSpanOnClose);
 
         /**
-         * @deprecated use {@link #startManual} or {@link #startActive} instead.
+         * @deprecated use {@link #start} or {@link #startActive} instead.
          */
         @Deprecated
         Span startManual();
