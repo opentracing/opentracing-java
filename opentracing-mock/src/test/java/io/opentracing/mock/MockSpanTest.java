@@ -78,4 +78,12 @@ public class MockSpanTest {
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
     }
+
+    @Test
+    public void testChaildOfWithNullParentDoesNotThrowException() {
+        MockTracer tracer = new MockTracer();
+        final Span parent = null;
+        Span span = tracer.buildSpan("foo").asChildOf(parent).start();
+        span.finish();
+    }
 }

@@ -220,6 +220,9 @@ public class MockTracer implements Tracer {
 
         @Override
         public SpanBuilder asChildOf(BaseSpan parent) {
+            if (parent == null) {
+                return this;
+            }
             return addReference(References.CHILD_OF, parent.context());
         }
 
