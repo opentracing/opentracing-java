@@ -47,7 +47,12 @@ The common case starts a `Scope` that's automatically registered for intra-proce
 Note that the default behaviour of `startActive()` does not finish the span on `Scope.close()`.
 This decision was made on purpose because the `try-with-resources` construct would finish the span before
 the `catch` or `finally` blocks are executed, which makes logging exceptions and setting tags impossible.
-This behaviour can be overridden by `startActive(finishOnClose)` which is demonstrated later in this section.
+
+This behaviour forces users to intercept all exceptional states rather than inadvertently
+finishing a span before a fallback action takes place. In the most case OpenTracing API
+is predominantly used in framework instrumentations where this behaviour is used most.
+Auto-finishing can be enabled with convenient `startActive(finishOnClose)` which is demonstrated
+later in this section.
 
 ```java
 io.opentracing.Tracer tracer = ...;
