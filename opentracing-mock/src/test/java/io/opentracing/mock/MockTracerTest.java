@@ -279,4 +279,12 @@ public class MockTracerTest {
         assertEquals(1, nextSpan.references().size());
         assertEquals(nextSpan.references().get(0), new MockSpan.Reference(parent.context(), "a_reference"));
     }
+
+    @Test
+    public void testChildOfWithNullParentDoesNotThrowException() {
+        MockTracer tracer = new MockTracer();
+        final Span parent = null;
+        Span span = tracer.buildSpan("foo").asChildOf(parent).start();
+        span.finish();
+    }
 }
