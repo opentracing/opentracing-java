@@ -76,7 +76,7 @@ public interface Format<C> {
          * @see io.opentracing.Tracer#extract(Format, Object)
          * @see Format
          */
-        public final static Format<BinaryHolder> BINARY = new Builtin<BinaryHolder>("BINARY");
+        public final static Format<Binary> BINARY = new Builtin<Binary>("BINARY");
 
         /**
          * @return Short name for built-in formats as they tend to show up in exception messages.

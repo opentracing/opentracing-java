@@ -19,46 +19,46 @@ import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-public class BinaryHolderTest {
+public class BinaryAdapterTest {
 
     @Test
-    public void createInjectHolderTest() throws IOException {
-        BinaryHolder holder = BinaryHolder.createInjectHolder();
-        assertEquals(false, holder.isExtractHolder());
-        assertEquals(true, holder.isInjectHolder());
+    public void outboundTest() throws IOException {
+        Binary binary = Adapters.outboundBinary();
+        assertEquals(true, binary.isOutbound());
+        assertEquals(false, binary.isInbound());
 
-        holder.write(new byte [] { 1, 2, 3, 4 });
-        holder.write(new byte [] { 4, 3, 2, 1 });
+        binary.write(new byte [] { 1, 2, 3, 4 });
+        binary.write(new byte [] { 4, 3, 2, 1 });
 
-        assertArrayEquals(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 }, holder.getInjectPayload());
+        assertArrayEquals(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 }, binary.getOutboundData());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void getInjectPayloadUnsupportedTest () {
-        BinaryHolder holder = BinaryHolder.createExtractHolder(new byte[4]);
-        holder.getInjectPayload();
+    public void getOutboundDataUnsupportedTest () {
+        Binary binary = Adapters.inboundBinary(new byte[4]);
+        binary.getOutboundData();
     }
 
     @Test
-    public void createExtractHolderTest() throws IOException {
+    public void inboundTest() throws IOException {
         byte[] ctx = new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 };
-        BinaryHolder holder = BinaryHolder.createExtractHolder(ctx);
-        assertEquals(true, holder.isExtractHolder());
-        assertEquals(false, holder.isInjectHolder());
+        Binary binary = Adapters.inboundBinary(ctx);
+        assertEquals(true, binary.isInbound());
+        assertEquals(false, binary.isOutbound());
 
         byte[] buff = new byte[4];
 
-        assertEquals(4, holder.read(buff));
+        assertEquals(4, binary.read(buff));
         assertArrayEquals(new byte[] { 1, 2, 3, 4 }, buff);
 
-        assertEquals(4, holder.read(buff));
+        assertEquals(4, binary.read(buff));
         assertArrayEquals(new byte[] { 4, 3, 2, 1 }, buff);
 
-        assertEquals(-1, holder.read(buff));
+        assertEquals(-1, binary.read(buff));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createExtractHolderNullArrayTest() throws IOException {
-        BinaryHolder.createExtractHolder(null);
+    public void inboundNullArrayTest() throws IOException {
+        Adapters.inboundBinary(null);
     }
 }
