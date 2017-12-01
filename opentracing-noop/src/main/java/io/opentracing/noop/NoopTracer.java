@@ -31,6 +31,11 @@ final class NoopTracerImpl implements NoopTracer {
     }
 
     @Override
+    public Span activeSpan() {
+        return null;
+    }
+
+    @Override
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
 
     @Override
@@ -38,11 +43,6 @@ final class NoopTracerImpl implements NoopTracer {
 
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) { return NoopSpanBuilderImpl.INSTANCE; }
-
-    @Override
-    public Span activeSpan() {
-        return NoopSpan.INSTANCE;
-    }
 
     @Override
     public String toString() { return NoopTracer.class.getSimpleName(); }
