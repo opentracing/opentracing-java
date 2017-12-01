@@ -15,22 +15,13 @@ package io.opentracing;
 
 /**
  * The {@link ScopeManager} interface abstracts both the activation of {@link Span} instances (via
- * {@link ScopeManager#activate(Span)}) and access to an active {@link Span}/{@link Scope}
+ * {@link ScopeManager#activate(Span, boolean)}) and access to an active {@link Span}/{@link Scope}
  * (via {@link ScopeManager#active()}).
  *
  * @see Scope
  * @see Tracer#scopeManager()
  */
 public interface ScopeManager {
-    /**
-     * Make a {@link Span} instance active.
-     *
-     * @param span the {@link Span} that should become the {@link #active()}
-     * @return a {@link Scope} instance to control the end of the active period for the {@link Span}.
-     * Span will not automatically be finished when {@link Scope#close()} is called. It is a
-     * programming error to neglect to call {@link Scope#close()} on the returned instance.
-     */
-    Scope activate(Span span);
 
     /**
      * Make a {@link Span} instance active.
@@ -48,7 +39,7 @@ public interface ScopeManager {
      *
      * <p>
      * If there is an {@link Scope non-null scope}, its wrapped {@link Span} becomes an implicit parent of any
-     * newly-created {@link Span} at {@link Tracer.SpanBuilder#startActive()} time (rather than at
+     * newly-created {@link Span} at {@link Tracer.SpanBuilder#startActive(boolean)} time (rather than at
      * {@link Tracer#buildSpan(String)} time).
      *
      * @return the {@link Scope active scope}, or null if none could be found.

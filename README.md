@@ -44,21 +44,18 @@ if (scope != null) {
 ### Starting a new Span
 
 The common case starts a `Scope` that's automatically registered for intra-process propagation via `ScopeManager`.
-Note that the default behaviour of `startActive()` does not finish the span on `Scope.close()`.
-This decision was made on purpose because the `try-with-resources` construct would finish the span before
-the `catch` or `finally` blocks are executed, which makes logging exceptions and setting tags impossible.
 
-This behaviour forces users to intercept all exceptional states rather than inadvertently
-finishing a span before a fallback action takes place. In the most case OpenTracing API
-is predominantly used in framework instrumentations where this behaviour is used most.
-Auto-finishing can be enabled with convenient `startActive(finishOnClose)` which is demonstrated
-later in this section.
+Note that `startActive(true)` finishes the span on `Scope.close()`.
+Use it carefully because the `try-with-resources` construct finishes the span before
+the `catch` or `finally` blocks are executed, which makes logging exceptions and 
+setting tags impossible. It is recommended to start the span and activate it later in `try-with-resources`.
+This makes the span available in catch and finally blocks.
 
 ```java
 io.opentracing.Tracer tracer = ...;
 ...
-Span span = tracer.buildSpan("someWork").startManual();
-try (Scope scope = tracer.scopeManager().activate(span))
+Span span = tracer.buildSpan("someWork").start();
+try (Scope scope = tracer.scopeManager().activate(span, false))
     // Do things.
 } catch {
     Tags.ERROR.set(scope.span(), true);
@@ -76,19 +73,6 @@ try (Scope scope = tracer.buildSpan("someWork").startActive(true)) {
     // Do things.
     //
     // `scope.span()` allows us to pass the `Span` to newly created threads.
-}
-```
-
-To manually step around the `ScopeManager` registration, use `startManual()`, like this:
-
-```java
-io.opentracing.Tracer tracer = ...;
-...
-Span span = tracer.buildSpan("someWork").startManual();
-try {
-    // (do things / record data to `span`)
-} finally {
-    span.finish();
 }
 ```
 

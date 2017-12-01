@@ -72,8 +72,8 @@ public class ThreadLocalScopeTest {
     public void testDeactivateWhenDifferentSpanIsActive() {
         Span span = mock(Span.class);
 
-        Scope active = scopeManager.activate(span);
-        scopeManager.activate(mock(Span.class));
+        Scope active = scopeManager.activate(span, false);
+        scopeManager.activate(mock(Span.class), false);
         active.close();
 
         verify(span, times(0)).finish();

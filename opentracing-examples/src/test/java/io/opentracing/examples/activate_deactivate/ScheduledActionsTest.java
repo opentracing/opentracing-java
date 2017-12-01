@@ -89,7 +89,7 @@ public class ScheduledActionsTest {
             @Override
             public void run() {
                 logger.info("Entry thread started");
-                try (Scope scope = tracer.buildSpan("parent").startActive()) {
+                try (Scope scope = tracer.buildSpan("parent").startActive(false)) {
                     Runnable action = new RunnableAction((AutoFinishScope)scope);
 
                     // Action is executed at some time and we are not able to check status
@@ -108,7 +108,7 @@ public class ScheduledActionsTest {
             @Override
             public void run() {
                 logger.info("Entry thread 2x started");
-                try (Scope scope = tracer.buildSpan("parent").startActive()) {
+                try (Scope scope = tracer.buildSpan("parent").startActive(false)) {
                     Runnable action = new RunnableAction((AutoFinishScope)scope);
                     Runnable action2 = new RunnableAction((AutoFinishScope)scope);
 

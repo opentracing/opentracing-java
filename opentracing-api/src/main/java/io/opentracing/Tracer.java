@@ -130,7 +130,7 @@ public interface Tracer {
          * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
-         * {@link ScopeManager#active()} {@link SpanContext} when either {@link SpanBuilder#startActive()} or
+         * {@link ScopeManager#active()} {@link SpanContext} when either {@link SpanBuilder#startActive(boolean)} or
          * {@link SpanBuilder#startManual} is invoked.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
@@ -158,40 +158,6 @@ public interface Tracer {
 
         /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
         SpanBuilder withStartTimestamp(long microseconds);
-
-        /**
-         * Returns a newly started and activated {@link Scope}.
-         *
-         * <p>
-         * The returned {@link Scope} supports try-with-resources. For example:
-         * <pre><code>
-         *     Span span = tracer.buildSpan("...").startManual();
-         *     try (Scope scope = tracer.scopeManager().activate(span))
-         *         // (Do work)
-         *         scope.span().setTag( ... );  // etc, etc
-         *     } catch(Exception ex) {
-         *       Tags.ERROR.set(span, true)'
-         *     } finally {
-         *       span.finish();
-         *     }
-         *     // Span is not automatically finished when the Scope is closed,
-         *     // following the default behavior of ScopeManager.activate(Span)
-         * </code></pre>
-         *
-         * <p>
-         * For detailed information, see {@link SpanBuilder#startActive(boolean)}
-         *
-         * <p>
-         * Note: {@link SpanBuilder#startActive()} is a shorthand for
-         * {@code tracer.scopeManager().activate(spanBuilder.startManual())}.
-         *
-         * @return a {@link Scope}, already registered via the {@link ScopeManager}
-         *
-         * @see ScopeManager
-         * @see Scope
-         * @see SpanBuilder#startActive(boolean)
-         */
-        Scope startActive();
 
         /**
          * Returns a newly started and activated {@link Scope}.
@@ -230,10 +196,10 @@ public interface Tracer {
         Scope startActive(boolean finishSpanOnClose);
 
         /**
-         * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
+         * Like {@link #startActive(boolean)}, but the returned {@link Span} has not been registered via the
          * {@link ScopeManager}.
          *
-         * @see SpanBuilder#startActive()
+         * @see SpanBuilder#startActive(boolean)
          * @return the newly-started Span instance, which has *not* been automatically registered
          *         via the {@link ScopeManager}
          */

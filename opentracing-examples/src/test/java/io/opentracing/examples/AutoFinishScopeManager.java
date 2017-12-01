@@ -22,11 +22,6 @@ public class AutoFinishScopeManager implements ScopeManager {
     final ThreadLocal<AutoFinishScope> tlsScope = new ThreadLocal<AutoFinishScope>();
 
     @Override
-    public AutoFinishScope activate(Span span) {
-        return new AutoFinishScope(this, new AtomicInteger(1), span);
-    }
-
-    @Override
     public AutoFinishScope activate(Span span, boolean finishOnClose) {
         return new AutoFinishScope(this, new AtomicInteger(1), span);
     }
