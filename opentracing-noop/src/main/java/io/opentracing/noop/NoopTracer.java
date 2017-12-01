@@ -14,6 +14,7 @@
 package io.opentracing.noop;
 
 import io.opentracing.ScopeManager;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -37,6 +38,11 @@ final class NoopTracerImpl implements NoopTracer {
 
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) { return NoopSpanBuilderImpl.INSTANCE; }
+
+    @Override
+    public Span activeSpan() {
+        return NoopSpan.INSTANCE;
+    }
 
     @Override
     public String toString() { return NoopTracer.class.getSimpleName(); }
