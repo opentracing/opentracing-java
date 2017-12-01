@@ -26,7 +26,8 @@ public interface Tracer {
     ScopeManager scopeManager();
 
     /**
-     * @return the active {@link Span}, if any. This is a shorthand for {@link Tracer#scopeManager()#active()#span()}.
+     * @return the active {@link Span}. This is a shorthand for {@link Tracer#scopeManager()#active()#span()},
+     * and null will be returned if {@link Scope#active()} is null.
      */
     Span activeSpan();
 
