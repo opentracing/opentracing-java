@@ -42,14 +42,6 @@ final class BinaryAdapter implements Binary {
         this.outputStream = null;
     }
 
-    public boolean isOutbound() {
-        return outputStream != null;
-    }
-
-    public boolean isInbound() {
-        return inputStream != null;
-    }
-
     public void write(byte[] b) throws IOException {
         if (outputStream == null)
             throw new UnsupportedOperationException();

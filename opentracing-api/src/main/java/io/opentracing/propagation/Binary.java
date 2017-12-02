@@ -32,16 +32,6 @@ import java.io.IOException;
  */
 public interface Binary {
     /**
-     * @return whether this instance is inbound and supports reading.
-     */
-    boolean isInbound();
-
-    /**
-     * @return whether this instance is outbound and supports writing.
-     */
-    boolean isOutbound();
-
-    /**
      * Writes b.length bytes from the specified byte array. The internal
      * buffer should grow as data is written to it.
      *

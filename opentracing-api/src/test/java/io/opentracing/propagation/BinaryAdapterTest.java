@@ -24,8 +24,6 @@ public class BinaryAdapterTest {
     @Test
     public void outboundTest() throws IOException {
         Binary binary = Adapters.outboundBinary();
-        assertEquals(true, binary.isOutbound());
-        assertEquals(false, binary.isInbound());
 
         binary.write(new byte [] { 1, 2, 3, 4 });
         binary.write(new byte [] { 4, 3, 2, 1 });
@@ -43,8 +41,6 @@ public class BinaryAdapterTest {
     public void inboundTest() throws IOException {
         byte[] ctx = new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 };
         Binary binary = Adapters.inboundBinary(ctx);
-        assertEquals(true, binary.isInbound());
-        assertEquals(false, binary.isOutbound());
 
         byte[] buff = new byte[4];
 
