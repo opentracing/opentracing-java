@@ -13,53 +13,55 @@
  */
 package io.opentracing.propagation;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 /**
  * BinaryAdapter is a built-in carrier for Tracer.inject() and Tracer.extract(). BinaryAdapter
- * is backed up by either a ByteArrayInputStream or a ByteArrayOutputStream, depending
- * on whether it's defined as inbound or outbound, respectively.
+ * is backed up by either a ReadableByteChannel or a WritableByteChannel, depending
+ * on whether it's defined as injection or extraction, respectively.
  */
 final class BinaryAdapter implements Binary {
-    final ByteArrayInputStream inputStream;
-    final ByteArrayOutputStream outputStream;
+    private final ReadableByteChannel readChannel;
+    private final WritableByteChannel writeChannel;
 
     /**
-     * Create an outbound BinaryAdapter.
+     * Create an outbound BinaryAdapter backed by the specified write channel.
      */
-    BinaryAdapter() {
-        this.outputStream = new ByteArrayOutputStream();
-        this.inputStream = null;
+    BinaryAdapter(WritableByteChannel writeChannel) {
+        this.writeChannel = writeChannel;
+        this.readChannel = null;
     }
 
     /**
-     * Create an inbound BinaryAdapter backed by the specified byte array.
+     * Create an inbound BinaryAdapter backed by the specified read channel.
      */
-    BinaryAdapter(byte[] b) {
-        this.inputStream = new ByteArrayInputStream(b);
-        this.outputStream = null;
+    BinaryAdapter(ReadableByteChannel readChannel) {
+        this.readChannel = readChannel;
+        this.writeChannel = null;
     }
 
-    public void write(byte[] b) throws IOException {
-        if (outputStream == null)
-            throw new UnsupportedOperationException();
-
-        outputStream.write(b);
+    ReadableByteChannel readChannel() {
+        return readChannel;
     }
 
-    public int read(byte [] b) throws IOException {
-        if (inputStream == null)
-            throw new UnsupportedOperationException();
-
-        return inputStream.read(b);
+    WritableByteChannel writeChannel() {
+        return writeChannel;
     }
 
-    public byte[] getOutboundData() {
-        if (outputStream == null)
+    public int write(ByteBuffer buffer) throws IOException {
+        if (writeChannel == null)
             throw new UnsupportedOperationException();
 
-        return outputStream.toByteArray();
+        return writeChannel.write(buffer);
+    }
+
+    public int read(ByteBuffer buffer) throws IOException {
+        if (readChannel == null)
+            throw new UnsupportedOperationException();
+
+        return readChannel.read(buffer);
     }
 }

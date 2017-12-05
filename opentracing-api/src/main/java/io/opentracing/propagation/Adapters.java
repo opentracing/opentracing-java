@@ -14,28 +14,72 @@
 package io.opentracing.propagation;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 public final class Adapters {
     private Adapters() {}
 
     /**
      * Creates an outbound Binary instance used for injection, backed up
-     * by a byte buffer.
+     * by the specified OutputStream as output.
+     *
+     * @param stream The OutputStream used as the output.
+     *
+     * @return The new Binary carrier used for injection.
      */
-    public static Binary outboundBinary() {
-        return new BinaryAdapter();
+    public static Binary outboundBinary(OutputStream stream) {
+        if (stream == null)
+            throw new IllegalArgumentException("stream");
+
+        return new BinaryAdapter(Channels.newChannel(stream));
+    }
+
+    /**
+     * Creates an outbound Binary instance used for injection, backed up
+     * by the specified WritableByteChannel as the output.
+     *
+     * @param channel The WritableByteChannel used as output.
+     *
+     * @return The new Binary carrier used for injection.
+     */
+    public static Binary outboundBinary(WritableByteChannel channel) {
+        if (channel == null)
+            throw new IllegalArgumentException("channel");
+
+        return new BinaryAdapter(channel);
     }
 
     /**
      * Creates an inbound Binary instance used for extraction with the
-     * provided byte array as the input data.
+     * specified InputStream as the input.
      *
-     * @param payload The byte array to wrap within the Binary instance.
+     * @param stream The InputStream used as input.
+     *
+     * @return The new Binary carrier used for extraction.
      */
-    public static Binary inboundBinary(byte[] b) {
-        if (b == null)
-            throw new IllegalArgumentException("b");
+    public static Binary inboundBinary(InputStream stream) {
+        if (stream == null)
+            throw new IllegalArgumentException("stream");
 
-        return new BinaryAdapter(b);
+        return new BinaryAdapter(Channels.newChannel(stream));
+    }
+
+    /**
+     * Creates an inbound Binary instance used for extraction with the
+     * specified ReadableByteChannel as the input.
+     *
+     * @param channel The ReadableByteChannel used as input.
+     *
+     * @return The new Binary carrier used for extraction.
+     */
+    public static Binary inboundBinary(ReadableByteChannel channel) {
+        if (channel == null)
+            throw new IllegalArgumentException("channel");
+
+        return new BinaryAdapter(channel);
     }
 }

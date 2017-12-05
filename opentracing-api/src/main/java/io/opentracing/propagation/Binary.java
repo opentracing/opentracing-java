@@ -14,6 +14,7 @@
 package io.opentracing.propagation;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Binary is an interface defining the required operations for a binary carrier for
@@ -21,10 +22,10 @@ import java.io.IOException;
  * or outbound (injection).
  *
  * When Binary is defined as inbound, read() must be used to read data,
- * and it is an error to call read() or getOutboundPayload().
+ * and it is an error to call read().
  *
  * When Binary is defined as outbound, write() must be used to write data,
- * getOutboundPayload() to retrieve all the written data, and it is an error to call read().
+ * and it is an error to call write().
  *
  * @see Format.Builtin#BINARY
  * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
@@ -32,24 +33,25 @@ import java.io.IOException;
  */
 public interface Binary {
     /**
-     * Writes b.length bytes from the specified byte array. The internal
-     * buffer should grow as data is written to it.
+     * Writes a sequence of bytes to this channel from the given buffer.
+     * The internal buffer is expected to grow as more data is written.
      *
-     * @param b the data.
+     * The behavior of this method is expected to be the same as WritableByteChannel.write().
+     *
+     * @param buffer The buffer from which bytes are to be retrieved.
+     *
+     * @return The number of bytes written, possibly zero.
      */
-    void write(byte[] b) throws IOException;
+    int write(ByteBuffer buffer) throws IOException;
 
     /**
-     * Reads some number of bytes from the input data.
+     * Reads a sequence of bytes into the given buffer.
      *
-     * @param b the buffer into which the data is read.
+     * The behavior of this method is expected to be the same as ReadableByteChannel.read().
      *
-     * @return the total number of bytes read into the buffer, or -1 if there is no more data.
+     * @param buffer The buffer into which bytes are to be transferred.
+     *
+     * @return The number of bytes read, possibly zero, or -1 if the channel has reached end-of-stream.
      */
-    int read(byte[] b) throws IOException;
-
-    /**
-     * @return A newly allocated byte array with the written data.
-     */
-    byte[] getOutboundData();
+    int read(ByteBuffer buffer) throws IOException;
 }

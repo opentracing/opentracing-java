@@ -13,48 +13,49 @@
  */
 package io.opentracing.propagation;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class BinaryAdapterTest {
 
     @Test
-    public void outboundTest() throws IOException {
-        Binary binary = Adapters.outboundBinary();
+    public void testInbound() throws IOException {
+        ByteArrayInputStream stream = new ByteArrayInputStream(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 });
+        BinaryAdapter binary = new BinaryAdapter(Channels.newChannel(stream));
+        assertNotNull(binary.readChannel());
+        assertNull(binary.writeChannel());
 
-        binary.write(new byte [] { 1, 2, 3, 4 });
-        binary.write(new byte [] { 4, 3, 2, 1 });
+        ByteBuffer buffer = ByteBuffer.allocate(4);
+        assertEquals(4, binary.read(buffer));
+        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, buffer.array());
 
-        assertArrayEquals(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 }, binary.getOutboundData());
-    }
+        buffer.rewind();
+        assertEquals(4, binary.read(buffer));
+        assertArrayEquals(new byte[] { 4, 3, 2, 1 }, buffer.array());
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getOutboundDataUnsupportedTest () {
-        Binary binary = Adapters.inboundBinary(new byte[4]);
-        binary.getOutboundData();
+        buffer.rewind();
+        assertEquals(-1, binary.read(buffer));
     }
 
     @Test
-    public void inboundTest() throws IOException {
-        byte[] ctx = new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 };
-        Binary binary = Adapters.inboundBinary(ctx);
+    public void testOutbund() throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        BinaryAdapter binary = new BinaryAdapter(Channels.newChannel(stream));
+        assertNotNull(binary.writeChannel());
+        assertNull(binary.readChannel());
 
-        byte[] buff = new byte[4];
+        assertEquals(4, binary.write(ByteBuffer.wrap(new byte [] { 1, 2, 3, 4 })));
+        assertEquals(4, binary.write(ByteBuffer.wrap(new byte [] { 4, 3, 2, 1 })));
 
-        assertEquals(4, binary.read(buff));
-        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, buff);
-
-        assertEquals(4, binary.read(buff));
-        assertArrayEquals(new byte[] { 4, 3, 2, 1 }, buff);
-
-        assertEquals(-1, binary.read(buff));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void inboundNullArrayTest() throws IOException {
-        Adapters.inboundBinary(null);
+        assertArrayEquals(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 }, stream.toByteArray());
     }
 }
