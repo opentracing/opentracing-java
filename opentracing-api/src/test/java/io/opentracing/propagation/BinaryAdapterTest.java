@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNull;
 public class BinaryAdapterTest {
 
     @Test
-    public void testInbound() throws IOException {
+    public void testRead() throws IOException {
         ByteArrayInputStream stream = new ByteArrayInputStream(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 });
         BinaryAdapter binary = new BinaryAdapter(Channels.newChannel(stream));
         assertNotNull(binary.readChannel());
@@ -47,7 +47,7 @@ public class BinaryAdapterTest {
     }
 
     @Test
-    public void testOutbund() throws IOException {
+    public void testWrite() throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         BinaryAdapter binary = new BinaryAdapter(Channels.newChannel(stream));
         assertNotNull(binary.writeChannel());

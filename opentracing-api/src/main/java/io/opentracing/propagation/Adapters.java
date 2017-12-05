@@ -31,7 +31,7 @@ public final class Adapters {
      *
      * @return The new Binary carrier used for injection.
      */
-    public static Binary outboundBinary(OutputStream stream) {
+    public static Binary injectBinary(OutputStream stream) {
         if (stream == null)
             throw new IllegalArgumentException("stream");
 
@@ -46,7 +46,7 @@ public final class Adapters {
      *
      * @return The new Binary carrier used for injection.
      */
-    public static Binary outboundBinary(WritableByteChannel channel) {
+    public static Binary injectBinary(WritableByteChannel channel) {
         if (channel == null)
             throw new IllegalArgumentException("channel");
 
@@ -61,7 +61,7 @@ public final class Adapters {
      *
      * @return The new Binary carrier used for extraction.
      */
-    public static Binary inboundBinary(InputStream stream) {
+    public static Binary extractBinary(InputStream stream) {
         if (stream == null)
             throw new IllegalArgumentException("stream");
 
@@ -76,7 +76,7 @@ public final class Adapters {
      *
      * @return The new Binary carrier used for extraction.
      */
-    public static Binary inboundBinary(ReadableByteChannel channel) {
+    public static Binary extractBinary(ReadableByteChannel channel) {
         if (channel == null)
             throw new IllegalArgumentException("channel");
 

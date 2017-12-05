@@ -29,50 +29,50 @@ import static org.junit.Assert.assertNotNull;
 public class AdaptersTest {
 
     @Test
-    public void testInboundBinaryStream() {
+    public void testExtractBinaryStream() {
         byte[] ctx = new byte[0];
-        BinaryAdapter binary = (BinaryAdapter) Adapters.inboundBinary(new ByteArrayInputStream(ctx));
+        BinaryAdapter binary = (BinaryAdapter) Adapters.extractBinary(new ByteArrayInputStream(ctx));
         assertNotNull(binary.readChannel());
     }
 
     @Test
-    public void testInboundBinaryChannel() {
+    public void testExtractBinaryChannel() {
         byte[] ctx = new byte[0];
         ReadableByteChannel channel = Channels.newChannel(new ByteArrayInputStream(new byte[0]));
-        BinaryAdapter binary = (BinaryAdapter) Adapters.inboundBinary(channel);
+        BinaryAdapter binary = (BinaryAdapter) Adapters.extractBinary(channel);
         assertEquals(channel, binary.readChannel());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testInboundNullStream() {
-        Adapters.inboundBinary((InputStream)null);
+    public void testExtractNullStream() {
+        Adapters.extractBinary((InputStream)null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testInboundNullChannel() {
-        Adapters.inboundBinary((ReadableByteChannel)null);
+    public void testExtractNullChannel() {
+        Adapters.extractBinary((ReadableByteChannel)null);
     }
 
     @Test
-    public void testOutboundBinaryStream() {
-        BinaryAdapter binary = (BinaryAdapter) Adapters.outboundBinary(new ByteArrayOutputStream());
+    public void testInjectBinaryStream() {
+        BinaryAdapter binary = (BinaryAdapter) Adapters.injectBinary(new ByteArrayOutputStream());
         assertNotNull(binary.writeChannel());
     }
 
     @Test
-    public void testOutboundBinaryChannel() {
+    public void testInjectBinaryChannel() {
         WritableByteChannel channel = Channels.newChannel(new ByteArrayOutputStream());
-        BinaryAdapter binary = (BinaryAdapter) Adapters.outboundBinary(channel);
+        BinaryAdapter binary = (BinaryAdapter) Adapters.injectBinary(channel);
         assertEquals(channel, binary.writeChannel());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testOutboundNullStream() {
-        Adapters.outboundBinary((OutputStream)null);
+    public void testInjectNullStream() {
+        Adapters.injectBinary((OutputStream)null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testOutboundNullChannel() {
-        Adapters.outboundBinary((WritableByteChannel)null);
+    public void testInjectNullChannel() {
+        Adapters.injectBinary((WritableByteChannel)null);
     }
 }
