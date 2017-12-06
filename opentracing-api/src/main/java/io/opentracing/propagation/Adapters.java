@@ -33,7 +33,7 @@ public final class Adapters {
      */
     public static Binary injectBinary(OutputStream stream) {
         if (stream == null) {
-            throw new IllegalArgumentException("stream");
+            throw new IllegalArgumentException("stream cannot be null");
         }
 
         return new BinaryAdapter(Channels.newChannel(stream));
@@ -49,7 +49,7 @@ public final class Adapters {
      */
     public static Binary injectBinary(WritableByteChannel channel) {
         if (channel == null) {
-            throw new IllegalArgumentException("channel");
+            throw new IllegalArgumentException("channel cannot be null");
         }
 
         return new BinaryAdapter(channel);
@@ -65,7 +65,7 @@ public final class Adapters {
      */
     public static Binary extractBinary(InputStream stream) {
         if (stream == null) {
-            throw new IllegalArgumentException("stream");
+            throw new IllegalArgumentException("stream cannot be null");
         }
 
         return new BinaryAdapter(Channels.newChannel(stream));
@@ -81,7 +81,7 @@ public final class Adapters {
      */
     public static Binary extractBinary(ReadableByteChannel channel) {
         if (channel == null) {
-            throw new IllegalArgumentException("channel");
+            throw new IllegalArgumentException("channel cannot be null");
         }
 
         return new BinaryAdapter(channel);
