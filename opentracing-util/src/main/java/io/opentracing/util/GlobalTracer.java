@@ -14,6 +14,7 @@
 package io.opentracing.util;
 
 import io.opentracing.ScopeManager;
+import io.opentracing.Span;
 import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.SpanContext;
@@ -140,6 +141,11 @@ public final class GlobalTracer implements Tracer {
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
         return tracer.extract(format, carrier);
+    }
+
+    @Override
+    public Span activeSpan() {
+        return tracer.activeSpan();
     }
 
     @Override

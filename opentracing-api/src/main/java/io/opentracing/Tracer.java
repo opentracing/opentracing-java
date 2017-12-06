@@ -26,6 +26,12 @@ public interface Tracer {
     ScopeManager scopeManager();
 
     /**
+     * @return the active {@link Span}. This is a shorthand for Tracer.scopeManager().active().span(),
+     * and null will be returned if {@link Scope#active()} is null.
+     */
+    Span activeSpan();
+
+    /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
      *
      * <p>You can override the operationName later via {@link Span#setOperationName(String)}.

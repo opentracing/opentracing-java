@@ -14,6 +14,7 @@
 package io.opentracing.noop;
 
 import io.opentracing.ScopeManager;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -27,6 +28,11 @@ final class NoopTracerImpl implements NoopTracer {
     @Override
     public ScopeManager scopeManager() {
         return NoopScopeManager.INSTANCE;
+    }
+
+    @Override
+    public Span activeSpan() {
+        return null;
     }
 
     @Override
