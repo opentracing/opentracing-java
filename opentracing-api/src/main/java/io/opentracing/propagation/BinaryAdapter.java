@@ -52,15 +52,17 @@ final class BinaryAdapter implements Binary {
     }
 
     public int write(ByteBuffer buffer) throws IOException {
-        if (writeChannel == null)
+        if (writeChannel == null) {
             throw new UnsupportedOperationException();
+        }
 
         return writeChannel.write(buffer);
     }
 
     public int read(ByteBuffer buffer) throws IOException {
-        if (readChannel == null)
+        if (readChannel == null) {
             throw new UnsupportedOperationException();
+        }
 
         return readChannel.read(buffer);
     }

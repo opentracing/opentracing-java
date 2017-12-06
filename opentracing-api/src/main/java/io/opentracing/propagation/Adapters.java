@@ -32,8 +32,9 @@ public final class Adapters {
      * @return The new Binary carrier used for injection.
      */
     public static Binary injectBinary(OutputStream stream) {
-        if (stream == null)
+        if (stream == null) {
             throw new IllegalArgumentException("stream");
+        }
 
         return new BinaryAdapter(Channels.newChannel(stream));
     }
@@ -47,8 +48,9 @@ public final class Adapters {
      * @return The new Binary carrier used for injection.
      */
     public static Binary injectBinary(WritableByteChannel channel) {
-        if (channel == null)
+        if (channel == null) {
             throw new IllegalArgumentException("channel");
+        }
 
         return new BinaryAdapter(channel);
     }
@@ -62,8 +64,9 @@ public final class Adapters {
      * @return The new Binary carrier used for extraction.
      */
     public static Binary extractBinary(InputStream stream) {
-        if (stream == null)
+        if (stream == null) {
             throw new IllegalArgumentException("stream");
+        }
 
         return new BinaryAdapter(Channels.newChannel(stream));
     }
@@ -77,8 +80,9 @@ public final class Adapters {
      * @return The new Binary carrier used for extraction.
      */
     public static Binary extractBinary(ReadableByteChannel channel) {
-        if (channel == null)
+        if (channel == null) {
             throw new IllegalArgumentException("channel");
+        }
 
         return new BinaryAdapter(channel);
     }
