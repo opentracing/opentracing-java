@@ -191,6 +191,12 @@ public class MockTracer implements Tracer {
         return this.propagator.extract(format, carrier);
     }
 
+    @Override
+    public Span activeSpan() {
+        Scope scope = this.scopeManager.active();
+        return scope == null ? null : scope.span();
+    }
+
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
         this.finishedSpans.add(mockSpan);
         this.onSpanFinished(mockSpan);
