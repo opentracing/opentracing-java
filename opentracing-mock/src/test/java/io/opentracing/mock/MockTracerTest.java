@@ -16,6 +16,7 @@ package io.opentracing.mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -231,6 +232,22 @@ public class MockTracerTest {
         Assert.assertNull(finishedSpans.get(0).getBaggageItem("barbag"));
         Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
         Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
+    }
+  
+    @Test
+    public void testActiveSpan() {
+        MockTracer mockTracer = new MockTracer();
+        Assert.assertNull(mockTracer.activeSpan());
+
+        Scope scope = null;
+        try {
+            scope = mockTracer.buildSpan("foo").startActive(true);
+            Assert.assertEquals(mockTracer.scopeManager().active().span(), mockTracer.activeSpan());
+        } finally {
+            scope.close();
+        }
+
+        Assert.assertNull(mockTracer.activeSpan());
     }
 
     @Test
