@@ -142,7 +142,7 @@ public class MockTracer implements Tracer {
                         binary.write(ByteBuffer.wrap(stream.toByteArray()));
 
                     } catch (IOException e) {
-                        throw new IllegalArgumentException("Corrupted data");
+                        throw new RuntimeException("Corrupted state");
                     } finally {
                         if (objStream != null) {
                             try { objStream.close(); } catch (Exception e2) {}
