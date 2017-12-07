@@ -232,6 +232,12 @@ public interface Tracer {
         Scope startActive(boolean finishSpanOnClose);
 
         /**
+         * @deprecated use {@link #start} or {@link #startActive} instead.
+         */
+        @Deprecated
+        Span startManual();
+
+        /**
          * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
          * {@link ScopeManager}.
          *
@@ -239,12 +245,6 @@ public interface Tracer {
          * @return the newly-started Span instance, which has *not* been automatically registered
          *         via the {@link ScopeManager}
          */
-        Span startManual();
-
-        /**
-         * @deprecated use {@link #startManual} or {@link #startActive} instead.
-         */
-        @Deprecated
         Span start();
     }
 }
