@@ -28,6 +28,7 @@
         <module>opentracing-mock</module>
         <module>opentracing-util</module>
         <module>opentracing-examples</module>
+        <module>opentracing-v030</module>
     </modules>
 
     <properties>
