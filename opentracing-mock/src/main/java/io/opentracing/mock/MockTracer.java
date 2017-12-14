@@ -13,22 +13,22 @@
  */
 package io.opentracing.mock;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
-import io.opentracing.BaseSpan;
-import io.opentracing.noop.NoopActiveSpanSource;
-import io.opentracing.References;
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMap;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.opentracing.ActiveSpan;
+import io.opentracing.ActiveSpanSource;
+import io.opentracing.BaseSpan;
+import io.opentracing.References;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.noop.NoopActiveSpanSource;
+import io.opentracing.propagation.Format;
+import io.opentracing.propagation.TextMap;
+import io.opentracing.util.ThreadLocalActiveSpanSource;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -39,16 +39,16 @@ import java.util.Map;
  * The MockTracerTest has simple usage examples.
  */
 public class MockTracer implements Tracer {
-    private List<MockSpan> finishedSpans = new ArrayList<>();
+    private final List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private ActiveSpanSource spanSource;
+    private final ActiveSpanSource spanSource;
 
     public MockTracer() {
-        this(new ThreadLocalActiveSpanSource(), Propagator.PRINTER);
+        this(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
     }
 
     public MockTracer(ActiveSpanSource spanSource) {
-        this(spanSource, Propagator.PRINTER);
+        this(spanSource, Propagator.TEXT_MAP);
     }
 
     public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
