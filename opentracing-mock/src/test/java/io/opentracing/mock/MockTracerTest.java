@@ -340,7 +340,7 @@ public class MockTracerTest {
     @Test
     public void testDefaultConstructor() {
         MockTracer mockTracer = new MockTracer();
-        Scope activeSpan = mockTracer.buildSpan("foo").startActive();
+        Scope activeSpan = mockTracer.buildSpan("foo").startActive(true);
         assertEquals(activeSpan, mockTracer.scopeManager().active());
 
         Map<String, String> propag = new HashMap<>();
