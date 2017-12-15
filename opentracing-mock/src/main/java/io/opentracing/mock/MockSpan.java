@@ -13,11 +13,13 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.References;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 import io.opentracing.Span;
@@ -42,6 +44,7 @@ public final class MockSpan implements Span {
     private final Map<String, Object> tags;
     private final List<LogEntry> logEntries = new ArrayList<>();
     private String operationName;
+    private final List<Reference> references;
 
     private final List<RuntimeException> errors = new ArrayList<>();
 
@@ -57,11 +60,10 @@ public final class MockSpan implements Span {
     }
 
     /**
-     * TODO: Support multiple parents in this API.
-     *
-     * @return the spanId of the Span's parent context, or 0 if no such parent exists.
+     * @return the spanId of the Span's first {@value References#CHILD_OF} reference, or the first reference of any type, or 0 if no reference exists.
      *
      * @see MockContext#spanId()
+     * @see MockSpan#references()
      */
     public long parentId() {
         return parentId;
@@ -95,6 +97,10 @@ public final class MockSpan implements Span {
      */
     public List<RuntimeException> generatedErrors() {
         return new ArrayList<>(errors);
+    }
+
+    public List<Reference> references() {
+        return new ArrayList<>(references);
     }
 
     @Override
@@ -232,7 +238,39 @@ public final class MockSpan implements Span {
         }
     }
 
-    MockSpan(MockTracer tracer, String operationName, long startMicros, Map<String, Object> initialTags, MockContext parent) {
+    public static final class Reference {
+        private final MockContext context;
+        private final String referenceType;
+
+        public Reference(MockContext context, String referenceType) {
+            this.context = context;
+            this.referenceType = referenceType;
+        }
+
+        public MockContext getContext() {
+            return context;
+        }
+
+        public String getReferenceType() {
+            return referenceType;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Reference reference = (Reference) o;
+            return Objects.equals(context, reference.context) &&
+                Objects.equals(referenceType, reference.referenceType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(context, referenceType);
+        }
+    }
+
+    MockSpan(MockTracer tracer, String operationName, long startMicros, Map<String, Object> initialTags, List<Reference> refs) {
         this.mockTracer = tracer;
         this.operationName = operationName;
         this.startMicros = startMicros;
@@ -241,15 +279,43 @@ public final class MockSpan implements Span {
         } else {
             this.tags = new HashMap<>(initialTags);
         }
+        if(refs == null) {
+            this.references = Collections.emptyList();
+        } else {
+            this.references = new ArrayList<>(refs);
+        }
+        MockContext parent = findPreferredParentRef(this.references);
         if (parent == null) {
             // We're a root Span.
             this.context = new MockContext(nextId(), nextId(), new HashMap<String, String>());
             this.parentId = 0;
         } else {
             // We're a child Span.
-            this.context = new MockContext(parent.traceId, nextId(), parent.baggage);
+            this.context = new MockContext(parent.traceId, nextId(), mergeBaggages(this.references));
             this.parentId = parent.spanId;
         }
+    }
+
+    private static MockContext findPreferredParentRef(List<Reference> references) {
+        if(references.isEmpty()) {
+            return null;
+        }
+        for (Reference reference : references) {
+            if (References.CHILD_OF.equals(reference.getReferenceType())) {
+                return reference.getContext();
+            }
+        }
+        return references.get(0).getContext();
+    }
+
+    private static Map<String, String> mergeBaggages(List<Reference> references) {
+        Map<String, String> baggage = new HashMap<>();
+        for(Reference ref : references) {
+            if(ref.getContext().baggage != null) {
+                baggage.putAll(ref.getContext().baggage);
+            }
+        }
+        return baggage;
     }
 
     static long nextId() {

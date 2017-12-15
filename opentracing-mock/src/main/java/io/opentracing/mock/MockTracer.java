@@ -13,6 +13,17 @@
  */
 package io.opentracing.mock;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
@@ -25,17 +36,6 @@ import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.util.ThreadLocalScopeManager;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
  *
@@ -45,16 +45,16 @@ import java.util.Map;
  * The MockTracerTest has simple usage examples.
  */
 public class MockTracer implements Tracer {
-    private List<MockSpan> finishedSpans = new ArrayList<>();
+    private final List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private ScopeManager scopeManager;
+    private final ScopeManager scopeManager;
 
     public MockTracer() {
-        this(new ThreadLocalScopeManager(), Propagator.PRINTER);
+        this(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
     }
 
     public MockTracer(ScopeManager scopeManager) {
-        this(scopeManager, Propagator.PRINTER);
+        this(scopeManager, Propagator.TEXT_MAP);
     }
 
     public MockTracer(ScopeManager scopeManager, Propagator propagator) {
@@ -254,6 +254,15 @@ public class MockTracer implements Tracer {
         return new SpanBuilder(operationName);
     }
 
+    private SpanContext activeSpanContext() {
+        Scope handle = this.scopeManager.active();
+        if (handle == null) {
+            return null;
+        }
+
+        return handle.span().context();
+    }
+
     @Override
     public <C> void inject(SpanContext spanContext, Format<C> format, C carrier) {
         this.propagator.inject((MockSpan.MockContext)spanContext, format, carrier);
@@ -278,7 +287,7 @@ public class MockTracer implements Tracer {
     public final class SpanBuilder implements Tracer.SpanBuilder {
         private final String operationName;
         private long startMicros;
-        private MockSpan.MockContext firstParent;
+        private List<MockSpan.Reference> references = new ArrayList<>();
         private boolean ignoringActiveSpan;
         private Map<String, Object> initialTags = new HashMap<>();
 
@@ -293,6 +302,9 @@ public class MockTracer implements Tracer {
 
         @Override
         public SpanBuilder asChildOf(Span parent) {
+            if (parent == null) {
+                return this;
+            }
             return addReference(References.CHILD_OF, parent.context());
         }
 
@@ -304,9 +316,8 @@ public class MockTracer implements Tracer {
 
         @Override
         public SpanBuilder addReference(String referenceType, SpanContext referencedContext) {
-            if (firstParent == null && (
-                    referenceType.equals(References.CHILD_OF) || referenceType.equals(References.FOLLOWS_FROM))) {
-                this.firstParent = (MockSpan.MockContext)referencedContext;
+            if (referencedContext != null) {
+                this.references.add(new MockSpan.Reference((MockSpan.MockContext) referencedContext, referenceType));
             }
             return this;
         }
@@ -350,13 +361,11 @@ public class MockTracer implements Tracer {
             if (this.startMicros == 0) {
                 this.startMicros = MockSpan.nowMicros();
             }
-            if (firstParent == null && !ignoringActiveSpan) {
-                Scope activeScope = scopeManager().active();
-                if (activeScope != null) {
-                    firstParent = (MockSpan.MockContext) activeScope.span().context();
-                }
+            SpanContext activeSpanContext = activeSpanContext();
+            if(references.isEmpty() && !ignoringActiveSpan && activeSpanContext != null) {
+                references.add(new MockSpan.Reference((MockSpan.MockContext) activeSpanContext, References.CHILD_OF));
             }
-            return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, firstParent);
+            return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, references);
         }
     }
 }

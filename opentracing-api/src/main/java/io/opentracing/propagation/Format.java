@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
  * <pre><code>
  * Tracer tracer = ...
  * io.opentracing.propagation.HttpHeaders httpCarrier = new AnHttpHeaderCarrier(httpRequest);
- * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpHeaderReader);
+ * SpanContext spanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, httpCarrier);
  * </code></pre>
  *
  * @see Tracer#inject(SpanContext, Format, Object)

@@ -14,8 +14,19 @@
 package io.opentracing.mock;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import io.opentracing.References;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -24,13 +35,6 @@ import io.opentracing.propagation.Adapters;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class MockTracerTest {
     @Test
@@ -261,5 +265,94 @@ public class MockTracerTest {
         assertEquals(1, mockTracer.finishedSpans().size());
         mockTracer.reset();
         assertEquals(0, mockTracer.finishedSpans().size());
+    }
+
+    @Test
+    public void testFollowFromReference() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+
+        final MockSpan followingSpan = tracer.buildSpan("follows")
+            .addReference(References.FOLLOWS_FROM, precedent.context())
+            .startManual();
+
+        assertEquals(precedent.context().spanId(), followingSpan.parentId());
+        assertEquals(1, followingSpan.references().size());
+
+        final MockSpan.Reference followsFromRef = followingSpan.references().get(0);
+
+        assertEquals(new MockSpan.Reference(precedent.context(), References.FOLLOWS_FROM), followsFromRef);
+    }
+
+    @Test
+    public void testMultiReferences() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan parent = tracer.buildSpan("parent").startManual();
+        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+
+        final MockSpan followingSpan = tracer.buildSpan("follows")
+            .addReference(References.FOLLOWS_FROM, precedent.context())
+            .asChildOf(parent.context())
+            .startManual();
+
+        assertEquals(parent.context().spanId(), followingSpan.parentId());
+        assertEquals(2, followingSpan.references().size());
+
+        final MockSpan.Reference followsFromRef = followingSpan.references().get(0);
+        final MockSpan.Reference parentRef = followingSpan.references().get(1);
+
+        assertEquals(new MockSpan.Reference(precedent.context(), References.FOLLOWS_FROM), followsFromRef);
+        assertEquals(new MockSpan.Reference(parent.context(), References.CHILD_OF), parentRef);
+    }
+
+    @Test
+    public void testMultiReferencesBaggage() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan parent = tracer.buildSpan("parent").startManual();
+        parent.setBaggageItem("parent", "foo");
+        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+        precedent.setBaggageItem("precedent", "bar");
+
+        final MockSpan followingSpan = tracer.buildSpan("follows")
+            .addReference(References.FOLLOWS_FROM, precedent.context())
+            .asChildOf(parent.context())
+            .startManual();
+
+        assertEquals("foo", followingSpan.getBaggageItem("parent"));
+        assertEquals("bar", followingSpan.getBaggageItem("precedent"));
+    }
+
+    @Test
+    public void testNonStandardReference() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+        final MockSpan parent = tracer.buildSpan("parent").startManual();
+
+        final MockSpan nextSpan = tracer.buildSpan("follows")
+            .addReference("a_reference", parent.context())
+            .startManual();
+
+        assertEquals(parent.context().spanId(), nextSpan.parentId());
+        assertEquals(1, nextSpan.references().size());
+        assertEquals(nextSpan.references().get(0),
+            new MockSpan.Reference(parent.context(), "a_reference"));
+    }
+
+    @Test
+    public void testDefaultConstructor() {
+        MockTracer mockTracer = new MockTracer();
+        Scope activeSpan = mockTracer.buildSpan("foo").startActive(true);
+        assertEquals(activeSpan, mockTracer.scopeManager().active());
+
+        Map<String, String> propag = new HashMap<>();
+        mockTracer.inject(activeSpan.span().context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));
+        assertFalse(propag.isEmpty());
+    }
+
+    @Test
+    public void testChildOfWithNullParentDoesNotThrowException() {
+        MockTracer tracer = new MockTracer();
+        final Span parent = null;
+        Span span = tracer.buildSpan("foo").asChildOf(parent).start();
+        span.finish();
     }
 }
