@@ -16,12 +16,16 @@ package io.opentracing.mock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.propagation.Adapters;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,6 +199,55 @@ public class MockTracerTest {
         Assert.assertEquals(2, finishedSpans.size());
         Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
         Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+    }
+
+    @Test
+    public void testBinaryPropagator() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.BINARY);
+        {
+            Span parentSpan = tracer.buildSpan("foo")
+                    .start();
+            parentSpan.setBaggageItem("foobag", "fooitem");
+            parentSpan.finish();
+
+            ByteArrayOutputStream injectStream = new ByteArrayOutputStream();
+            tracer.inject(parentSpan.context(), Format.Builtin.BINARY,
+                    Adapters.injectBinary(injectStream));
+
+            ByteArrayInputStream extractStream = new ByteArrayInputStream(injectStream.toByteArray());
+            SpanContext extract = tracer.extract(Format.Builtin.BINARY, Adapters.extractBinary(extractStream));
+
+            Span childSpan = tracer.buildSpan("bar")
+                    .asChildOf(extract)
+                    .start();
+            childSpan.setBaggageItem("barbag", "baritem");
+            childSpan.finish();
+        }
+        List<MockSpan> finishedSpans = tracer.finishedSpans();
+
+        Assert.assertEquals(2, finishedSpans.size());
+        Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
+        Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+        Assert.assertEquals("fooitem", finishedSpans.get(0).getBaggageItem("foobag"));
+        Assert.assertNull(finishedSpans.get(0).getBaggageItem("barbag"));
+        Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
+        Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
+    }
+  
+    @Test
+    public void testActiveSpan() {
+        MockTracer mockTracer = new MockTracer();
+        Assert.assertNull(mockTracer.activeSpan());
+
+        Scope scope = null;
+        try {
+            scope = mockTracer.buildSpan("foo").startActive(true);
+            Assert.assertEquals(mockTracer.scopeManager().active().span(), mockTracer.activeSpan());
+        } finally {
+            scope.close();
+        }
+
+        Assert.assertNull(mockTracer.activeSpan());
     }
 
     @Test
