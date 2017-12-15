@@ -11,16 +11,27 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.tag;
+package io.opentracing.util;
 
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 
-public class IntOrStringTag extends IntTag {
-    public IntOrStringTag(String key) {
-        super(key);
+/**
+ * A simple {@link ScopeManager} implementation built on top of Java's thread-local storage primitive.
+ *
+ * @see ThreadLocalScope
+ */
+public class ThreadLocalScopeManager implements ScopeManager {
+    final ThreadLocal<ThreadLocalScope> tlsScope = new ThreadLocal<ThreadLocalScope>();
+
+    @Override
+    public Scope activate(Span span, boolean finishOnClose) {
+        return new ThreadLocalScope(this, span, finishOnClose);
     }
 
-    public void set(Span span, String tagValue) {
-        span.setTag(super.key, tagValue);
+    @Override
+    public Scope active() {
+        return tlsScope.get();
     }
 }

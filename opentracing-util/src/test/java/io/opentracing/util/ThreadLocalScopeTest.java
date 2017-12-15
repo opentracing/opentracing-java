@@ -17,53 +17,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ThreadLocalActiveSpanTest {
-    private ThreadLocalActiveSpanSource source;
+public class ThreadLocalScopeTest {
+    private ThreadLocalScopeManager scopeManager;
 
     @Before
     public void before() throws Exception {
-        source = new ThreadLocalActiveSpanSource();
-    }
-
-    @Test
-    public void continuation() throws Exception {
-        Span span = mock(Span.class);
-
-        // Quasi try-with-resources (this is 1.6).
-        ActiveSpan activeSpan = source.makeActive(span);
-        ActiveSpan.Continuation continued = null;
-        try {
-            assertNotNull(activeSpan);
-            continued = activeSpan.capture();
-        } finally {
-            activeSpan.close();
-        }
-
-        // Make sure the Span was not finished since there was a capture().
-        verify(span, never()).finish();
-
-        // Activate the continuation.
-        try {
-            activeSpan = continued.activate();
-        } finally {
-            activeSpan.close();
-        }
-
-        // Now the Span should be finished.
-        verify(span, times(1)).finish();
-
-        // And now it's no longer active.
-        ActiveSpan missingSpan = source.activeSpan();
-        assertNull(missingSpan);
+        scopeManager = new ThreadLocalScopeManager();
     }
 
     @Test
@@ -72,21 +39,21 @@ public class ThreadLocalActiveSpanTest {
         Span foregroundSpan = mock(Span.class);
 
         // Quasi try-with-resources (this is 1.6).
-        ActiveSpan backgroundActive = source.makeActive(backgroundSpan);
+        Scope backgroundActive = scopeManager.activate(backgroundSpan, true);
         try {
             assertNotNull(backgroundActive);
 
-            // Activate a new ActiveSpan on top of the background one.
-            ActiveSpan foregroundActive = source.makeActive(foregroundSpan);
+            // Activate a new Scope on top of the background one.
+            Scope foregroundActive = scopeManager.activate(foregroundSpan, true);
             try {
-                ActiveSpan shouldBeForeground = source.activeSpan();
+                Scope shouldBeForeground = scopeManager.active();
                 assertEquals(foregroundActive, shouldBeForeground);
             } finally {
                 foregroundActive.close();
             }
 
             // And now the backgroundActive should be reinstated.
-            ActiveSpan shouldBeBackground = source.activeSpan();
+            Scope shouldBeBackground = scopeManager.active();
             assertEquals(backgroundActive, shouldBeBackground);
         } finally {
             backgroundActive.close();
@@ -97,7 +64,7 @@ public class ThreadLocalActiveSpanTest {
         verify(foregroundSpan, times(1)).finish();
 
         // And now nothing is active.
-        ActiveSpan missingSpan = source.activeSpan();
+        Scope missingSpan = scopeManager.active();
         assertNull(missingSpan);
     }
 
@@ -105,9 +72,9 @@ public class ThreadLocalActiveSpanTest {
     public void testDeactivateWhenDifferentSpanIsActive() {
         Span span = mock(Span.class);
 
-        ActiveSpan activeSpan = source.makeActive(span);
-        source.makeActive(mock(Span.class));
-        activeSpan.deactivate();
+        Scope active = scopeManager.activate(span, false);
+        scopeManager.activate(mock(Span.class), false);
+        active.close();
 
         verify(span, times(0)).finish();
     }

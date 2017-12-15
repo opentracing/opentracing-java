@@ -13,10 +13,10 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.ScopeManager;
+import io.opentracing.Span;
 import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
-import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -124,6 +124,11 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
+    public ScopeManager scopeManager() {
+        return tracer.scopeManager();
+    }
+
+    @Override
     public SpanBuilder buildSpan(String operationName) {
         return tracer.buildSpan(operationName);
     }
@@ -139,17 +144,12 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
-    public String toString() {
-        return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
-    }
-
-    @Override
-    public ActiveSpan activeSpan() {
+    public Span activeSpan() {
         return tracer.activeSpan();
     }
 
     @Override
-    public ActiveSpan makeActive(Span span) {
-        return tracer.makeActive(span);
+    public String toString() {
+        return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
     }
 }

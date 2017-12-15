@@ -13,22 +13,28 @@
  */
 package io.opentracing.mock;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
-import io.opentracing.BaseSpan;
-import io.opentracing.References;
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
+import io.opentracing.noop.NoopScopeManager;
+import io.opentracing.References;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopActiveSpanSource;
+import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -41,26 +47,26 @@ import io.opentracing.util.ThreadLocalActiveSpanSource;
 public class MockTracer implements Tracer {
     private final List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private final ActiveSpanSource spanSource;
+    private final ScopeManager scopeManager;
 
     public MockTracer() {
-        this(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
+        this(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
     }
 
-    public MockTracer(ActiveSpanSource spanSource) {
-        this(spanSource, Propagator.TEXT_MAP);
+    public MockTracer(ScopeManager scopeManager) {
+        this(scopeManager, Propagator.TEXT_MAP);
     }
 
-    public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
+    public MockTracer(ScopeManager scopeManager, Propagator propagator) {
+        this.scopeManager = scopeManager;
         this.propagator = propagator;
-        this.spanSource = spanSource;
     }
 
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(NoopActiveSpanSource.INSTANCE, propagator);
+        this(NoopScopeManager.INSTANCE, propagator);
     }
 
     /**
@@ -89,16 +95,6 @@ public class MockTracer implements Tracer {
     protected void onSpanFinished(MockSpan mockSpan) {
     }
 
-    @Override
-    public ActiveSpan activeSpan() {
-        return spanSource.activeSpan();
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span) {
-        return spanSource.makeActive(span);
-    }
-
     /**
      * Propagator allows the developer to intercept and verify any calls to inject() and/or extract().
      *
@@ -119,6 +115,81 @@ public class MockTracer implements Tracer {
             @Override
             public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
                 System.out.println("extract(" + format + ", " + carrier + ")");
+                return null;
+            }
+        };
+
+        Propagator BINARY = new Propagator() {
+            static final int BUFFER_SIZE = 128;
+
+            @Override
+            public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
+                if (carrier instanceof Binary) {
+                    Binary binary = (Binary) carrier;
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    ObjectOutputStream objStream = null;
+                    try {
+                        objStream = new ObjectOutputStream(stream);
+                        objStream.writeLong(ctx.spanId());
+                        objStream.writeLong(ctx.traceId());
+
+                        for (Map.Entry<String, String> entry : ctx.baggageItems()) {
+                            objStream.writeUTF(entry.getKey());
+                            objStream.writeUTF(entry.getValue());
+                        }
+
+                        objStream.flush(); // *need* to flush ObjectOutputStream.
+                        binary.write(ByteBuffer.wrap(stream.toByteArray()));
+
+                    } catch (IOException e) {
+                        throw new RuntimeException("Corrupted state");
+                    } finally {
+                        if (objStream != null) {
+                            try { objStream.close(); } catch (Exception e2) {}
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+            }
+
+            @Override
+            public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
+                Long traceId = null;
+                Long spanId = null;
+                Map<String, String> baggage = new HashMap<>();
+
+                if (carrier instanceof Binary) {
+                    Binary binary = (Binary) carrier;
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    ObjectInputStream objStream = null;
+                    try {
+                        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                        for (int readBytes = 0; (readBytes = binary.read(buffer)) > 0; buffer.rewind()) {
+                            outputStream.write(buffer.array(), 0, readBytes);
+                        }
+
+                        objStream = new ObjectInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+                        spanId = objStream.readLong();
+                        traceId = objStream.readLong();
+
+                        while (objStream.available() > 0) {
+                            baggage.put(objStream.readUTF(), objStream.readUTF());
+                        }
+                    } catch (IOException e) {
+                    } finally {
+                        if (objStream != null) {
+                            try { objStream.close(); } catch (Exception e2) {}
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+
+                if (traceId != null && spanId != null) {
+                    return new MockSpan.MockContext(traceId, spanId, baggage);
+                }
+
                 return null;
             }
         };
@@ -174,17 +245,22 @@ public class MockTracer implements Tracer {
     }
 
     @Override
+    public ScopeManager scopeManager() {
+        return this.scopeManager;
+    }
+
+    @Override
     public SpanBuilder buildSpan(String operationName) {
         return new SpanBuilder(operationName);
     }
 
     private SpanContext activeSpanContext() {
-        ActiveSpan handle = this.spanSource.activeSpan();
+        Scope handle = this.scopeManager.active();
         if (handle == null) {
             return null;
         }
 
-        return handle.context();
+        return handle.span().context();
     }
 
     @Override
@@ -195,6 +271,12 @@ public class MockTracer implements Tracer {
     @Override
     public <C> SpanContext extract(Format<C> format, C carrier) {
         return this.propagator.extract(format, carrier);
+    }
+
+    @Override
+    public Span activeSpan() {
+        Scope scope = this.scopeManager.active();
+        return scope == null ? null : scope.span();
     }
 
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
@@ -219,7 +301,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanBuilder asChildOf(BaseSpan parent) {
+        public SpanBuilder asChildOf(Span parent) {
             if (parent == null) {
                 return this;
             }
@@ -265,15 +347,13 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        @Deprecated
-        public MockSpan start() {
-            return startManual();
+        public Scope startActive(boolean finishOnClose) {
+            return MockTracer.this.scopeManager().activate(this.startManual(), finishOnClose);
         }
 
         @Override
-        public ActiveSpan startActive() {
-            MockSpan span = this.startManual();
-            return spanSource.makeActive(span);
+        public MockSpan start() {
+            return startManual();
         }
 
         @Override
