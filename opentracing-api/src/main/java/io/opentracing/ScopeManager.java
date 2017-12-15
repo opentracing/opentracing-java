@@ -13,10 +13,12 @@
  */
 package io.opentracing;
 
+import io.opentracing.Tracer.SpanBuilder;
+
 /**
- * The {@link ScopeManager} interface abstracts both the activation of {@link Span} instances (via
- * {@link ScopeManager#activate(Span, boolean)}) and access to an active {@link Span}/{@link Scope}
- * (via {@link ScopeManager#active()}).
+ * The {@link ScopeManager} interface abstracts both the activation of {@link Span} instances via
+ * {@link ScopeManager#activate(Span, boolean)} and access to an active {@link Span}/{@link Scope}
+ * via {@link ScopeManager#active()}.
  *
  * @see Scope
  * @see Tracer#scopeManager()
@@ -38,9 +40,10 @@ public interface ScopeManager {
      * {@link Scope#span()}.
      *
      * <p>
-     * If there is an {@link Scope non-null scope}, its wrapped {@link Span} becomes an implicit parent of any
-     * newly-created {@link Span} at {@link Tracer.SpanBuilder#startActive(boolean)} time (rather than at
-     * {@link Tracer#buildSpan(String)} time).
+     * If there is an {@link Scope non-null scope}, its wrapped {@link Span} becomes an implicit parent
+     * (as {@link References#CHILD_OF} reference) of any
+     * newly-created {@link Span} at {@link Tracer.SpanBuilder#startActive(boolean)} or {@link SpanBuilder#start()}
+     * time rather than at {@link Tracer#buildSpan(String)} time.
      *
      * @return the {@link Scope active scope}, or null if none could be found.
      */
