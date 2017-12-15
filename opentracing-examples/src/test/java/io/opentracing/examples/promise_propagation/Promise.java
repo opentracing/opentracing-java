@@ -56,7 +56,7 @@ public class Promise<T> {
                         .buildSpan("success")
                             .addReference(References.FOLLOWS_FROM, parentScope.span().context())
                         .withTag(Tags.COMPONENT.getKey(), "success")
-                        .startActive()) {
+                        .startActive(true)) {
                   callback.accept(result);
                 }
               context.getPhaser().arriveAndAwaitAdvance(); // trace reported
@@ -76,7 +76,7 @@ public class Promise<T> {
                         .buildSpan("error")
                             .addReference(References.FOLLOWS_FROM, parentScope.span().context())
                         .withTag(Tags.COMPONENT.getKey(), "error")
-                        .startActive()) {
+                        .startActive(true)) {
                   callback.accept(error);
                 }
               context.getPhaser().arriveAndAwaitAdvance(); // trace reported

@@ -60,7 +60,7 @@ public class ActorPropagationTest {
               .buildSpan("actorTell")
               .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
               .withTag(Tags.COMPONENT.getKey(), "example-actor")
-              .startActive()) {
+              .startActive(true)) {
         actor.tell("my message 1");
         actor.tell("my message 2");
       }
@@ -96,7 +96,7 @@ public class ActorPropagationTest {
               .buildSpan("actorAsk")
               .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
               .withTag(Tags.COMPONENT.getKey(), "example-actor")
-              .startActive()) {
+              .startActive(true)) {
         future1 = actor.ask("my message 1");
         future2 = actor.ask("my message 2");
       }

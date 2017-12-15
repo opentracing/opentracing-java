@@ -26,11 +26,6 @@ public class ThreadLocalScopeManager implements ScopeManager {
     final ThreadLocal<ThreadLocalScope> tlsScope = new ThreadLocal<ThreadLocalScope>();
 
     @Override
-    public Scope activate(Span span) {
-        return new ThreadLocalScope(this, span, true);
-    }
-
-    @Override
     public Scope activate(Span span, boolean finishOnClose) {
         return new ThreadLocalScope(this, span, finishOnClose);
     }

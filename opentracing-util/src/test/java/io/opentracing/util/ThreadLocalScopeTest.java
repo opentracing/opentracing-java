@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -40,12 +39,12 @@ public class ThreadLocalScopeTest {
         Span foregroundSpan = mock(Span.class);
 
         // Quasi try-with-resources (this is 1.6).
-        Scope backgroundActive = scopeManager.activate(backgroundSpan);
+        Scope backgroundActive = scopeManager.activate(backgroundSpan, true);
         try {
             assertNotNull(backgroundActive);
 
             // Activate a new Scope on top of the background one.
-            Scope foregroundActive = scopeManager.activate(foregroundSpan);
+            Scope foregroundActive = scopeManager.activate(foregroundSpan, true);
             try {
                 Scope shouldBeForeground = scopeManager.active();
                 assertEquals(foregroundActive, shouldBeForeground);
@@ -73,8 +72,8 @@ public class ThreadLocalScopeTest {
     public void testDeactivateWhenDifferentSpanIsActive() {
         Span span = mock(Span.class);
 
-        Scope active = scopeManager.activate(span);
-        scopeManager.activate(mock(Span.class));
+        Scope active = scopeManager.activate(span, false);
+        scopeManager.activate(mock(Span.class), false);
         active.close();
 
         verify(span, times(0)).finish();

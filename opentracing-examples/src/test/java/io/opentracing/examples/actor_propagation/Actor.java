@@ -55,7 +55,7 @@ public class Actor implements AutoCloseable {
                     .buildSpan("received")
                     .addReference(References.FOLLOWS_FROM, parent.context())
                     .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                    .startActive()) {
+                    .startActive(true)) {
               phaser.arriveAndAwaitAdvance(); // child tracer started
               child.span().log("received " + message);
               phaser.arriveAndAwaitAdvance(); // assert size
@@ -79,7 +79,7 @@ public class Actor implements AutoCloseable {
                         .buildSpan("received")
                         .addReference(References.FOLLOWS_FROM, parent.context())
                         .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                        .startActive()) {
+                        .startActive(true)) {
                   phaser.arriveAndAwaitAdvance(); // child tracer started
                   phaser.arriveAndAwaitAdvance(); // assert size
                   return "received " + message;
