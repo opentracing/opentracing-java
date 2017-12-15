@@ -37,7 +37,7 @@ public class Client {
         try (Scope scope = tracer.buildSpan("send")
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
                 .withTag(Tags.COMPONENT.getKey(), "example-client")
-                .startActive()) {
+                .startActive(true)) {
             tracer.inject(scope.span().context(), Builtin.TEXT_MAP, new TextMapInjectAdapter(message));
             queue.put(message);
         }

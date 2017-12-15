@@ -136,7 +136,7 @@ public interface Tracer {
          * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
-         * {@link ScopeManager#active()} {@link SpanContext} when either {@link SpanBuilder#startActive()} or
+         * {@link ScopeManager#active()} {@link SpanContext} when either {@link SpanBuilder#startActive(boolean)} or
          * {@link SpanBuilder#startManual} is invoked.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
@@ -171,41 +171,11 @@ public interface Tracer {
          * <p>
          * The returned {@link Scope} supports try-with-resources. For example:
          * <pre><code>
-         *     try (Scope scope = tracer.buildSpan("...").startActive()) {
+         *     try (Scope scope = tracer.buildSpan("...").startActive(true)) {
          *         // (Do work)
          *         scope.span().setTag( ... );  // etc, etc
          *     }
-         *     // Span finishes automatically when the Scope is closed,
-         *     // following the default behavior of ScopeManager.activate(Span)
-         * </code></pre>
-         *
-         * <p>
-         * For detailed information, see {@link SpanBuilder#startActive(boolean)}
-         *
-         * <p>
-         * Note: {@link SpanBuilder#startActive()} is a shorthand for
-         * {@code tracer.scopeManager().activate(spanBuilder.startManual())}.
-         *
-         * @return a {@link Scope}, already registered via the {@link ScopeManager}
-         *
-         * @see ScopeManager
-         * @see Scope
-         * @see SpanBuilder#startActive(boolean)
-         */
-        Scope startActive();
-
-        /**
-         * Returns a newly started and activated {@link Scope}.
-         *
-         * <p>
-         * The returned {@link Scope} supports try-with-resources. For example:
-         * <pre><code>
-         *     try (Scope scope = tracer.buildSpan("...").startActive(false)) {
-         *         // (Do work)
-         *         scope.span().setTag( ... );  // etc, etc
-         *     }
-         *     // Span does not finish automatically when the Scope is closed as
-         *     // 'finishOnClose' is false
+         *     // Span does finishes automatically only when 'finishSpanOnClose' is true
          * </code></pre>
          *
          * <p>
@@ -241,7 +211,7 @@ public interface Tracer {
          * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
          * {@link ScopeManager}.
          *
-         * @see SpanBuilder#startActive()
+         * @see SpanBuilder#startActive(boolean)
          * @return the newly-started Span instance, which has *not* been automatically registered
          *         via the {@link ScopeManager}
          */

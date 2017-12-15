@@ -30,11 +30,6 @@ public interface NoopScopeManager extends ScopeManager {
  */
 class NoopScopeManagerImpl implements NoopScopeManager {
     @Override
-    public Scope activate(Span span) {
-        return NoopScope.INSTANCE;
-    }
-
-    @Override
     public Scope activate(Span span, boolean finishOnClose) {
         return NoopScope.INSTANCE;
     }

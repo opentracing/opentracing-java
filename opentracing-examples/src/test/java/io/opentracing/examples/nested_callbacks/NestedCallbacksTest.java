@@ -78,7 +78,7 @@ public class NestedCallbacksTest {
                                 executor.submit(new Runnable() {
                                     @Override
                                     public void run() {
-                                        try (Scope scope = tracer.scopeManager().activate(span)) {
+                                        try (Scope scope = tracer.scopeManager().activate(span, true)) {
                                             span.setTag("key3", "3");
                                         }
                                     }

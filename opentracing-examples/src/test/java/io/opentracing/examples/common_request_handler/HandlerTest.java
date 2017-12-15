@@ -75,7 +75,7 @@ public class HandlerTest {
      */
     @Test
     public void parent_not_picked_up() throws Exception {
-        try (Scope parent = tracer.buildSpan("parent").startActive()) {
+        try (Scope parent = tracer.buildSpan("parent").startActive(true)) {
             String response = client.send("no_parent").get(15, TimeUnit.SECONDS);
             assertEquals("no_parent:response", response);
         }
@@ -102,7 +102,7 @@ public class HandlerTest {
     @Test
     public void bad_solution_to_set_parent() throws Exception {
         Client client;
-        try (Scope parent = tracer.buildSpan("parent").startActive()) {
+        try (Scope parent = tracer.buildSpan("parent").startActive(true)) {
             client = new Client(new RequestHandler(tracer, parent.span().context()));
             String response = client.send("correct_parent").get(15, TimeUnit.SECONDS);
             assertEquals("correct_parent:response", response);

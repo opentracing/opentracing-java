@@ -37,7 +37,7 @@ public class MultipleCallbacksTest {
     @Test
     public void test() throws Exception {
         Client client = new Client(tracer);
-        try (Scope scope = tracer.buildSpan("parent").startActive()) {
+        try (Scope scope = tracer.buildSpan("parent").startActive(false)) {
             client.send("task1", 300);
             client.send("task2", 200);
             client.send("task3", 100);

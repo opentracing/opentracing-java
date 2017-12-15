@@ -74,16 +74,16 @@ public class ActiveSpanReplacementTest {
             @Override
             public void run() {
                 // Create a new Span for this task
-                try (Scope taskScope = tracer.buildSpan("task").startActive()) {
+                try (Scope taskScope = tracer.buildSpan("task").startActive(true)) {
 
                     // Simulate work strictly related to the initial Span
                     // and finish it.
-                    try (Scope initialScope = tracer.scopeManager().activate(initialSpan)) {
+                    try (Scope initialScope = tracer.scopeManager().activate(initialSpan, true)) {
                         sleep(50);
                     }
 
                     // Restore the span for this task and create a subspan
-                    try (Scope subTaskScope = tracer.buildSpan("subtask").startActive()) {
+                    try (Scope subTaskScope = tracer.buildSpan("subtask").startActive(true)) {
                     }
                 }
             }
