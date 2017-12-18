@@ -57,7 +57,7 @@ io.opentracing.Tracer tracer = ...;
 Span span = tracer.buildSpan("someWork").start();
 try (Scope scope = tracer.scopeManager().activate(span, false))
     // Do things.
-} catch {
+} catch(Exception ex) {
     Tags.ERROR.set(scope.span(), true);
 } finally {
     span.finish();
@@ -73,6 +73,8 @@ try (Scope scope = tracer.buildSpan("someWork").startActive(true)) {
     // Do things.
     //
     // `scope.span()` allows us to pass the `Span` to newly created threads.
+} catch(Exception ex) {
+    // cannot record the exception in the span since scope is not accessible and span is finished
 }
 ```
 
