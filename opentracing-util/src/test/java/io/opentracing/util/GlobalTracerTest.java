@@ -29,9 +29,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopSpanBuilder;
-import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.propagation.Format;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -45,21 +43,10 @@ import org.junit.Test;
 
 public class GlobalTracerTest {
 
-    private static void _setGlobal(Tracer tracer) {
-        try {
-            Field globalTracerField = GlobalTracer.class.getDeclaredField("tracer");
-            globalTracerField.setAccessible(true);
-            globalTracerField.set(null, tracer);
-            globalTracerField.setAccessible(false);
-        } catch (Exception e) {
-            throw new RuntimeException("Error reflecting globalTracer: " + e.getMessage(), e);
-        }
-    }
-
     @Before
     @After
     public void clearGlobalTracer() {
-        _setGlobal(NoopTracerFactory.create());
+        GlobalTracerTestUtil.resetGlobalTracer();
     }
 
     @Test
