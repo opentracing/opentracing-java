@@ -131,6 +131,18 @@ Observe that passing `Scope` to another thread or callback is not supported. Onl
 
 In practice, all of this is most fluently accomplished through the use of an OpenTracing-aware `ExecutorService` and/or `Runnable`/`Callable` adapter; they factor out most of the typing.
 
+## Compatibility with Opentracing 0.30
+
+For users supporting instrumentation code using Opentracing 0.30, there is a [0.30 compatibility package](https://github.com/opentracing/opentracing-java-v030) that can be used to wrap a `Tracer` object and expose it as a 0.30 `Tracer`:
+
+```java
+io.opentracing.Tracer upstreamTracer = ...;
+io.opentracing.v_030.Tracer tracer = new TracerShim(upstreamTracer);
+try (ActiveSpan span = tracer.buildSpan("ServiceHandlerSpan").startActive()) {
+   ...
+}
+```
+
 ## Instrumentation Tests
 
 This project has a working design of interfaces for the OpenTracing API. There
