@@ -133,7 +133,7 @@ In practice, all of this is most fluently accomplished through the use of an Ope
 
 ## Compatibility with Opentracing 0.30
 
-For users supporting instrumentation code using Opentracing 0.30, there is a [0.30 compatibility package](https://github.com/opentracing/opentracing-java-v030) that can be used to wrap a `Tracer` object and expose it as a 0.30 `Tracer`:
+For users supporting instrumentation code using Opentracing 0.30, there is a [0.30 compatibility package](https://github.com/opentracing/opentracing-java-v030) that can be used to wrap a 0.31 `Tracer` and expose it as a 0.30 `Tracer`:
 
 ```java
 io.opentracing.Tracer upstreamTracer = ...;
