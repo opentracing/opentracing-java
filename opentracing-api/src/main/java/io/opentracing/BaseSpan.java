@@ -13,28 +13,15 @@
  */
 package io.opentracing;
 
-import java.util.Map;
-
 /**
  * BaseSpan is carried over from 0.30.0 API to preserve backwards compatibility with instrumentation
  * that was compiled against v0.30.0. Even if that instrumentation does not refer to BaseSpan directly,
- * it is still required at runtime because most of the Span methods in v0.30.0 were inherited from BaseSpan.
+ * it is still required at runtime (https://github.com/opentracing/opentracing-java/issues/237).
  * 
  * Keeping this interface around allows for easier transition to v0.31.0.
  * 
  * @see Span
  * @deprecated since v0.31.0
  */
-public interface BaseSpan {
-    // SpanContext context();
-    // S setTag(String key, String value);
-    // S setTag(String key, boolean value);
-    // S setTag(String key, Number value);
-    // S log(Map<String, ?> fields);
-    // S log(long timestampMicroseconds, Map<String, ?> fields);
-    // S log(String event);
-    // S log(long timestampMicroseconds, String event);
-    // S setBaggageItem(String key, String value);
-    // String getBaggageItem(String key);
-    // S setOperationName(String operationName);
-}
+@Deprecated
+public interface BaseSpan {}
