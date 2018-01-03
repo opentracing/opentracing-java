@@ -14,8 +14,8 @@
 package io.opentracing.examples.activate_deactivate;
 
 import io.opentracing.Scope;
-import io.opentracing.examples.AutoFinishScope;
-import io.opentracing.examples.AutoFinishScopeManager;
+import io.opentracing.util.AutoFinishScope;
+import io.opentracing.util.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;

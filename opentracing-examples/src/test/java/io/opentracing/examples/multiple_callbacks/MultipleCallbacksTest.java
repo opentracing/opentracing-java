@@ -14,7 +14,7 @@
 package io.opentracing.examples.multiple_callbacks;
 
 import io.opentracing.Scope;
-import io.opentracing.examples.AutoFinishScopeManager;
+import io.opentracing.util.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;

@@ -15,8 +15,8 @@ package io.opentracing.examples.multiple_callbacks;
 
 import io.opentracing.Scope;
 import io.opentracing.Tracer;
-import io.opentracing.examples.AutoFinishScope;
-import io.opentracing.examples.AutoFinishScope.Continuation;
+import io.opentracing.util.AutoFinishScope;
+import io.opentracing.util.AutoFinishScope.Continuation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
