@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  */
 package io.opentracing.examples.activate_deactivate;
 
-import io.opentracing.examples.AutoFinishScope;
-import io.opentracing.examples.AutoFinishScope.Continuation;
+import io.opentracing.util.AutoFinishScope;
+import io.opentracing.util.AutoFinishScope.Continuation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
