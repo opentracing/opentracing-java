@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -71,7 +71,7 @@ public class LateSpanFinishTest {
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                // Alternative to calling makeActive() is to pass it manually to asChildOf() for each created Span.
+                /* Alternative to calling activate() is to pass it manually to asChildOf() for each created Span. */
                 try (Scope scope = tracer.scopeManager().activate(parentSpan, false)) {
                     try (Scope childScope1 = tracer.buildSpan("task1").startActive(true)) {
                         sleep(55);
