@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -139,7 +139,11 @@ public class MockTracer implements Tracer {
                         }
 
                         objStream.flush(); // *need* to flush ObjectOutputStream.
-                        binary.write(ByteBuffer.wrap(stream.toByteArray()));
+
+                        ByteBuffer buff = ByteBuffer.wrap(stream.toByteArray());
+                        while (buff.hasRemaining()) {
+                            binary.write(buff);
+                        }
 
                     } catch (IOException e) {
                         throw new RuntimeException("Corrupted state");
