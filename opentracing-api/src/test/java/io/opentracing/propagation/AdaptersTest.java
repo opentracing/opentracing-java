@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -32,47 +32,22 @@ public class AdaptersTest {
     public void testExtractBinaryStream() {
         byte[] ctx = new byte[0];
         BinaryAdapter binary = (BinaryAdapter) Adapters.extractBinary(new ByteArrayInputStream(ctx));
-        assertNotNull(binary.readChannel());
-    }
-
-    @Test
-    public void testExtractBinaryChannel() {
-        byte[] ctx = new byte[0];
-        ReadableByteChannel channel = Channels.newChannel(new ByteArrayInputStream(new byte[0]));
-        BinaryAdapter binary = (BinaryAdapter) Adapters.extractBinary(channel);
-        assertEquals(channel, binary.readChannel());
+        assertNotNull(binary.inputStream());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testExtractNullStream() {
-        Adapters.extractBinary((InputStream)null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testExtractNullChannel() {
-        Adapters.extractBinary((ReadableByteChannel)null);
+        Adapters.extractBinary(null);
     }
 
     @Test
     public void testInjectBinaryStream() {
         BinaryAdapter binary = (BinaryAdapter) Adapters.injectBinary(new ByteArrayOutputStream());
-        assertNotNull(binary.writeChannel());
-    }
-
-    @Test
-    public void testInjectBinaryChannel() {
-        WritableByteChannel channel = Channels.newChannel(new ByteArrayOutputStream());
-        BinaryAdapter binary = (BinaryAdapter) Adapters.injectBinary(channel);
-        assertEquals(channel, binary.writeChannel());
+        assertNotNull(binary.outputStream());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInjectNullStream() {
-        Adapters.injectBinary((OutputStream)null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testInjectNullChannel() {
-        Adapters.injectBinary((WritableByteChannel)null);
+        Adapters.injectBinary(null);
     }
 }

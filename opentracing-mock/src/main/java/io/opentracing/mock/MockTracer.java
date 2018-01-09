@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -139,7 +139,9 @@ public class MockTracer implements Tracer {
                         }
 
                         objStream.flush(); // *need* to flush ObjectOutputStream.
-                        binary.write(ByteBuffer.wrap(stream.toByteArray()));
+
+                        byte[] arr = stream.toByteArray();
+                        binary.write(arr, 0, arr.length);
 
                     } catch (IOException e) {
                         throw new RuntimeException("Corrupted state");
@@ -164,9 +166,10 @@ public class MockTracer implements Tracer {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     ObjectInputStream objStream = null;
                     try {
-                        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                        for (int readBytes = 0; (readBytes = binary.read(buffer)) > 0; buffer.rewind()) {
-                            outputStream.write(buffer.array(), 0, readBytes);
+                        byte[] buff = new byte[BUFFER_SIZE];
+                        int res;
+                        while ((res = binary.read(buff, 0, buff.length)) > 0) {
+                            outputStream.write(buff, 0, res);
                         }
 
                         objStream = new ObjectInputStream(new ByteArrayInputStream(outputStream.toByteArray()));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -33,25 +33,27 @@ import java.nio.ByteBuffer;
  */
 public interface Binary {
     /**
-     * Writes a sequence of bytes to this channel from the given buffer.
-     * The internal buffer is expected to grow as more data is written.
+     * Writes len bytes from the specified byte array starting at offset off to this carrier.
      *
-     * The behavior of this method is expected to be the same as WritableByteChannel.write().
+     * The behavior of this method is expected to be the same as OutputStream.write().
      *
-     * @param buffer The buffer from which bytes are to be retrieved.
-     *
-     * @return The number of bytes written, possibly zero.
+     * @param b the data.
+     * @param off the start offset of the data.
+     * @param len the number of bytes to write.
      */
-    int write(ByteBuffer buffer) throws IOException;
+    void write(byte[] b, int off, int len) throws IOException;
 
     /**
-     * Reads a sequence of bytes into the given buffer.
+     * Reads up to len bytes of data from the carrier into an array of bytes.
      *
-     * The behavior of this method is expected to be the same as ReadableByteChannel.read().
+     * The behavior of this method is expected to be the same as InputStream.read().
      *
-     * @param buffer The buffer into which bytes are to be transferred.
+     * @param b the data.
+     * @param off the start offset of the data.
+     * @param len the number of bytes to read.
      *
-     * @return The number of bytes read, possibly zero, or -1 if the channel has reached end-of-stream.
+     * @return the total number of bytes read into the buffer, or -1 if there is no more data
+     * because the end of the carrier has been reached.
      */
-    int read(ByteBuffer buffer) throws IOException;
+    int read(byte[] b, int offset, int len) throws IOException;
 }
