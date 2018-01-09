@@ -168,7 +168,7 @@ public class MockTracer implements Tracer {
                     try {
                         byte[] buff = new byte[BUFFER_SIZE];
                         int res;
-                        while ((res = binary.read(buff, 0, buff.length)) > 0) {
+                        while ((res = binary.read(buff, 0, buff.length)) > -1) {
                             outputStream.write(buff, 0, res);
                         }
 
