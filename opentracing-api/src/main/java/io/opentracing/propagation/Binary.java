@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
  */
 public interface Binary {
     /**
-     * Writes a sequence of bytes to this channel from the given buffer.
+     * Writes a sequence of bytes to this carrier from the given buffer.
      * The internal buffer is expected to grow as more data is written.
      *
      * The behavior of this method is expected to be the same as WritableByteChannel.write().
@@ -51,7 +51,7 @@ public interface Binary {
      *
      * @param buffer The buffer into which bytes are to be transferred.
      *
-     * @return The number of bytes read, possibly zero, or -1 if the channel has reached end-of-stream.
+     * @return The number of bytes read, possibly zero, or -1 if the carrier has reached end-of-stream.
      */
     int read(ByteBuffer buffer) throws IOException;
 }
