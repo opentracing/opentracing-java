@@ -20,7 +20,7 @@ import java.util.Map;
  *
  * @see Scope
  * @see ScopeManager
- * @see Tracer.SpanBuilder#startManual()
+ * @see Tracer.SpanBuilder#start()
  * @see Tracer.SpanBuilder#startActive()
  */
 public interface Span {
