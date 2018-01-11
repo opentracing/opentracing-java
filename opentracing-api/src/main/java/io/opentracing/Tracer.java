@@ -52,7 +52,7 @@ public interface Tracer {
      *                     .asChildOf(rpcSpanContext)  // an explicit parent
      *                     .withTag("user_agent", req.UserAgent)
      *                     .withTag("lucky_number", 42)
-     *                     .startManual();
+     *                     .start();
      * </code></pre>
      */
     SpanBuilder buildSpan(String operationName);
@@ -137,7 +137,7 @@ public interface Tracer {
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
          * {@link ScopeManager#active()} {@link SpanContext} when either {@link SpanBuilder#startActive(boolean)} or
-         * {@link SpanBuilder#startManual} is invoked.
+         * {@link SpanBuilder#start} is invoked.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
@@ -187,11 +187,11 @@ public interface Tracer {
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
          * {@link ScopeManager#active()}'s {@link SpanContext} when either
-         * {@link SpanBuilder#startManual()} or {@link SpanBuilder#startActive} is invoked.
+         * {@link SpanBuilder#start()} or {@link SpanBuilder#startActive} is invoked.
          *
          * <p>
          * Note: {@link SpanBuilder#startActive(boolean)} is a shorthand for
-         * {@code tracer.scopeManager().activate(spanBuilder.startManual(), finishSpanOnClose)}.
+         * {@code tracer.scopeManager().activate(spanBuilder.start(), finishSpanOnClose)}.
          *
          * @param finishSpanOnClose whether span should automatically be finished when {@link Scope#close()} is called
          * @return a {@link Scope}, already registered via the {@link ScopeManager}
