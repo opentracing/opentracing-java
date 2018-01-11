@@ -17,8 +17,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
+import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,7 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Adapters;
+import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
@@ -236,6 +239,51 @@ public class MockTracerTest {
         Assert.assertNull(finishedSpans.get(0).getBaggageItem("barbag"));
         Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
         Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
+    }
+
+    @Test
+    public void testBinaryPropagatorStream() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.BINARY);
+        {
+            Span parentSpan = tracer.buildSpan("foo")
+                    .start();
+            parentSpan.finish();
+
+            ByteByByteBinary buff = new ByteByByteBinary();
+            tracer.inject(parentSpan.context(), Format.Builtin.BINARY, buff);
+
+            ByteArrayInputStream extractStream = new ByteArrayInputStream(buff.toByteArray());
+            SpanContext extract = tracer.extract(Format.Builtin.BINARY, Adapters.extractBinary(extractStream));
+
+            Span childSpan = tracer.buildSpan("bar")
+                    .asChildOf(extract)
+                    .start();
+            childSpan.finish();
+        }
+        List<MockSpan> finishedSpans = tracer.finishedSpans();
+
+        Assert.assertEquals(2, finishedSpans.size());
+        Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
+        Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+    }
+
+    // Binary format that only writes one byte at a time, thus needing
+    // multiple calls to write() when calling inject().
+    class ByteByByteBinary implements Binary {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        public byte[] toByteArray() {
+            return stream.toByteArray();
+        }
+
+        public int write(ByteBuffer buffer) throws IOException {
+            stream.write(new byte[] { buffer.get() });
+            return 1;
+        }
+
+        public int read(ByteBuffer buffer) throws IOException {
+            return -1;
+        }
     }
   
     @Test

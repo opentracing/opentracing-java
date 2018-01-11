@@ -139,7 +139,11 @@ public class MockTracer implements Tracer {
                         }
 
                         objStream.flush(); // *need* to flush ObjectOutputStream.
-                        binary.write(ByteBuffer.wrap(stream.toByteArray()));
+
+                        ByteBuffer buff = ByteBuffer.wrap(stream.toByteArray());
+                        while (buff.hasRemaining()) {
+                            binary.write(buff);
+                        }
 
                     } catch (IOException e) {
                         throw new RuntimeException("Corrupted state");
