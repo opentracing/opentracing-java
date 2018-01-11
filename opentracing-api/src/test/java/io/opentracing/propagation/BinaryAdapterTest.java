@@ -30,31 +30,29 @@ public class BinaryAdapterTest {
     @Test
     public void testRead() throws IOException {
         ByteArrayInputStream stream = new ByteArrayInputStream(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 });
-        BinaryAdapter binary = new BinaryAdapter(Channels.newChannel(stream));
-        assertNotNull(binary.readChannel());
-        assertNull(binary.writeChannel());
+        BinaryAdapter binary = new BinaryAdapter(stream);
+        assertNotNull(binary.inputStream());
+        assertNull(binary.outputStream());
 
-        ByteBuffer buffer = ByteBuffer.allocate(4);
-        assertEquals(4, binary.read(buffer));
-        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, buffer.array());
+        byte[] buff = new byte[4];
+        assertEquals(4, binary.read(buff, 0, buff.length));
+        assertArrayEquals(new byte[] { 1, 2, 3, 4 }, buff);
 
-        buffer.rewind();
-        assertEquals(4, binary.read(buffer));
-        assertArrayEquals(new byte[] { 4, 3, 2, 1 }, buffer.array());
+        assertEquals(4, binary.read(buff, 0, buff.length));
+        assertArrayEquals(new byte[] { 4, 3, 2, 1 }, buff);
 
-        buffer.rewind();
-        assertEquals(-1, binary.read(buffer));
+        assertEquals(-1, binary.read(buff, 0, buff.length));
     }
 
     @Test
     public void testWrite() throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        BinaryAdapter binary = new BinaryAdapter(Channels.newChannel(stream));
-        assertNotNull(binary.writeChannel());
-        assertNull(binary.readChannel());
+        BinaryAdapter binary = new BinaryAdapter(stream);
+        assertNotNull(binary.outputStream());
+        assertNull(binary.inputStream());
 
-        assertEquals(4, binary.write(ByteBuffer.wrap(new byte [] { 1, 2, 3, 4 })));
-        assertEquals(4, binary.write(ByteBuffer.wrap(new byte [] { 4, 3, 2, 1 })));
+        binary.write(new byte [] { 1, 2, 3, 4 }, 0, 4);
+        binary.write(new byte [] { 4, 3, 2, 1 }, 0, 4);
 
         assertArrayEquals(new byte[] { 1, 2, 3, 4, 4, 3, 2, 1 }, stream.toByteArray());
     }

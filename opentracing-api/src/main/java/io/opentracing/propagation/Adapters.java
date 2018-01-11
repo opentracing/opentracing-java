@@ -36,23 +36,7 @@ public final class Adapters {
             throw new IllegalArgumentException("stream cannot be null");
         }
 
-        return new BinaryAdapter(Channels.newChannel(stream));
-    }
-
-    /**
-     * Creates an outbound Binary instance used for injection, backed up
-     * by the specified WritableByteChannel as the output.
-     *
-     * @param channel The WritableByteChannel used as output.
-     *
-     * @return The new Binary carrier used for injection.
-     */
-    public static Binary injectBinary(WritableByteChannel channel) {
-        if (channel == null) {
-            throw new IllegalArgumentException("channel cannot be null");
-        }
-
-        return new BinaryAdapter(channel);
+        return new BinaryAdapter(stream);
     }
 
     /**
@@ -68,22 +52,6 @@ public final class Adapters {
             throw new IllegalArgumentException("stream cannot be null");
         }
 
-        return new BinaryAdapter(Channels.newChannel(stream));
-    }
-
-    /**
-     * Creates an inbound Binary instance used for extraction with the
-     * specified ReadableByteChannel as the input.
-     *
-     * @param channel The ReadableByteChannel used as input.
-     *
-     * @return The new Binary carrier used for extraction.
-     */
-    public static Binary extractBinary(ReadableByteChannel channel) {
-        if (channel == null) {
-            throw new IllegalArgumentException("channel cannot be null");
-        }
-
-        return new BinaryAdapter(channel);
+        return new BinaryAdapter(stream);
     }
 }

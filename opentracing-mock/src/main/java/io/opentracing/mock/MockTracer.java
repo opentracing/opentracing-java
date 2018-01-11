@@ -139,7 +139,9 @@ public class MockTracer implements Tracer {
                         }
 
                         objStream.flush(); // *need* to flush ObjectOutputStream.
-                        binary.write(ByteBuffer.wrap(stream.toByteArray()));
+
+                        byte[] arr = stream.toByteArray();
+                        binary.write(arr, 0, arr.length);
 
                     } catch (IOException e) {
                         throw new RuntimeException("Corrupted state");
@@ -164,9 +166,10 @@ public class MockTracer implements Tracer {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     ObjectInputStream objStream = null;
                     try {
-                        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
-                        for (int readBytes = 0; (readBytes = binary.read(buffer)) > 0; buffer.rewind()) {
-                            outputStream.write(buffer.array(), 0, readBytes);
+                        byte[] buff = new byte[BUFFER_SIZE];
+                        int res;
+                        while ((res = binary.read(buff, 0, buff.length)) > -1) {
+                            outputStream.write(buff, 0, res);
                         }
 
                         objStream = new ObjectInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
