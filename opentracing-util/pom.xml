@@ -20,7 +20,7 @@
     <parent>
         <groupId>io.opentracing</groupId>
         <artifactId>parent</artifactId>
-        <version>0.31.0-RC3-SNAPSHOT</version>
+        <version>0.31.0</version>
     </parent>
 
     <artifactId>opentracing-util</artifactId>
