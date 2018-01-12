@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,10 +13,10 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.ScopeManager;
+import io.opentracing.Span;
 import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
-import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -124,6 +124,11 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
+    public ScopeManager scopeManager() {
+        return tracer.scopeManager();
+    }
+
+    @Override
     public SpanBuilder buildSpan(String operationName) {
         return tracer.buildSpan(operationName);
     }
@@ -139,17 +144,12 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
-    public String toString() {
-        return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
-    }
-
-    @Override
-    public ActiveSpan activeSpan() {
+    public Span activeSpan() {
         return tracer.activeSpan();
     }
 
     @Override
-    public ActiveSpan makeActive(Span span) {
-        return tracer.makeActive(span);
+    public String toString() {
+        return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
     }
 }

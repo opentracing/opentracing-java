@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  */
 package io.opentracing.tag;
 
-import io.opentracing.BaseSpan;
+import io.opentracing.Span;
 
 public abstract class AbstractTag<T> {
     protected final String key;
@@ -26,5 +26,5 @@ public abstract class AbstractTag<T> {
         return key;
     }
 
-    protected abstract void set(BaseSpan<?> span, T tagValue);
+    protected abstract void set(Span span, T tagValue);
 }

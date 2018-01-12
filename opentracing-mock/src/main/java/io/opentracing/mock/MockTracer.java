@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,17 +18,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
-import io.opentracing.BaseSpan;
 import io.opentracing.References;
+import io.opentracing.Scope;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopActiveSpanSource;
+import io.opentracing.noop.NoopScopeManager;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 
 /**
  * MockTracer makes it easy to test the semantics of OpenTracing instrumentation.
@@ -41,26 +40,26 @@ import io.opentracing.util.ThreadLocalActiveSpanSource;
 public class MockTracer implements Tracer {
     private final List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
-    private final ActiveSpanSource spanSource;
+    private final ScopeManager scopeManager;
 
     public MockTracer() {
-        this(new ThreadLocalActiveSpanSource(), Propagator.TEXT_MAP);
+        this(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
     }
 
-    public MockTracer(ActiveSpanSource spanSource) {
-        this(spanSource, Propagator.TEXT_MAP);
+    public MockTracer(ScopeManager scopeManager) {
+        this(scopeManager, Propagator.TEXT_MAP);
     }
 
-    public MockTracer(ActiveSpanSource spanSource, Propagator propagator) {
+    public MockTracer(ScopeManager scopeManager, Propagator propagator) {
+        this.scopeManager = scopeManager;
         this.propagator = propagator;
-        this.spanSource = spanSource;
     }
 
     /**
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(NoopActiveSpanSource.INSTANCE, propagator);
+        this(NoopScopeManager.INSTANCE, propagator);
     }
 
     /**
@@ -87,16 +86,6 @@ public class MockTracer implements Tracer {
      * Noop method called on {@link Span#finish()}.
      */
     protected void onSpanFinished(MockSpan mockSpan) {
-    }
-
-    @Override
-    public ActiveSpan activeSpan() {
-        return spanSource.activeSpan();
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span) {
-        return spanSource.makeActive(span);
     }
 
     /**
@@ -174,17 +163,13 @@ public class MockTracer implements Tracer {
     }
 
     @Override
-    public SpanBuilder buildSpan(String operationName) {
-        return new SpanBuilder(operationName);
+    public ScopeManager scopeManager() {
+        return this.scopeManager;
     }
 
-    private SpanContext activeSpanContext() {
-        ActiveSpan handle = this.spanSource.activeSpan();
-        if (handle == null) {
-            return null;
-        }
-
-        return handle.context();
+    @Override
+    public SpanBuilder buildSpan(String operationName) {
+        return new SpanBuilder(operationName);
     }
 
     @Override
@@ -197,9 +182,24 @@ public class MockTracer implements Tracer {
         return this.propagator.extract(format, carrier);
     }
 
+    @Override
+    public Span activeSpan() {
+        Scope scope = this.scopeManager.active();
+        return scope == null ? null : scope.span();
+    }
+
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
         this.finishedSpans.add(mockSpan);
         this.onSpanFinished(mockSpan);
+    }
+
+    private SpanContext activeSpanContext() {
+        Span span = activeSpan();
+        if (span == null) {
+            return null;
+        }
+
+        return span.context();
     }
 
     public final class SpanBuilder implements Tracer.SpanBuilder {
@@ -219,7 +219,7 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        public SpanBuilder asChildOf(BaseSpan parent) {
+        public SpanBuilder asChildOf(Span parent) {
             if (parent == null) {
                 return this;
             }
@@ -265,15 +265,13 @@ public class MockTracer implements Tracer {
         }
 
         @Override
-        @Deprecated
-        public MockSpan start() {
-            return startManual();
+        public Scope startActive(boolean finishOnClose) {
+            return MockTracer.this.scopeManager().activate(this.startManual(), finishOnClose);
         }
 
         @Override
-        public ActiveSpan startActive() {
-            MockSpan span = this.startManual();
-            return spanSource.makeActive(span);
+        public MockSpan start() {
+            return startManual();
         }
 
         @Override

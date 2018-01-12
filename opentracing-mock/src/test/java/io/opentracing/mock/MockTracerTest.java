@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
-import io.opentracing.References;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,8 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.References;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -201,6 +201,22 @@ public class MockTracerTest {
         Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
         Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
     }
+  
+    @Test
+    public void testActiveSpan() {
+        MockTracer mockTracer = new MockTracer();
+        Assert.assertNull(mockTracer.activeSpan());
+
+        Scope scope = null;
+        try {
+            scope = mockTracer.buildSpan("foo").startActive(true);
+            Assert.assertEquals(mockTracer.scopeManager().active().span(), mockTracer.activeSpan());
+        } finally {
+            scope.close();
+        }
+
+        Assert.assertNull(mockTracer.activeSpan());
+    }
 
     @Test
     public void testReset() {
@@ -288,11 +304,11 @@ public class MockTracerTest {
     @Test
     public void testDefaultConstructor() {
         MockTracer mockTracer = new MockTracer();
-        ActiveSpan activeSpan = mockTracer.buildSpan("foo").startActive();
-        assertEquals(activeSpan, mockTracer.activeSpan());
+        Scope scope = mockTracer.buildSpan("foo").startActive(true);
+        assertEquals(scope, mockTracer.scopeManager().active());
 
         Map<String, String> propag = new HashMap<>();
-        mockTracer.inject(activeSpan.context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));
+        mockTracer.inject(scope.span().context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));
         assertFalse(propag.isEmpty());
     }
 

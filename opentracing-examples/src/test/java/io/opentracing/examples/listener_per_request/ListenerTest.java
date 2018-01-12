@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -17,7 +17,7 @@ import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
 import io.opentracing.tag.Tags;
-import io.opentracing.util.ThreadLocalActiveSpanSource;
+import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Test;
 
 import java.util.List;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNull;
  */
 public class ListenerTest {
 
-    private final MockTracer tracer = new MockTracer(new ThreadLocalActiveSpanSource(),
+    private final MockTracer tracer = new MockTracer(new ThreadLocalScopeManager(),
             Propagator.TEXT_MAP);
 
     @Test
@@ -44,6 +44,6 @@ public class ListenerTest {
         List<MockSpan> finished = tracer.finishedSpans();
         assertEquals(1, finished.size());
         assertNotNull(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CLIENT));
-        assertNull(tracer.activeSpan());
+        assertNull(tracer.scopeManager().active());
     }
 }

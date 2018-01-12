@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,48 +13,48 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class ThreadLocalActiveSpanSourceTest {
-    private ThreadLocalActiveSpanSource source;
+public class AutoFinishScopeManagerTest {
+    private AutoFinishScopeManager source;
     @Before
     public void before() throws Exception {
-        source = new ThreadLocalActiveSpanSource();
+        source = new AutoFinishScopeManager();
     }
 
     @Test
-    public void missingActiveSpan() throws Exception {
-        ActiveSpan missingSpan = source.activeSpan();
+    public void missingScope() throws Exception {
+        Scope missingSpan = source.active();
         assertNull(missingSpan);
     }
 
     @Test
-    public void makeActiveSpan() throws Exception {
+    public void activateSpan() throws Exception {
         Span span = mock(Span.class);
 
         // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-        ActiveSpan activeSpan = source.makeActive(span);
+        Scope active = source.activate(span, true);
         try {
-            assertNotNull(activeSpan);
-            ActiveSpan otherActiveSpan = source.activeSpan();
-            assertEquals(otherActiveSpan, activeSpan);
+            assertNotNull(active);
+            Scope otherScope = source.active();
+            assertEquals(otherScope, active);
         } finally {
-            activeSpan.close();
+            active.close();
         }
 
         // Make sure the Span got finish()ed.
         verify(span).finish();
 
         // And now it's gone:
-        ActiveSpan missingSpan = source.activeSpan();
+        Scope missingSpan = source.active();
         assertNull(missingSpan);
     }
-
 }

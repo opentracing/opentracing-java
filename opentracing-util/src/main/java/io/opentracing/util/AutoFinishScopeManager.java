@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,30 +13,22 @@
  */
 package io.opentracing.util;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.ActiveSpanSource;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
-import io.opentracing.Tracer;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * A simple {@link ActiveSpanSource} implementation built on top of Java's thread-local storage primitive.
- *
- * @see ThreadLocalActiveSpan
- * @see Tracer#activeSpan()
- */
-public class ThreadLocalActiveSpanSource implements ActiveSpanSource {
-    final ThreadLocal<ThreadLocalActiveSpan> tlsSnapshot = new ThreadLocal<ThreadLocalActiveSpan>();
+public class AutoFinishScopeManager implements ScopeManager {
+    final ThreadLocal<AutoFinishScope> tlsScope = new ThreadLocal<AutoFinishScope>();
 
     @Override
-    public ThreadLocalActiveSpan activeSpan() {
-        return tlsSnapshot.get();
+    public AutoFinishScope activate(Span span, boolean finishOnClose) {
+        return new AutoFinishScope(this, new AtomicInteger(1), span);
     }
 
     @Override
-    public ActiveSpan makeActive(Span span) {
-        return new ThreadLocalActiveSpan(this, span, new AtomicInteger(1));
+    public AutoFinishScope active() {
+        return tlsScope.get();
     }
 
 }

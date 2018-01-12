@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  */
 package io.opentracing.noop;
 
-import io.opentracing.ActiveSpan;
+import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -26,6 +26,16 @@ final class NoopTracerImpl implements NoopTracer {
     final static NoopTracer INSTANCE = new NoopTracerImpl();
 
     @Override
+    public ScopeManager scopeManager() {
+        return NoopScopeManager.INSTANCE;
+    }
+
+    @Override
+    public Span activeSpan() {
+        return null;
+    }
+
+    @Override
     public SpanBuilder buildSpan(String operationName) { return NoopSpanBuilderImpl.INSTANCE; }
 
     @Override
@@ -36,15 +46,5 @@ final class NoopTracerImpl implements NoopTracer {
 
     @Override
     public String toString() { return NoopTracer.class.getSimpleName(); }
-
-    @Override
-    public ActiveSpan activeSpan() {
-        return null;
-    }
-
-    @Override
-    public ActiveSpan makeActive(Span span) {
-        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
-    }
 }
 

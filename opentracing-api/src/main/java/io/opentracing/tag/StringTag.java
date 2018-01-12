@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  */
 package io.opentracing.tag;
 
-import io.opentracing.BaseSpan;
+import io.opentracing.Span;
 
 public class StringTag extends AbstractTag<String> {
     public StringTag(String key) {
@@ -21,11 +21,11 @@ public class StringTag extends AbstractTag<String> {
     }
 
     @Override
-    public void set(BaseSpan<?> span, String tagValue) {
+    public void set(Span span, String tagValue) {
         span.setTag(super.key, tagValue);
     }
 
-    public void set(BaseSpan<?> span, StringTag tag) {
+    public void set(Span span, StringTag tag) {
         span.setTag(super.key, tag.key);
     }
 }

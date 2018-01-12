@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -18,7 +18,18 @@ import io.opentracing.propagation.Format;
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
-public interface Tracer extends ActiveSpanSource {
+public interface Tracer {
+
+    /**
+     * @return the current {@link ScopeManager}, which may be a noop but may not be null.
+     */
+    ScopeManager scopeManager();
+
+    /**
+     * @return the active {@link Span}. This is a shorthand for Tracer.scopeManager().active().span(),
+     * and null will be returned if {@link Scope#active()} is null.
+     */
+    Span activeSpan();
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
@@ -29,19 +40,19 @@ public interface Tracer extends ActiveSpanSource {
      * <pre><code>
      *   Tracer tracer = ...
      *
-     *   // Note: if there is a `tracer.activeSpan()`, it will be used as the target of an implicit CHILD_OF
-     *   // Reference for "workSpan" when `startActive()` is invoked.
-     *   try (ActiveSpan workSpan = tracer.buildSpan("DoWork").startActive()) {
-     *       workSpan.setTag("...", "...");
+     *   // Note: if there is a `tracer.active()` Scope, its `span()` will be used as the target
+     *   // of an implicit CHILD_OF Reference for "workScope.span()" when `startActive()` is invoked.
+     *   try (Scope workScope = tracer.buildSpan("DoWork").startActive()) {
+     *       workScope.span().setTag("...", "...");
      *       // etc, etc
      *   }
      *
-     *   // It's also possible to create Spans manually, bypassing the ActiveSpanSource activation.
+     *   // It's also possible to create Spans manually, bypassing the ScopeManager activation.
      *   Span http = tracer.buildSpan("HandleHTTPRequest")
      *                     .asChildOf(rpcSpanContext)  // an explicit parent
      *                     .withTag("user_agent", req.UserAgent)
      *                     .withTag("lucky_number", 42)
-     *                     .startManual();
+     *                     .start();
      * </code></pre>
      */
     SpanBuilder buildSpan(String operationName);
@@ -111,7 +122,7 @@ public interface Tracer extends ActiveSpanSource {
          * <p>
          * If parent==null, this is a noop.
          */
-        SpanBuilder asChildOf(BaseSpan<?> parent);
+        SpanBuilder asChildOf(Span parent);
 
         /**
          * Add a reference from the Span being built to a distinct (usually parent) Span. May be called multiple times
@@ -120,13 +131,13 @@ public interface Tracer extends ActiveSpanSource {
          * <p>
          * If
          * <ul>
-         * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
+         * <li>the {@link Tracer}'s {@link ScopeManager#active()} is not null, and
          * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
          * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
-         * {@link ActiveSpanSource#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startActive()} or
-         * {@link SpanBuilder#startManual} is invoked.
+         * {@link ScopeManager#active()} {@link SpanContext} when either {@link SpanBuilder#startActive(boolean)} or
+         * {@link SpanBuilder#start} is invoked.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
          * @param referencedContext the SpanContext being referenced; e.g., for a References.CHILD_OF referenceType, the
@@ -138,7 +149,7 @@ public interface Tracer extends ActiveSpanSource {
         SpanBuilder addReference(String referenceType, SpanContext referencedContext);
 
         /**
-         * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ActiveSpanSource#activeSpan}).
+         * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#active()}).
          */
         SpanBuilder ignoreActiveSpan();
 
@@ -155,53 +166,55 @@ public interface Tracer extends ActiveSpanSource {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * Returns a newly started and activated {@link ActiveSpan}.
+         * Returns a newly started and activated {@link Scope}.
          *
          * <p>
-         * The returned {@link ActiveSpan} supports try-with-resources. For example:
+         * The returned {@link Scope} supports try-with-resources. For example:
          * <pre><code>
-         *     try (ActiveSpan span = tracer.buildSpan("...").startActive()) {
+         *     try (Scope scope = tracer.buildSpan("...").startActive(true)) {
          *         // (Do work)
-         *         span.setTag( ... );  // etc, etc
-         *     }  // Span finishes automatically unless deferred via {@link ActiveSpan#capture}
+         *         scope.span().setTag( ... );  // etc, etc
+         *     }
+         *     // Span does finishes automatically only when 'finishSpanOnClose' is true
          * </code></pre>
          *
          * <p>
          * If
          * <ul>
-         * <li>the {@link Tracer}'s {@link ActiveSpanSource#activeSpan()} is not null, and
+         * <li>the {@link Tracer}'s {@link ScopeManager#active()} is not null, and
          * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
          * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
-         * {@link ActiveSpanSource#activeSpan()}'s {@link SpanContext} when either
-         * {@link SpanBuilder#startManual()} or {@link SpanBuilder#startActive} is invoked.
+         * {@link ScopeManager#active()}'s {@link SpanContext} when either
+         * {@link SpanBuilder#start()} or {@link SpanBuilder#startActive} is invoked.
          *
          * <p>
-         * Note: {@link SpanBuilder#startActive()} is a shorthand for
-         * {@code tracer.makeActive(spanBuilder.startManual())}.
+         * Note: {@link SpanBuilder#startActive(boolean)} is a shorthand for
+         * {@code tracer.scopeManager().activate(spanBuilder.start(), finishSpanOnClose)}.
          *
-         * @return an {@link ActiveSpan}, already registered via the {@link ActiveSpanSource}
+         * @param finishSpanOnClose whether span should automatically be finished when {@link Scope#close()} is called
+         * @return a {@link Scope}, already registered via the {@link ScopeManager}
          *
-         * @see ActiveSpanSource
-         * @see ActiveSpan
+         * @see ScopeManager
+         * @see Scope
          */
-        ActiveSpan startActive();
+        Scope startActive(boolean finishSpanOnClose);
 
         /**
-         * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
-         * {@link ActiveSpanSource}.
-         *
-         * @see SpanBuilder#startActive()
-         * @return the newly-started Span instance, which has *not* been automatically registered
-         *         via the {@link ActiveSpanSource}
+         * @deprecated use {@link #start} or {@link #startActive} instead.
          */
+        @Deprecated
         Span startManual();
 
         /**
-         * @deprecated use {@link #startManual} or {@link #startActive} instead.
+         * Like {@link #startActive()}, but the returned {@link Span} has not been registered via the
+         * {@link ScopeManager}.
+         *
+         * @see SpanBuilder#startActive(boolean)
+         * @return the newly-started Span instance, which has *not* been automatically registered
+         *         via the {@link ScopeManager}
          */
-        @Deprecated
         Span start();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2017 The OpenTracing Authors
+ * Copyright 2016-2018 The OpenTracing Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,8 +13,7 @@
  */
 package io.opentracing.noop;
 
-import io.opentracing.ActiveSpan;
-import io.opentracing.BaseSpan;
+import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -42,7 +41,7 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     public Tracer.SpanBuilder ignoreActiveSpan() { return this; }
 
     @Override
-    public Tracer.SpanBuilder asChildOf(BaseSpan parent) {
+    public Tracer.SpanBuilder asChildOf(Span parent) {
         return this;
     }
 
@@ -67,14 +66,13 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
-    @Deprecated
-    public Span start() {
-        return startManual();
+    public Scope startActive(boolean finishOnClose) {
+        return NoopScopeManager.NoopScope.INSTANCE;
     }
 
     @Override
-    public ActiveSpan startActive() {
-        return NoopActiveSpanSource.NoopActiveSpan.INSTANCE;
+    public Span start() {
+        return startManual();
     }
 
     @Override
