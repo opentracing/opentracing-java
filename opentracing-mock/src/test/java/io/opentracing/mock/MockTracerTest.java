@@ -17,6 +17,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
+import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +33,8 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.propagation.Adapters;
+import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
@@ -200,6 +206,93 @@ public class MockTracerTest {
         Assert.assertEquals(2, finishedSpans.size());
         Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
         Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+    }
+
+    @Test
+    public void testBinaryPropagator() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.BINARY);
+        {
+            Span parentSpan = tracer.buildSpan("foo")
+                    .start();
+            parentSpan.setBaggageItem("foobag", "fooitem");
+            parentSpan.finish();
+
+            ByteArrayOutputStream injectStream = new ByteArrayOutputStream();
+            tracer.inject(parentSpan.context(), Format.Builtin.BINARY,
+                    Adapters.injectBinary(injectStream));
+
+            ByteArrayInputStream extractStream = new ByteArrayInputStream(injectStream.toByteArray());
+            SpanContext extract = tracer.extract(Format.Builtin.BINARY, Adapters.extractBinary(extractStream));
+
+            Span childSpan = tracer.buildSpan("bar")
+                    .asChildOf(extract)
+                    .start();
+            childSpan.setBaggageItem("barbag", "baritem");
+            childSpan.finish();
+        }
+        List<MockSpan> finishedSpans = tracer.finishedSpans();
+
+        Assert.assertEquals(2, finishedSpans.size());
+        Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
+        Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+        Assert.assertEquals("fooitem", finishedSpans.get(0).getBaggageItem("foobag"));
+        Assert.assertNull(finishedSpans.get(0).getBaggageItem("barbag"));
+        Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
+        Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
+    }
+
+    @Test
+    public void testBinaryPropagatorMultipleReads() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.BINARY);
+        {
+            Span parentSpan = tracer.buildSpan("foo")
+                    .start();
+            parentSpan.finish();
+
+            ByteArrayOutputStream injectStream = new ByteArrayOutputStream();
+            tracer.inject(parentSpan.context(), Format.Builtin.BINARY,
+                    Adapters.injectBinary(injectStream));
+
+            ByteByByteBinary extractBinary = new ByteByByteBinary(injectStream.toByteArray());
+            SpanContext extract = tracer.extract(Format.Builtin.BINARY, extractBinary);
+
+            Span childSpan = tracer.buildSpan("bar")
+                    .asChildOf(extract)
+                    .start();
+            childSpan.finish();
+        }
+        List<MockSpan> finishedSpans = tracer.finishedSpans();
+
+        Assert.assertEquals(2, finishedSpans.size());
+        Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
+        Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
+    }
+
+    // Binary format that reads one byte at a time, thus needing
+    // multiple calls to read() when calling extract().
+    class ByteByByteBinary implements Binary {
+        byte[] b;
+        int pos;
+
+        public ByteByByteBinary(byte[] b) {
+            this.b = b;
+        }
+
+        public void write(ByteBuffer buffer) throws IOException {
+            throw new UnsupportedOperationException();
+        }
+
+        public int read(ByteBuffer buffer) throws IOException {
+            if (buffer.remaining() == 0) {
+                return 0;
+            }
+            if (pos >= b.length) {
+                return -1;
+            }
+
+            buffer.put(b, pos++, 1);
+            return 1;
+        }
     }
   
     @Test

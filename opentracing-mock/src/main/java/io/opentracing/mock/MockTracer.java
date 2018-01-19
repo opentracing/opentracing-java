@@ -13,6 +13,12 @@
  */
 package io.opentracing.mock;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +31,7 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopScopeManager;
+import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
 import io.opentracing.util.ThreadLocalScopeManager;
@@ -108,6 +115,81 @@ public class MockTracer implements Tracer {
             @Override
             public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
                 System.out.println("extract(" + format + ", " + carrier + ")");
+                return null;
+            }
+        };
+
+        Propagator BINARY = new Propagator() {
+            static final int BUFFER_SIZE = 128;
+
+            @Override
+            public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
+                if (carrier instanceof Binary) {
+                    Binary binary = (Binary) carrier;
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    ObjectOutputStream objStream = null;
+                    try {
+                        objStream = new ObjectOutputStream(stream);
+                        objStream.writeLong(ctx.spanId());
+                        objStream.writeLong(ctx.traceId());
+
+                        for (Map.Entry<String, String> entry : ctx.baggageItems()) {
+                            objStream.writeUTF(entry.getKey());
+                            objStream.writeUTF(entry.getValue());
+                        }
+
+                        objStream.flush(); // *need* to flush ObjectOutputStream.
+                        binary.write(ByteBuffer.wrap(stream.toByteArray()));
+
+                    } catch (IOException e) {
+                        throw new RuntimeException("Corrupted state");
+                    } finally {
+                        if (objStream != null) {
+                            try { objStream.close(); } catch (Exception e2) {}
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+            }
+
+            @Override
+            public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
+                Long traceId = null;
+                Long spanId = null;
+                Map<String, String> baggage = new HashMap<>();
+
+                if (carrier instanceof Binary) {
+                    Binary binary = (Binary) carrier;
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    ObjectInputStream objStream = null;
+                    try {
+                        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                        for (int readBytes = 0; (readBytes = binary.read(buffer)) > -1; buffer.rewind()) {
+                            outputStream.write(buffer.array(), 0, readBytes);
+                        }
+
+                        objStream = new ObjectInputStream(new ByteArrayInputStream(outputStream.toByteArray()));
+                        spanId = objStream.readLong();
+                        traceId = objStream.readLong();
+
+                        while (objStream.available() > 0) {
+                            baggage.put(objStream.readUTF(), objStream.readUTF());
+                        }
+                    } catch (IOException e) {
+                    } finally {
+                        if (objStream != null) {
+                            try { objStream.close(); } catch (Exception e2) {}
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unknown carrier");
+                }
+
+                if (traceId != null && spanId != null) {
+                    return new MockSpan.MockContext(traceId, spanId, baggage);
+                }
+
                 return null;
             }
         };
