@@ -1,4 +1,4 @@
-#Changes by Version
+# Changes by Version
 
 ## v0.31.0 (2018-01-12) 
 * `BaseSpan` and `ActiveSpan` are simplified into a single `Span` class.
