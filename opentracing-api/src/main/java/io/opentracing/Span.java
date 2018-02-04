@@ -161,4 +161,21 @@ public interface Span {
      * @see Span#context()
      */
     void finish(long finishMicros);
+
+    /**
+     * Returns an object that is an instance of the given class to allow access to non-standard methods.
+     *
+     * <p> Using this method is highly preferred to type casts, especially because there might be a hierarchy of wrapper
+     * objects. </p>
+     *
+     * <p> If the class implementing this interface is an instance of the provided class, the <code>this</code>
+     * reference is returned. Otherwise, if the receiver is a wrapper, return the the result of calling
+     * <code>unwrap</code> recursively on the wrapped object. If the receiver is not a wrapper and is not an instance of
+     * the provided class, then <code>null</code> is returned.</p>
+     *
+     * @param clazz The Class that the result must be an instance of.
+     * @return an object that is an instance of the provided class, or <code>null</code> if there is no such class in
+     * the wrapper hierarchy.
+     */
+    <T extends Span> T unwrap(java.lang.Class<T> clazz);
 }

@@ -122,6 +122,15 @@ public final class MockSpan implements Span {
     }
 
     @Override
+    public <T extends Span> T unwrap(Class<T> clazz) {
+        if (clazz.isInstance(this)) {
+            return clazz.cast(this);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public MockSpan setTag(String key, String value) {
         return setObjectTag(key, value);
     }

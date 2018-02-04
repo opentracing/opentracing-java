@@ -17,6 +17,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.noop.NoopSpan;
 
 /**
  * @author Pavol Loffay
@@ -77,5 +79,19 @@ public class MockSpanTest {
         } catch (RuntimeException ex) {
         }
         Assert.assertEquals(1, tracer.finishedSpans().get(0).generatedErrors().size());
+    }
+
+    @Test
+    public void testUnwrap() throws Exception {
+        Tracer tracer = new MockTracer();
+        Span span = tracer.buildSpan("foo").startManual();
+        Assert.assertSame(span, span.unwrap(MockSpan.class));
+    }
+
+    @Test
+    public void testUnwrapWrongInstance() throws Exception {
+        Tracer tracer = new MockTracer();
+        Span span = tracer.buildSpan("foo").startManual();
+        Assert.assertNull(span.unwrap(NoopSpan.class));
     }
 }

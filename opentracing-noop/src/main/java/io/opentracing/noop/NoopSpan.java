@@ -13,10 +13,10 @@
  */
 package io.opentracing.noop;
 
+import java.util.Map;
+
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
-
-import java.util.Map;
 
 public interface NoopSpan extends Span {
     static final NoopSpan INSTANCE = new NoopSpanImpl();
@@ -32,6 +32,15 @@ final class NoopSpanImpl implements NoopSpan {
 
     @Override
     public void finish(long finishMicros) {}
+
+    @Override
+    public <T extends Span> T unwrap(Class<T> clazz) {
+        if (clazz.isInstance(this)) {
+            return clazz.cast(this);
+        } else {
+            return null;
+        }
+    }
 
     @Override
     public NoopSpan setTag(String key, String value) { return this; }
