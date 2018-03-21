@@ -25,6 +25,10 @@ public class StringTag extends AbstractTag<String> {
         span.setTag(super.key, tagValue);
     }
 
+    /**
+     * @deprecated as using the tag *key* as tag value is not usually required.
+     */
+    @Deprecated
     public void set(Span span, StringTag tag) {
         span.setTag(super.key, tag.key);
     }
