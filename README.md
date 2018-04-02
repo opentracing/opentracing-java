@@ -102,8 +102,8 @@ The `"ServiceHandlerSpan"` is _active_ while it's running FunctionA and Function
 
 **The `ScopeManager` API makes it possible to fetch the `span()` in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` contains a `ScopeManager`. These are the steps:
 
-1. Start a `Span` via either `startManual` or `startActive(false)` to prevent the `Span` from being finished upon `Scope` deactivation.
-2. In the closure/`Runnable`/`Future`/etc itself, invoke `tracer.scopeManager().activate(span, false)` to re-activate the `Span` and get a new `Scope`, then `deactivate()` it when the `Span` is no longer active (or use try-with-resources for less typing).
+1. Start a `Span` via either `start()` or `startActive(false)` to prevent the `Span` from being finished upon `Scope` deactivation.
+2. Pass the span along to the next thread.
 3. In the closure/`Runnable`/`Future`/etc where the end of the task is reached, invoke `tracer.scopeManager().activate(span, true)` to re-activate the `Span` and have the new `Scope` close the `Span` automatically.
 
 For example:
@@ -114,14 +114,14 @@ io.opentracing.Tracer tracer = ...;
 // STEP 1 ABOVE: start the Scope/Span
 try (Scope scope = tracer.buildSpan("ServiceHandlerSpan").startActive(false)) {
     ...
+    // STEP 2 ABOVE: Implicitly pass the span to the next thread via shared value.
     final Span span = scope.span();
     doAsyncWork(new Runnable() {
         @Override
         public void run() {
-
-            // STEP 2 ABOVE: reactivate the Span in the callback, passing true to
-            // startActive() if/when the Span must be finished.
-            try (Scope scope = tracer.scopeManager().activate(span, false)) {
+            // STEP 3 ABOVE: reactivate the Span on the new thread, passing true to
+            // startActive(). Span will be closed when try block completes.
+            try (Scope scope = tracer.scopeManager().activate(span, true)) {
                 ...
             }
         }
