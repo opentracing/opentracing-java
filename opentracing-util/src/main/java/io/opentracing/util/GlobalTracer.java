@@ -112,9 +112,10 @@ public final class GlobalTracer implements Tracer {
      * {@code false} otherwise.
      */
     public static synchronized boolean registerIfAbsent(final TracerSupplier supplier) {
-        if (supplier != null && !isRegistered()) {
-            final Tracer suppliedTracer = supplier.get();
-            if (suppliedTracer != null && !(suppliedTracer instanceof GlobalTracer)) {
+        requireNonNull(supplier, "Cannot register GlobalTracer from supplier <null>.");
+        if (!isRegistered()) {
+            final Tracer suppliedTracer = requireNonNull(supplier.get(), "Cannot register GlobalTracer <null>.");
+            if (!(suppliedTracer instanceof GlobalTracer)) {
                 GlobalTracer.tracer = suppliedTracer;
                 return true;
             }
@@ -158,9 +159,6 @@ public final class GlobalTracer implements Tracer {
      */
     public static void register(final Tracer tracer) {
         if (!registerIfAbsent(tracer)) {
-            if (tracer == null) {
-                throw new NullPointerException("Cannot register GlobalTracer <null>.");
-            }
             if (!tracer.equals(GlobalTracer.tracer) && !(tracer instanceof GlobalTracer)) {
                 throw new IllegalStateException("There is already a current global Tracer registered.");
             }
@@ -195,5 +193,12 @@ public final class GlobalTracer implements Tracer {
     @Override
     public String toString() {
         return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
+    }
+
+    private static <T> T requireNonNull(T value, String message) {
+        if (value == null) {
+            throw new NullPointerException(message);
+        }
+        return value;
     }
 }
