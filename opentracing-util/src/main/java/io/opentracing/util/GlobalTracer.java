@@ -15,10 +15,10 @@ package io.opentracing.util;
 
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
-import io.opentracing.noop.NoopTracer;
-import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.noop.NoopTracer;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.propagation.Format;
 
 import java.util.logging.Logger;
@@ -126,27 +126,6 @@ public final class GlobalTracer implements Tracer {
     /**
      * Register a {@link Tracer} to back the behaviour of the {@link #get() global tracer}.
      * <p>
-     * Registration is a one-time operation. Once a tracer has been registered, all attempts at re-registering
-     * will return {@code false}.
-     * <p>
-     * Every application intending to use the global tracer is responsible for registering it once
-     * during its initialization.
-     *
-     * @param tracer The tracer to use as global tracer.
-     * @return {@code true} if the supplied tracer was registered as a result of this call,
-     * {@code false} otherwise.
-     */
-    public static boolean registerIfAbsent(final Tracer tracer) {
-        return registerIfAbsent(new TracerSupplier() {
-            public Tracer get() {
-                return tracer;
-            }
-        });
-    }
-
-    /**
-     * Register a {@link Tracer} to back the behaviour of the {@link #get() global tracer}.
-     * <p>
      * Registration is a one-time operation, attempting to call it more often will result in a runtime exception.
      * <p>
      * Every application intending to use the global tracer is responsible for registering it once
@@ -154,12 +133,14 @@ public final class GlobalTracer implements Tracer {
      *
      * @param tracer Tracer to use as global tracer.
      * @throws RuntimeException if there is already a current tracer registered
-     * @see #registerIfAbsent(Tracer)
+     * @see #registerIfAbsent(TracerSupplier)
      * @deprecated Please use 'registerIfAbsent' instead which does not attempt a double registration.
      */
     @Deprecated
     public static void register(final Tracer tracer) {
-        if (!registerIfAbsent(tracer) && !tracer.equals(GlobalTracer.tracer) && !(tracer instanceof GlobalTracer)) {
+        if (!registerIfAbsent(supply(tracer))
+                && !tracer.equals(GlobalTracer.tracer)
+                && !(tracer instanceof GlobalTracer)) {
             throw new IllegalStateException("There is already a current global Tracer registered.");
         }
     }
@@ -192,6 +173,14 @@ public final class GlobalTracer implements Tracer {
     @Override
     public String toString() {
         return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
+    }
+
+    private static TracerSupplier supply(final Tracer tracer) {
+        return new TracerSupplier() {
+            public Tracer get() {
+                return tracer;
+            }
+        };
     }
 
     private static <T> T requireNonNull(T value, String message) {

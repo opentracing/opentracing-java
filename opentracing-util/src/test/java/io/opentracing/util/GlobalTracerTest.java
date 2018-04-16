@@ -48,8 +48,8 @@ public class GlobalTracerTest {
 
     @Test
     public void testMultipleRegistrations() {
-        assertThat(GlobalTracer.registerIfAbsent(mock(Tracer.class)), is(true));
-        assertThat(GlobalTracer.registerIfAbsent(mock(Tracer.class)), is(false));
+        assertThat(GlobalTracer.registerIfAbsent(supply(mock(Tracer.class))), is(true));
+        assertThat(GlobalTracer.registerIfAbsent(supply(mock(Tracer.class))), is(false));
 
         try {
             GlobalTracer.register(mock(Tracer.class));
@@ -72,7 +72,7 @@ public class GlobalTracerTest {
 
     @Test
     public void testRegisterGlobalTracer() {
-        assertThat(GlobalTracer.registerIfAbsent(GlobalTracer.get()), is(false));
+        assertThat(GlobalTracer.registerIfAbsent(supply(GlobalTracer.get())), is(false));
         assertThat(GlobalTracer.get().buildSpan("foo"), is(instanceOf(NoopSpanBuilder.class)));
         GlobalTracer.register(GlobalTracer.get());
         assertThat(GlobalTracer.get().buildSpan("foo"), is(instanceOf(NoopSpanBuilder.class)));
@@ -85,12 +85,12 @@ public class GlobalTracerTest {
 
     @Test(expected = NullPointerException.class)
     public void testRegisterIfAbsentNullSupplier() {
-        GlobalTracer.registerIfAbsent((TracerSupplier) null);
+        GlobalTracer.registerIfAbsent(null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testRegisterIfAbsentNullTracer() {
-        GlobalTracer.registerIfAbsent((Tracer) null);
+        GlobalTracer.registerIfAbsent(supply(null));
     }
 
     @Test
@@ -193,4 +193,11 @@ public class GlobalTracerTest {
         assertThat("Should be registered", GlobalTracer.isRegistered(), is(true));
     }
 
+    private static TracerSupplier supply(final Tracer tracer) {
+        return new TracerSupplier() {
+            public Tracer get() {
+                return tracer;
+            }
+        };
+    }
 }
