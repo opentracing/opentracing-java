@@ -157,11 +157,10 @@ public final class GlobalTracer implements Tracer {
      * @see #registerIfAbsent(Tracer)
      * @deprecated Please use 'registerIfAbsent' instead which does not attempt a double registration.
      */
+    @Deprecated
     public static void register(final Tracer tracer) {
-        if (!registerIfAbsent(tracer)) {
-            if (!tracer.equals(GlobalTracer.tracer) && !(tracer instanceof GlobalTracer)) {
-                throw new IllegalStateException("There is already a current global Tracer registered.");
-            }
+        if (!registerIfAbsent(tracer) && !tracer.equals(GlobalTracer.tracer) && !(tracer instanceof GlobalTracer)) {
+            throw new IllegalStateException("There is already a current global Tracer registered.");
         }
     }
 
