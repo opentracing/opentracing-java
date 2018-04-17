@@ -21,7 +21,7 @@ import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.propagation.Format;
 
-import java.util.logging.Logger;
+import java.util.concurrent.Callable;
 
 /**
  * Global tracer that forwards all methods to another tracer that can be
@@ -48,7 +48,6 @@ import java.util.logging.Logger;
  * default value.
  */
 public final class GlobalTracer implements Tracer {
-    private static final Logger LOGGER = Logger.getLogger(GlobalTracer.class.getName());
 
     /**
      * Singleton instance.
@@ -100,25 +99,29 @@ public final class GlobalTracer implements Tracer {
     /**
      * Register a {@link Tracer} to back the behaviour of the {@link #get() global tracer}.
      * <p>
-     * The tracer is provided through a supplier that will only be called if global tracer is currently absent.
+     * The tracer is provided through a {@linkplain Callable} that will only be called if the global tracer is absent.
      * Registration is a one-time operation. Once a tracer has been registered, all attempts at re-registering
      * will return {@code false}.
      * <p>
      * Every application intending to use the global tracer is responsible for registering it once
      * during its initialization.
      *
-     * @param supplier Supplier for the tracer to use as global tracer.
-     * @return {@code true} if the supplied tracer was registered as a result of this call,
+     * @param provider Provider for the tracer to use as global tracer.
+     * @return {@code true} if the provided tracer was registered as a result of this call,
      * {@code false} otherwise.
      */
-    public static synchronized boolean registerIfAbsent(final TracerSupplier supplier) {
-        requireNonNull(supplier, "Cannot register GlobalTracer from supplier <null>.");
-        if (!isRegistered()) {
-            final Tracer suppliedTracer = requireNonNull(supplier.get(), "Cannot register GlobalTracer <null>.");
+    public static synchronized boolean registerIfAbsent(final Callable<Tracer> provider) {
+        requireNonNull(provider, "Cannot register GlobalTracer from provider <null>.");
+        if (!isRegistered()) try {
+            final Tracer suppliedTracer = requireNonNull(provider.call(), "Cannot register GlobalTracer <null>.");
             if (!(suppliedTracer instanceof GlobalTracer)) {
                 GlobalTracer.tracer = suppliedTracer;
                 return true;
             }
+        } catch (RuntimeException rte) {
+            throw rte; // Re-throw as-is
+        } catch (Exception ex) {
+            throw new IllegalStateException("Exception obtaining tracer from provider: " + ex.getMessage(), ex);
         }
         return false;
     }
@@ -133,12 +136,12 @@ public final class GlobalTracer implements Tracer {
      *
      * @param tracer Tracer to use as global tracer.
      * @throws RuntimeException if there is already a current tracer registered
-     * @see #registerIfAbsent(TracerSupplier)
+     * @see #registerIfAbsent(Callable)
      * @deprecated Please use 'registerIfAbsent' instead which does not attempt a double registration.
      */
     @Deprecated
     public static void register(final Tracer tracer) {
-        if (!registerIfAbsent(supply(tracer))
+        if (!registerIfAbsent(provide(tracer))
                 && !tracer.equals(GlobalTracer.tracer)
                 && !(tracer instanceof GlobalTracer)) {
             throw new IllegalStateException("There is already a current global Tracer registered.");
@@ -175,9 +178,9 @@ public final class GlobalTracer implements Tracer {
         return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
     }
 
-    private static TracerSupplier supply(final Tracer tracer) {
-        return new TracerSupplier() {
-            public Tracer get() {
+    private static Callable<Tracer> provide(final Tracer tracer) {
+        return new Callable<Tracer>() {
+            public Tracer call() {
                 return tracer;
             }
         };
