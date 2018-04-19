@@ -56,9 +56,21 @@
                             <includes>
                                 <include>**/*TestUtil.*</include>
                             </includes>
+                            <archive>
+                                <manifestEntries>
+                                    <Automatic-Module-Name>io.opentracing.util.tests</Automatic-Module-Name>
+                                </manifestEntries>
+                            </archive>
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>io.opentracing.util</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
