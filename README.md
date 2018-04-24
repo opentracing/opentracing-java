@@ -55,10 +55,11 @@ This makes the span available in catch and finally blocks.
 io.opentracing.Tracer tracer = ...;
 ...
 Span span = tracer.buildSpan("someWork").start();
-try (Scope scope = tracer.scopeManager().activate(span, false))
+try (Scope scope = tracer.scopeManager().activate(span, false)) {
     // Do things.
 } catch(Exception ex) {
-    Tags.ERROR.set(scope.span(), true);
+    Tags.ERROR.set(span, true);
+    span.log(Map.of(Fields.EVENT, "error", Fields.ERROR_OBJECT, ex, Fields.MESSAGE, ex.getMessage()));
 } finally {
     span.finish();
 }
