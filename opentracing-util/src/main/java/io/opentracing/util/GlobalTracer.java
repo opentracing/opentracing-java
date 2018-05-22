@@ -115,16 +115,18 @@ public final class GlobalTracer implements Tracer {
      */
     public static synchronized boolean registerIfAbsent(final Callable<Tracer> provider) {
         requireNonNull(provider, "Cannot register GlobalTracer from provider <null>.");
-        if (!isRegistered()) try {
-            final Tracer suppliedTracer = requireNonNull(provider.call(), "Cannot register GlobalTracer <null>.");
-            if (!(suppliedTracer instanceof GlobalTracer)) {
-                GlobalTracer.tracer = suppliedTracer;
-                return true;
+        if (!isRegistered()) {
+            try {
+                final Tracer suppliedTracer = requireNonNull(provider.call(), "Cannot register GlobalTracer <null>.");
+                if (!(suppliedTracer instanceof GlobalTracer)) {
+                    GlobalTracer.tracer = suppliedTracer;
+                    return true;
+                }
+            } catch (RuntimeException rte) {
+                throw rte; // Re-throw as-is
+            } catch (Exception ex) {
+                throw new IllegalStateException("Exception obtaining tracer from provider: " + ex.getMessage(), ex);
             }
-        } catch (RuntimeException rte) {
-            throw rte; // Re-throw as-is
-        } catch (Exception ex) {
-            throw new IllegalStateException("Exception obtaining tracer from provider: " + ex.getMessage(), ex);
         }
         return false;
     }
