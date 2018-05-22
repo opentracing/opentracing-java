@@ -109,6 +109,10 @@ public final class GlobalTracer implements Tracer {
      * @param provider Provider for the tracer to use as global tracer.
      * @return {@code true} if the provided tracer was registered as a result of this call,
      * {@code false} otherwise.
+     * @throws NullPointerException  if the tracer provider is {@code null} or provides a {@code null} Tracer.
+     * @throws IllegalStateException if the provider throws a checked exception it is rethrown,
+     *                               wrapped by an IllegalStateException.
+     * @throws RuntimeException      if the provider throws a RuntimeException it is rethrown as-is.
      */
     public static synchronized boolean registerIfAbsent(final Callable<Tracer> provider) {
         requireNonNull(provider, "Cannot register GlobalTracer from provider <null>.");
