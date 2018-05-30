@@ -124,67 +124,68 @@ public class MockTracer implements Tracer {
 
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
-                if (carrier instanceof Binary) {
-                    Binary binary = (Binary) carrier;
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    ObjectOutputStream objStream = null;
-                    try {
-                        objStream = new ObjectOutputStream(stream);
-                        objStream.writeLong(ctx.spanId());
-                        objStream.writeLong(ctx.traceId());
+                if (!(carrier instanceof Binary)) {
+                    throw new IllegalArgumentException("Expected Binary, received " + carrier.getClass());
+                }
 
-                        for (Map.Entry<String, String> entry : ctx.baggageItems()) {
-                            objStream.writeUTF(entry.getKey());
-                            objStream.writeUTF(entry.getValue());
-                        }
-                        objStream.flush(); // *need* to flush ObjectOutputStream.
+                Binary binary = (Binary) carrier;
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                ObjectOutputStream objStream = null;
+                try {
+                    objStream = new ObjectOutputStream(stream);
+                    objStream.writeLong(ctx.spanId());
+                    objStream.writeLong(ctx.traceId());
 
-                        byte[] buff = stream.toByteArray();
-                        binary.setInjectBufferLength(buff.length);
-                        binary.injectBuffer().put(buff);
-
-                    } catch (IOException e) {
-                        throw new RuntimeException("Corrupted state");
-                    } finally {
-                        if (objStream != null) {
-                            try { objStream.close(); } catch (Exception e2) {}
-                        }
+                    for (Map.Entry<String, String> entry : ctx.baggageItems()) {
+                        objStream.writeUTF(entry.getKey());
+                        objStream.writeUTF(entry.getValue());
                     }
-                } else {
-                    throw new IllegalArgumentException("Unknown carrier");
+                    objStream.flush(); // *need* to flush ObjectOutputStream.
+
+                    byte[] buff = stream.toByteArray();
+                    binary.setInjectBufferLength(buff.length);
+                    binary.injectBuffer().put(buff);
+
+                } catch (IOException e) {
+                    throw new RuntimeException("Corrupted state", e);
+                } finally {
+                    if (objStream != null) {
+                        try { objStream.close(); } catch (Exception e2) {}
+                    }
                 }
             }
 
             @Override
             public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
+                if (!(carrier instanceof Binary)) {
+                    throw new IllegalArgumentException("Expected Binary, received " + carrier.getClass());
+                }
+
                 Long traceId = null;
                 Long spanId = null;
                 Map<String, String> baggage = new HashMap<>();
 
-                if (carrier instanceof Binary) {
-                    Binary binary = (Binary) carrier;
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    ObjectInputStream objStream = null;
-                    try {
-                        ByteBuffer extractBuff = binary.extractBuffer();
-                        byte[] buff = new byte[extractBuff.remaining()];
-                        extractBuff.get(buff);
+                Binary binary = (Binary) carrier;
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ObjectInputStream objStream = null;
+                try {
+                    ByteBuffer extractBuff = binary.extractBuffer();
+                    byte[] buff = new byte[extractBuff.remaining()];
+                    extractBuff.get(buff);
 
-                        objStream = new ObjectInputStream(new ByteArrayInputStream(buff));
-                        spanId = objStream.readLong();
-                        traceId = objStream.readLong();
+                    objStream = new ObjectInputStream(new ByteArrayInputStream(buff));
+                    spanId = objStream.readLong();
+                    traceId = objStream.readLong();
 
-                        while (objStream.available() > 0) {
-                            baggage.put(objStream.readUTF(), objStream.readUTF());
-                        }
-                    } catch (IOException e) {
-                    } finally {
-                        if (objStream != null) {
-                            try { objStream.close(); } catch (Exception e2) {}
-                        }
+                    while (objStream.available() > 0) {
+                        baggage.put(objStream.readUTF(), objStream.readUTF());
                     }
-                } else {
-                    throw new IllegalArgumentException("Unknown carrier");
+                } catch (IOException e) {
+                    throw new RuntimeException("Corrupted state", e);
+                } finally {
+                    if (objStream != null) {
+                        try { objStream.close(); } catch (Exception e2) {}
+                    }
                 }
 
                 if (traceId != null && spanId != null) {

@@ -237,7 +237,16 @@ public class MockTracerTest {
         Assert.assertEquals("fooitem", finishedSpans.get(1).getBaggageItem("foobag"));
         Assert.assertEquals("baritem", finishedSpans.get(1).getBaggageItem("barbag"));
     }
-  
+
+    @Test(expected = RuntimeException.class)
+    public void testBinaryPropagatorExtractError() {
+        MockTracer tracer = new MockTracer(MockTracer.Propagator.BINARY);
+        {
+            Binary binary = Adapters.extractBinary(ByteBuffer.allocate(4));
+            tracer.extract(Format.Builtin.BINARY, binary);
+        }
+    }
+
     @Test
     public void testActiveSpan() {
         MockTracer mockTracer = new MockTracer();
