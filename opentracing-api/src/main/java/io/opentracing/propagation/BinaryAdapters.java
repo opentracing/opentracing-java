@@ -15,11 +15,39 @@ package io.opentracing.propagation;
 
 import java.nio.ByteBuffer;
 
-final class BinaryAdapters {
+public final class BinaryAdapters {
 
     private BinaryAdapters() {}
 
-    public static class BinaryExtractAdapter implements Binary {
+    /**
+     * Creates an inbound Binary instance used for extraction with the
+     * specified ByteBuffer as input.
+     *
+     * @param buffer The ByteBuffer used as input.
+     *
+     * @return The new Binary carrier used for extraction.
+     */
+    public static Binary extractionCarrier(ByteBuffer buffer) {
+        if (buffer == null) {
+            throw new NullPointerException();
+        }
+
+        return new BinaryExtractAdapter(buffer);
+    }
+
+    /**
+     * Creates an outbound Binary instance used for injection,
+     * allocating a new ByteBuffer instance when
+     * setInjectBufferLength() is called. The ByteBuffer can
+     * be later retrieved using injectBuffer().
+     *
+     * @return The new Binary carrier used for injection.
+     */
+    public static Binary injectionCarrier() {
+        return new BinaryInjectAdapter();
+    }
+
+    static class BinaryExtractAdapter implements Binary {
         ByteBuffer buffer;
 
         public BinaryExtractAdapter(ByteBuffer buffer) {
@@ -42,7 +70,7 @@ final class BinaryAdapters {
         }
     }
 
-    public static class BinaryInjectAdapter implements Binary {
+    static class BinaryInjectAdapter implements Binary {
         ByteBuffer buffer;
 
         @Override

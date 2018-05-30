@@ -20,29 +20,29 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class AdaptersTest {
+public class BinaryAdaptersTest {
 
     @Test
     public void testExtractBinary() {
         ByteBuffer buff = ByteBuffer.wrap(new byte[0]);
-        Binary binary = Adapters.extractBinary(buff);
+        Binary binary = BinaryAdapters.extractionCarrier(buff);
         assertEquals(buff, binary.extractBuffer());
     }
 
     @Test(expected = NullPointerException.class)
     public void testExtractBinaryNull() {
-        Adapters.extractBinary(null);
+        BinaryAdapters.extractionCarrier(null);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testExtractBinaryInjectBuffer() {
-        Binary binary = Adapters.extractBinary(ByteBuffer.allocate(1));
+        Binary binary = BinaryAdapters.extractionCarrier(ByteBuffer.allocate(1));
         binary.injectBuffer();
     }
 
     @Test
     public void testInjectBinary() {
-        Binary binary = Adapters.injectBinary();
+        Binary binary = BinaryAdapters.injectionCarrier();
         binary.setInjectBufferLength(1);
         assertNotNull(binary.injectBuffer());
         assertEquals(0, binary.injectBuffer().position());
@@ -51,19 +51,19 @@ public class AdaptersTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInjectBinaryInvalidLength() {
-        Binary binary = Adapters.injectBinary();
+        Binary binary = BinaryAdapters.injectionCarrier();
         binary.setInjectBufferLength(0);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testInjectBinaryNoLength() {
-        Binary binary = Adapters.injectBinary();
+        Binary binary = BinaryAdapters.injectionCarrier();
         binary.injectBuffer();
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testInjectBinaryExtractBuffer() {
-        Binary binary = Adapters.injectBinary();
+        Binary binary = BinaryAdapters.injectionCarrier();
         binary.extractBuffer();
     }
 }

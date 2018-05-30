@@ -30,8 +30,8 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.propagation.Adapters;
 import io.opentracing.propagation.Binary;
+import io.opentracing.propagation.BinaryAdapters;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMapExtractAdapter;
 import io.opentracing.propagation.TextMapInjectAdapter;
@@ -214,12 +214,12 @@ public class MockTracerTest {
             parentSpan.setBaggageItem("foobag", "fooitem");
             parentSpan.finish();
 
-            Binary binary = Adapters.injectBinary();
+            Binary binary = BinaryAdapters.injectionCarrier();
             tracer.inject(parentSpan.context(), Format.Builtin.BINARY, binary);
 
             ByteBuffer buffer = binary.injectBuffer();
             buffer.rewind();
-            SpanContext extract = tracer.extract(Format.Builtin.BINARY, Adapters.extractBinary(buffer));
+            SpanContext extract = tracer.extract(Format.Builtin.BINARY, BinaryAdapters.extractionCarrier(buffer));
 
             Span childSpan = tracer.buildSpan("bar")
                     .asChildOf(extract)
@@ -242,7 +242,7 @@ public class MockTracerTest {
     public void testBinaryPropagatorExtractError() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.BINARY);
         {
-            Binary binary = Adapters.extractBinary(ByteBuffer.allocate(4));
+            Binary binary = BinaryAdapters.extractionCarrier(ByteBuffer.allocate(4));
             tracer.extract(Format.Builtin.BINARY, binary);
         }
     }
