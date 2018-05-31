@@ -217,7 +217,7 @@ public class MockTracerTest {
             Binary binary = BinaryAdapters.injectionCarrier();
             tracer.inject(parentSpan.context(), Format.Builtin.BINARY, binary);
 
-            ByteBuffer buffer = binary.injectBuffer();
+            ByteBuffer buffer = binary.injectionBuffer();
             buffer.rewind();
             SpanContext extract = tracer.extract(Format.Builtin.BINARY, BinaryAdapters.extractionCarrier(buffer));
 

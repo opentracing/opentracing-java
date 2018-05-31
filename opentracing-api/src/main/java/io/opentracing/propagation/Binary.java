@@ -20,11 +20,11 @@ import java.nio.ByteBuffer;
  * Tracer.inject() and Tracer.extract(). Binary can be defined either as inbound (extraction)
  * or outbound (injection).
  *
- * When Binary is defined as inbound, extractBuffer() will be called to retrieve the ByteBuffer
+ * When Binary is defined as inbound, extractionBuffer() will be called to retrieve the ByteBuffer
  * containing the data used for SpanContext extraction.
  *
  * When Binary is defined as outbound, setInjectBufferLength() will be called in order to hint
- * the required buffer length to inject the SpanContext, and injectBuffer() will be called
+ * the required buffer length to inject the SpanContext, and injectionBuffer() will be called
  * afterwards to retrieve the actual ByteBuffer used for the SpanContext injection.
  *
  * @see Format.Builtin#BINARY
@@ -36,7 +36,7 @@ public interface Binary {
      * Hints the buffer length required for SpanContext injection.
      * The user may use this to allocate the ByteBuffer
      * or resize an existing one. This method is always called
-     * before injectBuffer().
+     * before injectionBuffer().
      *
      * It is an error to call this method when Binary is used
      * for SpanContext extraction. It is also an error to call
@@ -45,7 +45,7 @@ public interface Binary {
      * @param length The buffer length required for SpanContext injection.
      *               It needs to be larger than zero.
      */
-    void setInjectBufferLength(int length);
+    void setInjectionBufferLength(int length);
 
     /**
      * Gets the buffer containing the data used for SpanContext injection.
@@ -55,7 +55,7 @@ public interface Binary {
      *
      * @return The buffer used for SpanContext injection.
      */
-    ByteBuffer injectBuffer();
+    ByteBuffer injectionBuffer();
 
     /**
      * Gets the buffer containing the data used for SpanContext extraction.
@@ -65,5 +65,5 @@ public interface Binary {
      *
      * @return The buffer used for SpanContext extraction.
      */
-    ByteBuffer extractBuffer();
+    ByteBuffer extractionBuffer();
 }

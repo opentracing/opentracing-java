@@ -55,17 +55,17 @@ public final class BinaryAdapters {
         }
 
         @Override
-        public void setInjectBufferLength(int length) {
+        public void setInjectionBufferLength(int length) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public ByteBuffer injectBuffer() {
+        public ByteBuffer injectionBuffer() {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public ByteBuffer extractBuffer() {
+        public ByteBuffer extractionBuffer() {
             return buffer;
         }
     }
@@ -74,7 +74,7 @@ public final class BinaryAdapters {
         ByteBuffer buffer;
 
         @Override
-        public void setInjectBufferLength(int length) {
+        public void setInjectionBufferLength(int length) {
             if (length < 1) {
                 throw new IllegalArgumentException("length needs to be larger than 0");
             }
@@ -86,7 +86,7 @@ public final class BinaryAdapters {
         }
 
         @Override
-        public ByteBuffer injectBuffer() {
+        public ByteBuffer injectionBuffer() {
             if (buffer == null) {
                 throw new IllegalStateException("setInjectBufferLength() needs to be called before injectBuffer()");
             }
@@ -95,7 +95,7 @@ public final class BinaryAdapters {
         }
 
         @Override
-        public ByteBuffer extractBuffer() {
+        public ByteBuffer extractionBuffer() {
             throw new UnsupportedOperationException();
         }
     }
