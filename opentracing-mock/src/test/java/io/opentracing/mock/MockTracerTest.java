@@ -13,6 +13,8 @@
  */
 package io.opentracing.mock;
 
+import static io.opentracing.mock.MockTracer.Propagator.TextMapPropagator.SPAN_ID_KEY;
+import static io.opentracing.mock.MockTracer.Propagator.TextMapPropagator.TRACE_ID_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -201,7 +203,7 @@ public class MockTracerTest {
         Assert.assertEquals(finishedSpans.get(0).context().traceId(), finishedSpans.get(1).context().traceId());
         Assert.assertEquals(finishedSpans.get(0).context().spanId(), finishedSpans.get(1).parentId());
     }
-  
+
     @Test
     public void testActiveSpan() {
         MockTracer mockTracer = new MockTracer();
@@ -318,5 +320,47 @@ public class MockTracerTest {
         final Span parent = null;
         Span span = tracer.buildSpan("foo").asChildOf(parent).start();
         span.finish();
+    }
+
+    @Test
+    public void testSelfReferenceWithParent() {
+        MockTracer mockTracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+
+        final HashMap<String, String> selfIds = new HashMap<>();
+        selfIds.put(TRACE_ID_KEY, "40");
+        selfIds.put(SPAN_ID_KEY, "42");
+        final HashMap<String, String> parentSpanId = new HashMap<>();
+        parentSpanId.put(TRACE_ID_KEY, "40");
+        parentSpanId.put(SPAN_ID_KEY, "41");
+
+        mockTracer.buildSpan("foo")
+            .addReference(References.SELF, mockTracer.extract(Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(selfIds)))
+            .addReference(References.CHILD_OF, mockTracer.extract(Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(parentSpanId)))
+            .startManual()
+            .finish();
+
+        assertEquals(1, mockTracer.finishedSpans().size());
+        assertEquals(40, mockTracer.finishedSpans().get(0).context().traceId());
+        assertEquals(42, mockTracer.finishedSpans().get(0).context().spanId());
+        assertEquals(41, mockTracer.finishedSpans().get(0).parentId());
+    }
+
+    @Test
+    public void testSelfReferenceWithoutParent() {
+        MockTracer mockTracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
+
+        final HashMap<String, String> selfIds = new HashMap<>();
+        selfIds.put(TRACE_ID_KEY, "40");
+        selfIds.put(SPAN_ID_KEY, "42");
+
+        mockTracer.buildSpan("foo")
+            .addReference(References.SELF, mockTracer.extract(Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(selfIds)))
+            .startManual()
+            .finish();
+
+        assertEquals(1, mockTracer.finishedSpans().size());
+        assertEquals(40, mockTracer.finishedSpans().get(0).context().traceId());
+        assertEquals(42, mockTracer.finishedSpans().get(0).context().spanId());
+        assertEquals(0, mockTracer.finishedSpans().get(0).parentId());
     }
 }

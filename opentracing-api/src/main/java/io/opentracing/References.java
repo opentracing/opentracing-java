@@ -32,4 +32,9 @@ public final class References {
      * See http://opentracing.io/spec/#causal-span-references for more information about FOLLOWS_FROM references
      */
     public static final String FOLLOWS_FROM = "follows_from";
+
+    /**
+     * The self reference class can be used to construct a {@link Span} instance with a specific {@link SpanContext}.
+     */
+    public static final String SELF = "self";
 }
