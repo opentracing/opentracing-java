@@ -13,6 +13,7 @@
  */
 package io.opentracing.mock;
 
+import static io.opentracing.mock.MockTracer.Propagator.TextMapPropagator.BAGGAGE_KEY_PREFIX;
 import static io.opentracing.mock.MockTracer.Propagator.TextMapPropagator.SPAN_ID_KEY;
 import static io.opentracing.mock.MockTracer.Propagator.TextMapPropagator.TRACE_ID_KEY;
 import static org.junit.Assert.assertEquals;
@@ -329,6 +330,7 @@ public class MockTracerTest {
         final HashMap<String, String> selfIds = new HashMap<>();
         selfIds.put(TRACE_ID_KEY, "40");
         selfIds.put(SPAN_ID_KEY, "42");
+        selfIds.put(BAGGAGE_KEY_PREFIX + "foo", "bar");
         final HashMap<String, String> parentSpanId = new HashMap<>();
         parentSpanId.put(TRACE_ID_KEY, "40");
         parentSpanId.put(SPAN_ID_KEY, "41");
@@ -342,6 +344,9 @@ public class MockTracerTest {
         assertEquals(1, mockTracer.finishedSpans().size());
         assertEquals(40, mockTracer.finishedSpans().get(0).context().traceId());
         assertEquals(42, mockTracer.finishedSpans().get(0).context().spanId());
+        final Map.Entry<String, String> firstBaggageItem = mockTracer.finishedSpans().get(0).context().baggageItems().iterator().next();
+        assertEquals("foo", firstBaggageItem.getKey());
+        assertEquals("bar", firstBaggageItem.getValue());
         assertEquals(41, mockTracer.finishedSpans().get(0).parentId());
     }
 
@@ -352,6 +357,7 @@ public class MockTracerTest {
         final HashMap<String, String> selfIds = new HashMap<>();
         selfIds.put(TRACE_ID_KEY, "40");
         selfIds.put(SPAN_ID_KEY, "42");
+        selfIds.put(BAGGAGE_KEY_PREFIX + "foo", "bar");
 
         mockTracer.buildSpan("foo")
             .addReference(References.SELF, mockTracer.extract(Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(selfIds)))
@@ -361,6 +367,9 @@ public class MockTracerTest {
         assertEquals(1, mockTracer.finishedSpans().size());
         assertEquals(40, mockTracer.finishedSpans().get(0).context().traceId());
         assertEquals(42, mockTracer.finishedSpans().get(0).context().spanId());
+        final Map.Entry<String, String> firstBaggageItem = mockTracer.finishedSpans().get(0).context().baggageItems().iterator().next();
+        assertEquals("foo", firstBaggageItem.getKey());
+        assertEquals("bar", firstBaggageItem.getValue());
         assertEquals(0, mockTracer.finishedSpans().get(0).parentId());
     }
 }

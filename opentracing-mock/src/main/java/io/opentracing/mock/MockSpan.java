@@ -289,7 +289,7 @@ public final class MockSpan implements Span {
         if (parent == null) {
             // We're a root Span.
             this.context = new MockContext(self != null ? self.traceId : nextId(), self != null ? self.spanId : nextId(),
-                    new HashMap<String, String>());
+                    self != null ? self.baggage : new HashMap<String, String>());
             this.parentId = 0;
         } else {
             // We're a child Span.
