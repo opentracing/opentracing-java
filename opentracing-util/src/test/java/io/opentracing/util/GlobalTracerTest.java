@@ -122,23 +122,23 @@ public class GlobalTracerTest {
 
     @Test
     public void testRegisterIfAbsent_runtimeException() {
-        RuntimeException expectedRte = new IllegalStateException("Expected runtime exception");
+        RuntimeException thrownRuntimeException = new IllegalStateException("Expected runtime exception");
         try {
-            GlobalTracer.registerIfAbsent(throwing(expectedRte));
+            GlobalTracer.registerIfAbsent(throwing(thrownRuntimeException));
             fail("Runtime exception expected");
-        } catch (RuntimeException rte) {
-            assertThat(rte, is(sameInstance(expectedRte)));
+        } catch (RuntimeException expected) {
+            assertThat(expected, is(sameInstance(thrownRuntimeException)));
         }
     }
 
     @Test
     public void testRegisterIfAbsent_checkedException() {
-        Exception expectedCheckedException = new Exception("Expected runtime exception");
+        Exception thrownCheckedException = new Exception("Expected checked exception");
         try {
-            GlobalTracer.registerIfAbsent(throwing(expectedCheckedException));
+            GlobalTracer.registerIfAbsent(throwing(thrownCheckedException));
             fail("Runtime exception expected");
-        } catch (RuntimeException rte) {
-            assertThat(rte.getCause(), is(sameInstance((Throwable) expectedCheckedException)));
+        } catch (RuntimeException expected) {
+            assertThat(expected.getCause(), is(sameInstance((Throwable) thrownCheckedException)));
         }
     }
 
