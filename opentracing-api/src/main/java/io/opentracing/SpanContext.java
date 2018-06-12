@@ -27,6 +27,24 @@ import java.util.Map;
  */
 public interface SpanContext {
     /**
+     * Return the ID of the trace.
+     *
+     * Globally unique. Every span in a trace shares this ID.
+     *
+     * @return the trace ID for this context.
+     */
+    String traceIdentifier();
+
+    /**
+     * Return the ID of the associated Span.
+     *
+     * Unique within a trace. Each span within a trace contains a different ID.
+     *
+     * @return the Span ID for this context.
+     */
+    String spanIdentifier();
+
+    /**
      * @return all zero or more baggage items propagating along with the associated Span
      *
      * @see Span#setBaggageItem(String, String)

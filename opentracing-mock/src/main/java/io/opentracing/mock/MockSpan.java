@@ -202,8 +202,11 @@ public final class MockSpan implements Span {
         }
 
         public String getBaggageItem(String key) { return this.baggage.get(key); }
+        public String traceIdentifier() { return String.valueOf(traceId); }
+        public String spanIdentifier() { return String.valueOf(spanId); }
         public long traceId() { return traceId; }
         public long spanId() { return spanId; }
+
 
         /**
          * Create and return a new (immutable) MockContext with the added baggage item.

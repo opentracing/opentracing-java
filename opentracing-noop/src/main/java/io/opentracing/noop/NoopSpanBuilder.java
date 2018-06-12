@@ -81,6 +81,16 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
+    public String traceIdentifier() {
+        return "";
+    }
+
+    @Override
+    public String spanIdentifier() {
+        return "";
+    }
+
+    @Override
     public Iterable<Map.Entry<String, String>> baggageItems() {
         return Collections.<String, String>emptyMap().entrySet();
     }
