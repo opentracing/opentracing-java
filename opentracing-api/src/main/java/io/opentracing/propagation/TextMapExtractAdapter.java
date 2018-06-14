@@ -40,6 +40,6 @@ public final class TextMapExtractAdapter implements TextMap {
 
     @Override
     public void put(String key, String value) {
-        throw new UnsupportedOperationException("TextMapInjectAdapter should only be used with Tracer.extract()");
+        throw new UnsupportedOperationException("TextMapExtractAdapter should only be used with Tracer.extract()");
     }
 }
