@@ -214,10 +214,10 @@ public class MockTracerTest {
             parentSpan.setBaggageItem("foobag", "fooitem");
             parentSpan.finish();
 
-            Binary binary = BinaryAdapters.injectionCarrier();
+            ByteBuffer buffer = ByteBuffer.allocate(128);
+            Binary binary = BinaryAdapters.injectionCarrier(buffer);
             tracer.inject(parentSpan.context(), Format.Builtin.BINARY, binary);
 
-            ByteBuffer buffer = binary.injectionBuffer();
             buffer.rewind();
             SpanContext extract = tracer.extract(Format.Builtin.BINARY, BinaryAdapters.extractionCarrier(buffer));
 

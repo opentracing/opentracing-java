@@ -33,37 +33,29 @@ import java.nio.ByteBuffer;
  */
 public interface Binary {
     /**
-     * Hints the buffer length required for SpanContext injection.
-     * The user may use this to allocate the ByteBuffer
-     * or resize an existing one. This method is always called
-     * before injectionBuffer().
+     * Gets the buffer used to store data as part of {@link SpanContext} injection.
+     *
+     * The lenght parameter hints the buffer length required for
+     * {@link SpanContext} injection. The user may use this to allocate a new
+     * ByteBuffer or resize an existing one.
      *
      * It is an error to call this method when Binary is used
-     * for SpanContext extraction. It is also an error to call
-     * this method more than one time.
+     * for {@link SpanContext} extraction.
      *
-     * @param length The buffer length required for SpanContext injection.
+     * @param length The buffer length required for {@link SpanContext} injection.
      *               It needs to be larger than zero.
+     *
+     * @return The buffer used for {@link SpanContext} injection.
      */
-    void setInjectionBufferLength(int length);
+    ByteBuffer injectionBuffer(int lenght);
 
     /**
-     * Gets the buffer containing the data used for SpanContext injection.
+     * Gets the buffer containing the data used for {@link SpanContext} extraction.
      *
      * It is an error to call this method when Binary is used
-     * for SpanContext extraction.
+     * for {@link SpanContext} injection.
      *
-     * @return The buffer used for SpanContext injection.
-     */
-    ByteBuffer injectionBuffer();
-
-    /**
-     * Gets the buffer containing the data used for SpanContext extraction.
-     *
-     * It is an error to call this method when Binary is used
-     * for SpanContext injection.
-     *
-     * @return The buffer used for SpanContext extraction.
+     * @return The buffer used for {@link SpanContext} extraction.
      */
     ByteBuffer extractionBuffer();
 }

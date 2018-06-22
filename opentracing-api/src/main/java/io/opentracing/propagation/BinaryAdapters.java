@@ -25,7 +25,7 @@ public final class BinaryAdapters {
      *
      * @param buffer The ByteBuffer used as input.
      *
-     * @return The new Binary carrier used for extraction.
+     * @return The new {@link Binary} carrier used for extraction.
      */
     public static Binary extractionCarrier(ByteBuffer buffer) {
         if (buffer == null) {
@@ -36,15 +36,18 @@ public final class BinaryAdapters {
     }
 
     /**
-     * Creates an outbound Binary instance used for injection,
-     * allocating a new ByteBuffer instance when
-     * setInjectBufferLength() is called. The ByteBuffer can
-     * be later retrieved using injectBuffer().
+     * Creates an outbound {@link Binary} instance used for injection with the
+     * specified ByteBuffer as output. ByteBuffer.limit() will be set to the value
+     * of the requested length at {@link Binary#injectionBuffer()} time, and
+     * AssertionError will be thrown if the requested length is larger than
+     * the remaining length of ByteBuffer.
+     *
+     * @param buffer The ByteBuffer used as input.
      *
      * @return The new Binary carrier used for injection.
      */
-    public static Binary injectionCarrier() {
-        return new BinaryInjectAdapter();
+    public static Binary injectionCarrier(ByteBuffer buffer) {
+        return new BinaryInjectAdapter(buffer);
     }
 
     static class BinaryExtractAdapter implements Binary {
@@ -55,12 +58,7 @@ public final class BinaryAdapters {
         }
 
         @Override
-        public void setInjectionBufferLength(int length) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public ByteBuffer injectionBuffer() {
+        public ByteBuffer injectionBuffer(int length) {
             throw new UnsupportedOperationException();
         }
 
@@ -73,24 +71,20 @@ public final class BinaryAdapters {
     static class BinaryInjectAdapter implements Binary {
         ByteBuffer buffer;
 
-        @Override
-        public void setInjectionBufferLength(int length) {
-            if (length < 1) {
-                throw new IllegalArgumentException("length needs to be larger than 0");
-            }
-            if (buffer != null) {
-                throw new IllegalStateException("injectBuffer() length has already been set.");
-            }
-
-            buffer = ByteBuffer.allocate(length);
+        public BinaryInjectAdapter(ByteBuffer buffer) {
+            this.buffer = buffer;
         }
 
         @Override
-        public ByteBuffer injectionBuffer() {
-            if (buffer == null) {
-                throw new IllegalStateException("setInjectBufferLength() needs to be called before injectBuffer()");
+        public ByteBuffer injectionBuffer(int length) {
+            if (length < 1) {
+                throw new IllegalArgumentException("length needs to be larger than 0");
+            }
+            if (length > buffer.remaining()) {
+                throw new AssertionError("length is larger than the backing ByteBuffer remaining length");
             }
 
+            buffer.limit(buffer.position() + length);
             return buffer;
         }
 

@@ -37,33 +37,32 @@ public class BinaryAdaptersTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testExtractBinaryInjectBuffer() {
         Binary binary = BinaryAdapters.extractionCarrier(ByteBuffer.allocate(1));
-        binary.injectionBuffer();
+        binary.injectionBuffer(1);
     }
 
     @Test
     public void testInjectBinary() {
-        Binary binary = BinaryAdapters.injectionCarrier();
-        binary.setInjectionBufferLength(1);
-        assertNotNull(binary.injectionBuffer());
-        assertEquals(0, binary.injectionBuffer().position());
-        assertEquals(1, binary.injectionBuffer().capacity());
+        ByteBuffer buffer = ByteBuffer.allocate(1);
+        Binary binary = BinaryAdapters.injectionCarrier(buffer);
+        assertEquals(buffer, binary.injectionBuffer(1));
+        assertEquals(0, buffer.position());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInjectBinaryInvalidLength() {
-        Binary binary = BinaryAdapters.injectionCarrier();
-        binary.setInjectionBufferLength(0);
+        Binary binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
+        binary.injectionBuffer(0);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testInjectBinaryNoLength() {
-        Binary binary = BinaryAdapters.injectionCarrier();
-        binary.injectionBuffer();
+    @Test(expected = AssertionError.class)
+    public void testInjectBinaryLargerLength() {
+        Binary binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
+        binary.injectionBuffer(2);
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testInjectBinaryExtractBuffer() {
-        Binary binary = BinaryAdapters.injectionCarrier();
+        Binary binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
         binary.extractionBuffer();
     }
 }
