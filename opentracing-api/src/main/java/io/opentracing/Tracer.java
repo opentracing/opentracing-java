@@ -91,14 +91,14 @@ public interface Tracer {
      * </code></pre>
      *
      * If the span serialized state is invalid (corrupt, wrong version, etc) inside the carrier this will result in an
-     * IllegalArgumentException.
+     * IllegalArgumentException. If the span serialized state is missing the method returns null.
      *
      * @param <C> the carrier type, which also parametrizes the Format.
      * @param format the Format of the carrier
      * @param carrier the carrier for the SpanContext state. All Tracer.extract() implementations must support
      *                io.opentracing.propagation.TextMap and java.nio.ByteBuffer.
      *
-     * @return the SpanContext instance holding context to create a Span.
+     * @return the SpanContext instance holding context to create a Span, null otherwise.
      *
      * @see io.opentracing.propagation.Format
      * @see io.opentracing.propagation.Format.Builtin
