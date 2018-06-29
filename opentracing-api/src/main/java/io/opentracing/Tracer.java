@@ -15,6 +15,8 @@ package io.opentracing;
 
 import io.opentracing.propagation.Format;
 
+import javax.annotation.Nullable;
+
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
@@ -103,6 +105,7 @@ public interface Tracer {
      * @see io.opentracing.propagation.Format
      * @see io.opentracing.propagation.Format.Builtin
      */
+    @Nullable
     <C> SpanContext extract(Format<C> format, C carrier);
 
 
