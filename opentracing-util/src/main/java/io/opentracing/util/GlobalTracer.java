@@ -134,9 +134,9 @@ public final class GlobalTracer implements Tracer {
     /**
      * Register a {@link Tracer} to back the behaviour of the {@link #get()}.
      * <p>
-     * The tracer is provided through a {@linkplain Callable} that will only be called if the global tracer is absent.
      * Registration is a one-time operation. Once a tracer has been registered, all attempts at re-registering
-     * will return {@code false}.
+     * will return {@code false}. See {@link #registerIfAbsent(Callable)} for use cases when tracer
+     * can be instantiated multiple times.
      * <p>
      * Every application intending to use the global tracer is responsible for registering it once
      * during its initialization.
@@ -144,11 +144,11 @@ public final class GlobalTracer implements Tracer {
      * @param tracer tracer to be registered.
      * @return {@code true} if the provided tracer was registered as a result of this call,
      * {@code false} otherwise.
-     * @throws NullPointerException  if the tracer provider is {@code null} or provides a {@code null} Tracer.
+     * @throws NullPointerException  if the tracer {@code null}.
      * @throws RuntimeException      any exception thrown by the provider gets rethrown,
      *                               checked exceptions will be wrapped into appropriate runtime exceptions.
      *
-     * @see #registerIfAbsent(Callable) for
+     * @see #registerIfAbsent(Callable)
      */
     public static synchronized boolean registerIfAbsent(final Tracer tracer) {
         requireNonNull(tracer, "Cannot register GlobalTracer from provider <null>.");
