@@ -50,6 +50,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @RunWith(Parameterized.class)
 public class GlobalTracerTest {
 
+    interface TracerWrapper {
+        boolean register(Tracer tracer);
+    }
+
     @Parameters
     public static Collection<Object> data() {
         return Arrays.asList(new Object[] {
@@ -66,11 +70,8 @@ public class GlobalTracerTest {
             }});
     }
 
-    interface TracerWrapper {
-        boolean register(Tracer tracer);
-    }
-
     private TracerWrapper globalTracerWrapper;
+
     public GlobalTracerTest(TracerWrapper tracerWrapper) {
         this.globalTracerWrapper = tracerWrapper;
     }
