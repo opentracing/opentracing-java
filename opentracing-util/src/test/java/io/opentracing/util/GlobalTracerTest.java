@@ -17,6 +17,8 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopSpanBuilder;
 import io.opentracing.propagation.Format;
+import java.util.Arrays;
+import java.util.Collection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +30,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -42,7 +47,34 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+@RunWith(Parameterized.class)
 public class GlobalTracerTest {
+
+    @Parameters
+    public static Collection<Object> data() {
+        return Arrays.asList(new Object[] {
+            new TracerWrapper() {
+                @Override
+                public boolean register(Tracer tracer) {
+                    return GlobalTracer.registerIfAbsent(provide(tracer));
+                }
+            }, new TracerWrapper() {
+                @Override
+                public boolean register(Tracer tracer) {
+                  return GlobalTracer.registerIfAbsent(tracer);
+                }
+            }});
+    }
+
+    interface TracerWrapper {
+        boolean register(Tracer tracer);
+    }
+
+    private TracerWrapper globalTracerWrapper;
+    public GlobalTracerTest(TracerWrapper tracerWrapper) {
+        this.globalTracerWrapper = tracerWrapper;
+    }
+
 
     @Before
     @After
@@ -93,31 +125,31 @@ public class GlobalTracerTest {
 
     @Test(expected = NullPointerException.class)
     public void testRegisterIfAbsentNullSupplier() {
-        GlobalTracer.registerIfAbsent(null);
+        this.globalTracerWrapper.register(null);
     }
 
     @Test(expected = NullPointerException.class)
     public void testRegisterIfAbsentNullTracer() {
-        GlobalTracer.registerIfAbsent(provide(null));
+        this.globalTracerWrapper.register(null);
     }
 
     @Test
     public void testRegisterIfAbsent_multipleTracers() {
-        assertThat(GlobalTracer.registerIfAbsent(provide(mock(Tracer.class))), is(true));
-        assertThat(GlobalTracer.registerIfAbsent(provide(mock(Tracer.class))), is(false));
-        assertThat(GlobalTracer.registerIfAbsent(provide(mock(Tracer.class))), is(false));
+        assertThat(this.globalTracerWrapper.register(mock(Tracer.class)), is(true));
+        assertThat(this.globalTracerWrapper.register((mock(Tracer.class))), is(false));
+        assertThat(this.globalTracerWrapper.register((mock(Tracer.class))), is(false));
     }
 
     @Test
     public void testRegisterIfAbsent_multiple_sameTracer() {
         final Tracer mockTracer = mock(Tracer.class);
-        assertThat(GlobalTracer.registerIfAbsent(provide(mockTracer)), is(true));
-        assertThat(GlobalTracer.registerIfAbsent(provide(mockTracer)), is(false));
+        assertThat(this.globalTracerWrapper.register(mockTracer), is(true));
+        assertThat(this.globalTracerWrapper.register(mockTracer), is(false));
     }
 
     @Test
     public void testRegisterIfAbsent_globalTracer() {
-        assertThat(GlobalTracer.registerIfAbsent(provide(GlobalTracer.get())), is(false));
+        assertThat(this.globalTracerWrapper.register(GlobalTracer.get()), is(false));
     }
 
     @Test
