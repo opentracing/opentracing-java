@@ -23,53 +23,50 @@
         <version>0.31.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>opentracing-util</artifactId>
-    <name>OpenTracing-util</name>
-    <description>OpenTracing utilities</description>
+    <artifactId>opentracing-testbed</artifactId>
+    <name>OpenTracing-testbed</name>
+    <description>OpenTracing Testbed</description>
 
     <properties>
         <main.basedir>${project.basedir}/..</main.basedir>
-        <main.java.version>1.6</main.java.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>opentracing-api</artifactId>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-util</artifactId>
+            <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>opentracing-noop</artifactId>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>${awaitility.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/*TestUtil.*</include>
-                            </includes>
-                            <archive>
-                                <manifestEntries>
-                                    <Automatic-Module-Name>io.opentracing.util.tests</Automatic-Module-Name>
-                                </manifestEntries>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
                 <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>io.opentracing.util</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>

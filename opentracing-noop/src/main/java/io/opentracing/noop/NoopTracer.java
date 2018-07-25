@@ -32,7 +32,7 @@ final class NoopTracerImpl implements NoopTracer {
 
     @Override
     public Span activeSpan() {
-        return null;
+        return NoopSpanImpl.INSTANCE;
     }
 
     @Override

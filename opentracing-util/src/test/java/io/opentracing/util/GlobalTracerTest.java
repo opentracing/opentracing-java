@@ -13,6 +13,22 @@
  */
 package io.opentracing.util;
 
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.opentracing.noop.NoopSpanBuilder;
+import io.opentracing.propagation.Format;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -25,21 +41,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import io.opentracing.SpanContext;
-import io.opentracing.Tracer;
-import io.opentracing.noop.NoopSpanBuilder;
-import io.opentracing.propagation.Format;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 public class GlobalTracerTest {
 
@@ -88,6 +89,57 @@ public class GlobalTracerTest {
     @Test(expected = NullPointerException.class)
     public void testRegisterNull() {
         GlobalTracer.register(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRegisterIfAbsentNullSupplier() {
+        GlobalTracer.registerIfAbsent(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRegisterIfAbsentNullTracer() {
+        GlobalTracer.registerIfAbsent(provide(null));
+    }
+
+    @Test
+    public void testRegisterIfAbsent_multipleTracers() {
+        assertThat(GlobalTracer.registerIfAbsent(provide(mock(Tracer.class))), is(true));
+        assertThat(GlobalTracer.registerIfAbsent(provide(mock(Tracer.class))), is(false));
+        assertThat(GlobalTracer.registerIfAbsent(provide(mock(Tracer.class))), is(false));
+    }
+
+    @Test
+    public void testRegisterIfAbsent_multiple_sameTracer() {
+        final Tracer mockTracer = mock(Tracer.class);
+        assertThat(GlobalTracer.registerIfAbsent(provide(mockTracer)), is(true));
+        assertThat(GlobalTracer.registerIfAbsent(provide(mockTracer)), is(false));
+    }
+
+    @Test
+    public void testRegisterIfAbsent_globalTracer() {
+        assertThat(GlobalTracer.registerIfAbsent(provide(GlobalTracer.get())), is(false));
+    }
+
+    @Test
+    public void testRegisterIfAbsent_runtimeException() {
+        RuntimeException thrownRuntimeException = new IllegalStateException("Expected runtime exception");
+        try {
+            GlobalTracer.registerIfAbsent(throwing(thrownRuntimeException));
+            fail("Runtime exception expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected, is(sameInstance(thrownRuntimeException)));
+        }
+    }
+
+    @Test
+    public void testRegisterIfAbsent_checkedException() {
+        Exception thrownCheckedException = new Exception("Expected checked exception");
+        try {
+            GlobalTracer.registerIfAbsent(throwing(thrownCheckedException));
+            fail("Runtime exception expected");
+        } catch (RuntimeException expected) {
+            assertThat(expected.getCause(), is(sameInstance((Throwable) thrownCheckedException)));
+        }
     }
 
     @Test
@@ -190,4 +242,19 @@ public class GlobalTracerTest {
         assertThat("Should be registered", GlobalTracer.isRegistered(), is(true));
     }
 
+    private static Callable<Tracer> provide(final Tracer tracer) {
+        return new Callable<Tracer>() {
+            public Tracer call() {
+                return tracer;
+            }
+        };
+    }
+
+    private static Callable<Tracer> throwing(final Exception exception) {
+        return new Callable<Tracer>() {
+            public Tracer call() throws Exception {
+                throw exception;
+            }
+        };
+    }
 }

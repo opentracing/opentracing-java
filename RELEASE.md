@@ -8,6 +8,11 @@ This repo uses semantic versions. Please keep this in mind when choosing version
    a release, alert others on [gitter](https://gitter.im/opentracing/public) so that they don't accidentally merge
    anything. If they do, and the build fails because of that, you'll have to recreate the release tag described below.
 
+1. **Update Change Log**
+
+   Update CHANGELOG.md with a list changes since the last release. Each entry must include the release number,
+   date and a bulleted list of changes where each change is summarized in a single sentence.
+
 1. **Push a git tag**
 
    The tag should be of the format `release-N.M.L`, ex `git tag release-3.7.1; git push origin release-3.7.1`.
