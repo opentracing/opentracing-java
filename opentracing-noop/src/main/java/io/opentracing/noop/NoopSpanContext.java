@@ -26,12 +26,12 @@ final class NoopSpanContextImpl implements NoopSpanContext {
     static final NoopSpanContextImpl INSTANCE = new NoopSpanContextImpl();
 
     @Override
-    public String traceIdentifier() {
+    public String toTraceId() {
         return "";
     }
 
     @Override
-    public String spanIdentifier() {
+    public String toSpanId() {
         return "";
     }
 

@@ -312,8 +312,8 @@ public class MockTracerTest {
         MockSpan.MockContext context = spans.get(0).context();
         assertNotEquals(0, context.traceId());
         assertNotEquals(0, context.spanId());
-        assertEquals(String.valueOf(context.traceId()), context.traceIdentifier());
-        assertEquals(String.valueOf(context.spanId()), context.spanIdentifier());
+        assertEquals(String.valueOf(context.traceId()), context.toTraceId());
+        assertEquals(String.valueOf(context.spanId()), context.toSpanId());
     }
 
     @Test

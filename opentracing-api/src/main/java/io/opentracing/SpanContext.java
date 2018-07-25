@@ -33,7 +33,7 @@ public interface SpanContext {
      *
      * @return the trace ID for this context.
      */
-    String traceIdentifier();
+    String toTraceId();
 
     /**
      * Return the ID of the associated Span.
@@ -42,7 +42,7 @@ public interface SpanContext {
      *
      * @return the Span ID for this context.
      */
-    String spanIdentifier();
+    String toSpanId();
 
     /**
      * @return all zero or more baggage items propagating along with the associated Span

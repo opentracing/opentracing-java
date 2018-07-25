@@ -24,12 +24,12 @@ public class NoopSpanContextTest {
     @Test
     public void traceIdentifierTest() {
         SpanContext ctx = NoopSpanContextImpl.INSTANCE;
-        assertEquals("", ctx.traceIdentifier());
+        assertEquals("", ctx.toTraceId());
     }
 
     @Test
     public void spanIdentifierTest() {
         SpanContext ctx = NoopSpanContextImpl.INSTANCE;
-        assertEquals("", ctx.spanIdentifier());
+        assertEquals("", ctx.toSpanId());
     }
 }
