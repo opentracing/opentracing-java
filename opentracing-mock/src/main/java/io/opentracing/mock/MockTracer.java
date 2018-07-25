@@ -59,7 +59,7 @@ public class MockTracer implements Tracer {
      * Create a new MockTracer that passes through any calls to inject() and/or extract().
      */
     public MockTracer(Propagator propagator) {
-        this(NoopScopeManager.INSTANCE, propagator);
+        this(new ThreadLocalScopeManager(), propagator);
     }
 
     /**

@@ -21,7 +21,7 @@ import io.opentracing.Tracer;
 import java.util.Collections;
 import java.util.Map;
 
-public interface NoopSpanBuilder extends Tracer.SpanBuilder, NoopSpanContext {
+public interface NoopSpanBuilder extends Tracer.SpanBuilder {
     NoopSpanBuilder INSTANCE = new NoopSpanBuilderImpl();
 }
 
@@ -80,21 +80,5 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
         return NoopSpanImpl.INSTANCE;
     }
 
-    @Override
-    public String traceIdentifier() {
-        return "";
-    }
-
-    @Override
-    public String spanIdentifier() {
-        return "";
-    }
-
-    @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return Collections.<String, String>emptyMap().entrySet();
-    }
-
-    @Override
     public String toString() { return NoopSpanBuilder.class.getSimpleName(); }
 }

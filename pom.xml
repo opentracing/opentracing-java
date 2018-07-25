@@ -27,7 +27,7 @@
         <module>opentracing-noop</module>
         <module>opentracing-mock</module>
         <module>opentracing-util</module>
-        <module>opentracing-examples</module>
+        <module>opentracing-testbed</module>
     </modules>
 
     <properties>
@@ -143,7 +143,7 @@
 
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>opentracing-examples</artifactId>
+                <artifactId>opentracing-testbed</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
