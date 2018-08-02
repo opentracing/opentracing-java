@@ -31,6 +31,8 @@ public interface SpanContext {
      *
      * Globally unique. Every span in a trace shares this ID.
      *
+     * The empty string is a valid return value, while null is not.
+     *
      * @return the trace ID for this context.
      */
     String toTraceId();
@@ -39,6 +41,8 @@ public interface SpanContext {
      * Return the ID of the associated Span.
      *
      * Unique within a trace. Each span within a trace contains a different ID.
+     *
+     * The empty string is a valid return value, while null is not.
      *
      * @return the Span ID for this context.
      */
