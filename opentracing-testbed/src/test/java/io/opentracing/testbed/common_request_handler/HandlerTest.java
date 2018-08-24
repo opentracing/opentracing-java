@@ -75,9 +75,14 @@ public class HandlerTest {
      */
     @Test
     public void parent_not_picked_up() throws Exception {
-        try (Scope parent = tracer.buildSpan("parent").startActive(true)) {
+        Scope parentScope = null;
+        try {
+            parentScope = tracer.buildSpan("parent").startActive();
             String response = client.send("no_parent").get(15, TimeUnit.SECONDS);
             assertEquals("no_parent:response", response);
+        } finally {
+            parentScope.span().finish();
+            parentScope.close();
         }
 
         List<MockSpan> finished = tracer.finishedSpans();
@@ -102,10 +107,15 @@ public class HandlerTest {
     @Test
     public void bad_solution_to_set_parent() throws Exception {
         Client client;
-        try (Scope parent = tracer.buildSpan("parent").startActive(true)) {
-            client = new Client(new RequestHandler(tracer, parent.span().context()));
+        Scope parentScope = null;
+        try {
+            parentScope = tracer.buildSpan("parent").startActive();
+            client = new Client(new RequestHandler(tracer, parentScope.span().context()));
             String response = client.send("correct_parent").get(15, TimeUnit.SECONDS);
             assertEquals("correct_parent:response", response);
+        } finally {
+            parentScope.span().finish();
+            parentScope.close();
         }
 
         // Send second request, now there is no active parent, but it will be set, ups

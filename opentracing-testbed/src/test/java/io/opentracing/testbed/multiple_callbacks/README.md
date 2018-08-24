@@ -13,7 +13,7 @@ return executor.submit(new Callable<Object>() {
     @Override
     public Object call() throws Exception {
 	try (Scope parentScope = cont.activate()) {
-	    try (Scope subtaskScope = tracer.buildSpan("subtask").startActive(false)) {
+	    try (Scope subtaskScope = tracer.buildSpan("subtask").startActive()) {
                 ...
 
 ```

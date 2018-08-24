@@ -34,13 +34,17 @@ public class Client {
     public void send() throws InterruptedException {
         Message message = new Message();
 
-        try (Scope scope = tracer.buildSpan("send")
+        Scope scope = null;
+        try {
+            scope = tracer.buildSpan("send")
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
                 .withTag(Tags.COMPONENT.getKey(), "example-client")
-                .startActive(true)) {
+                .startActive();
             tracer.inject(scope.span().context(), Builtin.TEXT_MAP, new TextMapInjectAdapter(message));
             queue.put(message);
+        } finally {
+            scope.close();
+            scope.span().finish();
         }
     }
-
 }

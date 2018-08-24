@@ -8,7 +8,7 @@ This example shows the usage of the `Continuation` concept (now part of the `Aut
 return new Thread(new Runnable() {
     @Override
     public void run() {
-	try (Scope scope = tracer.buildSpan("parent").startActive(false)) {
+	try (Scope scope = tracer.buildSpan("parent").startActive()) {
 	    Runnable action = new RunnableAction((AutoFinishScope)scope);
 	    Runnable action2 = new RunnableAction((AutoFinishScope)scope);
 

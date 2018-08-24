@@ -56,12 +56,11 @@ public class PromisePropagationTest {
     final AtomicReference<String> successResult2 = new AtomicReference<>();
     final AtomicReference<Throwable> errorResult = new AtomicReference<>();
     try (PromiseContext context = new PromiseContext(phaser, 3)) {
-      try (Scope parent =
-          tracer
-              .buildSpan("promises")
-              .withTag(Tags.COMPONENT.getKey(), "example-promises")
-              .startActive(true)) {
-
+      Scope parentScope = tracer
+          .buildSpan("promises")
+          .withTag(Tags.COMPONENT.getKey(), "example-promises")
+          .startActive();
+      try {
         Promise<String> successPromise = new Promise<>(context, tracer);
 
         successPromise.onSuccess(
@@ -96,6 +95,9 @@ public class PromisePropagationTest {
         assertThat(tracer.finishedSpans().size()).isEqualTo(0);
         successPromise.success("success!");
         errorPromise.error(new Exception("some error."));
+      } finally {
+        parentScope.close();
+        parentScope.span().finish();
       }
 
       phaser.arriveAndAwaitAdvance(); // wait for results to be set

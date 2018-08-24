@@ -48,7 +48,7 @@ public class Client {
                 logger.info("Child thread with message '{}' started", message);
 
                 try (Scope parentScope = cont.activate()) {
-                    try (Scope subtaskScope = tracer.buildSpan("subtask").startActive(false)) {
+                    try (Scope subtaskScope = tracer.buildSpan("subtask").startActive()) {
                         // Simulate work.
                         sleep(milliseconds);
                     }

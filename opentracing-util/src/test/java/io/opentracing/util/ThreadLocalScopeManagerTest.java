@@ -42,8 +42,7 @@ public class ThreadLocalScopeManagerTest {
     public void defaultActivate() throws Exception {
         Span span = mock(Span.class);
 
-        // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-        Scope scope = source.activate(span, false);
+        Scope scope = source.activate(span);
         try {
             assertNotNull(scope);
             Scope otherScope = source.active();

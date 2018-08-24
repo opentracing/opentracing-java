@@ -27,6 +27,11 @@ public class AutoFinishScopeManager implements ScopeManager {
     }
 
     @Override
+    public AutoFinishScope activate(Span span) {
+        return new AutoFinishScope(this, new AtomicInteger(1), span);
+    }
+
+    @Override
     public AutoFinishScope active() {
         return tlsScope.get();
     }

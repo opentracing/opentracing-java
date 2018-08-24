@@ -55,14 +55,17 @@ public class ActorPropagationTest {
   public void testActorTell() {
     try (Actor actor = new Actor(tracer, phaser)) {
       phaser.register();
-      try (Scope parent =
-          tracer
-              .buildSpan("actorTell")
-              .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
-              .withTag(Tags.COMPONENT.getKey(), "example-actor")
-              .startActive(true)) {
+      Scope parent = tracer
+          .buildSpan("actorTell")
+          .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
+          .withTag(Tags.COMPONENT.getKey(), "example-actor")
+          .startActive();
+      try {
         actor.tell("my message 1");
         actor.tell("my message 2");
+      } finally {
+          parent.close();
+          parent.span().finish();
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
       assertThat(tracer.finishedSpans().size()).isEqualTo(1); // Parent should be reported
@@ -91,14 +94,17 @@ public class ActorPropagationTest {
       phaser.register();
       Future<String> future1;
       Future<String> future2;
-      try (Scope parent =
-          tracer
-              .buildSpan("actorAsk")
-              .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
-              .withTag(Tags.COMPONENT.getKey(), "example-actor")
-              .startActive(true)) {
+      Scope parent = tracer
+          .buildSpan("actorAsk")
+          .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
+          .withTag(Tags.COMPONENT.getKey(), "example-actor")
+          .startActive();
+      try {
         future1 = actor.ask("my message 1");
         future2 = actor.ask("my message 2");
+      } finally {
+        parent.close();
+        parent.span().finish();
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
       assertThat(tracer.finishedSpans().size()).isEqualTo(1);

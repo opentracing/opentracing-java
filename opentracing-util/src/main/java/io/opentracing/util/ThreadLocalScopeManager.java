@@ -31,6 +31,11 @@ public class ThreadLocalScopeManager implements ScopeManager {
     }
 
     @Override
+    public Scope activate(Span span) {
+        return new ThreadLocalScope(this, span);
+    }
+
+    @Override
     public Scope active() {
         return tlsScope.get();
     }

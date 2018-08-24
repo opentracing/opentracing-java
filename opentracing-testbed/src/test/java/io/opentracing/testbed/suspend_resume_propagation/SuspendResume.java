@@ -35,13 +35,13 @@ public class SuspendResume {
         tracer
             .buildSpan("job " + id)
             .withTag(Tags.COMPONENT.getKey(), "suspend-resume")
-            .startActive(false)) {
+            .startActive()) {
       span = scope.span();
     }
   }
 
   public void doPart(String name) {
-    try (Scope scope = tracer.scopeManager().activate(span, false)) {
+    try (Scope scope = tracer.scopeManager().activate(span)) {
       scope.span().log("part: " + name);
     }
   }

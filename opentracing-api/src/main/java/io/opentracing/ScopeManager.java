@@ -26,6 +26,7 @@ import io.opentracing.Tracer.SpanBuilder;
 public interface ScopeManager {
 
     /**
+     * @deprecated use {@link #activate} instead.
      * Make a {@link Span} instance active.
      *
      * @param span the {@link Span} that should become the {@link #active()}
@@ -33,7 +34,19 @@ public interface ScopeManager {
      * @return a {@link Scope} instance to control the end of the active period for the {@link Span}. It is a
      * programming error to neglect to call {@link Scope#close()} on the returned instance.
      */
+    @Deprecated
     Scope activate(Span span, boolean finishSpanOnClose);
+
+    /**
+     * Make a {@link Span} instance active.
+     *
+     * The span will not be automatically finished when {@link Scope#close()} is called.
+     *
+     * @param span the {@link Span} that should become the {@link #active()}
+     * @return a {@link Scope} instance to control the end of the active period for the {@link Span}. It is a
+     * programming error to neglect to call {@link Scope#close()} on the returned instance.
+     */
+    Scope activate(Span span);
 
     /**
      * Return the currently active {@link Scope} which can be used to access the currently active

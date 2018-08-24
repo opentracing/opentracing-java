@@ -29,6 +29,10 @@ public class ThreadLocalScope implements Scope {
     private final boolean finishOnClose;
     private final ThreadLocalScope toRestore;
 
+    ThreadLocalScope(ThreadLocalScopeManager scopeManager, Span wrapped) {
+        this(scopeManager, wrapped, false);
+    }
+
     ThreadLocalScope(ThreadLocalScopeManager scopeManager, Span wrapped, boolean finishOnClose) {
         this.scopeManager = scopeManager;
         this.wrapped = wrapped;

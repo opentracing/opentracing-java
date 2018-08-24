@@ -166,16 +166,40 @@ public interface Tracer {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
+         * @deprecated use {@link #startActive} instead.
          * Returns a newly started and activated {@link Scope}.
          *
          * <p>
-         * The returned {@link Scope} supports try-with-resources. For example:
+         * Note: {@link SpanBuilder#startActive(boolean)} is a shorthand for
+         * {@code tracer.scopeManager().activate(spanBuilder.start(), finishSpanOnClose)}.
+         *
+         * @param finishSpanOnClose whether span should automatically be finished when {@link Scope#close()} is called
+         * @return a {@link Scope}, already registered via the {@link ScopeManager}
+         *
+         * @see ScopeManager
+         * @see Scope
+         */
+        @Deprecated
+        Scope startActive(boolean finishSpanOnClose);
+
+        /**
+         * Returns a newly started and activated {@link Scope}.
+         *
+         * The span will not be automatically finished when {@link Scope#close()} is called.
+         *
+         * <p>
+         * The returned {@link Scope} supports try-with-resources, but is usually
+         * used like this:
          * <pre><code>
-         *     try (Scope scope = tracer.buildSpan("...").startActive(true)) {
+         *     Scope scope = null;
+         *     try {
+         *         scope = tracer.buildSpan("...").startActive();
          *         // (Do work)
          *         scope.span().setTag( ... );  // etc, etc
+         *     } finally {
+         *         scope.span().finish(); // Finish the newly created Span.
+         *         scope.close(); // Deactivate the Scope.
          *     }
-         *     // Span does finishes automatically only when 'finishSpanOnClose' is true
          * </code></pre>
          *
          * <p>
@@ -190,16 +214,15 @@ public interface Tracer {
          * {@link SpanBuilder#start()} or {@link SpanBuilder#startActive} is invoked.
          *
          * <p>
-         * Note: {@link SpanBuilder#startActive(boolean)} is a shorthand for
-         * {@code tracer.scopeManager().activate(spanBuilder.start(), finishSpanOnClose)}.
+         * Note: {@link SpanBuilder#startActive()} is a shorthand for
+         * {@code tracer.scopeManager().activate(spanBuilder.start())}.
          *
-         * @param finishSpanOnClose whether span should automatically be finished when {@link Scope#close()} is called
          * @return a {@link Scope}, already registered via the {@link ScopeManager}
          *
          * @see ScopeManager
          * @see Scope
          */
-        Scope startActive(boolean finishSpanOnClose);
+        Scope startActive();
 
         /**
          * @deprecated use {@link #start} or {@link #startActive} instead.

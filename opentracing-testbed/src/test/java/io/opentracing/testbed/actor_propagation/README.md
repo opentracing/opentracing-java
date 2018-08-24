@@ -12,15 +12,17 @@ This example shows `Span` usage with `Scala` frameworks using the `Actor` paradi
         new Runnable() {
           @Override
           public void run() {
-            try (Scope child =
-                tracer
-                    .buildSpan("received")
-                    .addReference(References.FOLLOWS_FROM, parent.context())
-                    .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                    .startActive(true)) {
+            Scope child = tracer
+                .buildSpan("received")
+                .addReference(References.FOLLOWS_FROM, parent.context())
+                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
+                .startActive();
+            try {
               ...
+            } finally {
+              child.close();
+              child.span().finish();
             }
           }
         });
-  }
 ```

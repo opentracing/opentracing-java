@@ -42,9 +42,8 @@ public class NestedCallbacksTest {
     @Test
     public void test() throws Exception {
 
-        try (Scope scope = tracer.buildSpan("one").startActive(false)) {
-            submitCallbacks(scope.span());
-        }
+        Span span = tracer.buildSpan("one").start();
+        submitCallbacks(span);
 
         await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(1));
 
@@ -66,20 +65,22 @@ public class NestedCallbacksTest {
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                try (Scope scope = tracer.scopeManager().activate(span, false)) {
+                try (Scope scope = tracer.scopeManager().activate(span)) {
                     span.setTag("key1", "1");
 
                     executor.submit(new Runnable() {
                         @Override
                         public void run() {
-                            try (Scope scope = tracer.scopeManager().activate(span, false)) {
+                            try (Scope scope = tracer.scopeManager().activate(span)) {
                                 span.setTag("key2", "2");
 
                                 executor.submit(new Runnable() {
                                     @Override
                                     public void run() {
-                                        try (Scope scope = tracer.scopeManager().activate(span, true)) {
+                                        try (Scope scope = tracer.scopeManager().activate(span)) {
                                             span.setTag("key3", "3");
+                                        } finally {
+                                            span.finish();
                                         }
                                     }
                                 });

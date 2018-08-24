@@ -51,14 +51,17 @@ public class Promise<T> {
           new Runnable() {
             @Override
             public void run() {
-                try (Scope child =
-                    tracer
-                        .buildSpan("success")
-                            .addReference(References.FOLLOWS_FROM, parentScope.span().context())
-                        .withTag(Tags.COMPONENT.getKey(), "success")
-                        .startActive(true)) {
-                  callback.accept(result);
-                }
+              Scope child = tracer
+                  .buildSpan("success")
+                  .addReference(References.FOLLOWS_FROM, parentScope.span().context())
+                  .withTag(Tags.COMPONENT.getKey(), "success")
+                  .startActive();
+              try {
+                callback.accept(result);
+              } finally {
+                child.close();
+                child.span().finish();
+              }
               context.getPhaser().arriveAndAwaitAdvance(); // trace reported
             }
           });
@@ -71,15 +74,18 @@ public class Promise<T> {
           new Runnable() {
             @Override
             public void run() {
-                try (Scope child =
-                    tracer
-                        .buildSpan("error")
-                            .addReference(References.FOLLOWS_FROM, parentScope.span().context())
-                        .withTag(Tags.COMPONENT.getKey(), "error")
-                        .startActive(true)) {
+                Scope child = tracer
+                    .buildSpan("error")
+                    .addReference(References.FOLLOWS_FROM, parentScope.span().context())
+                    .withTag(Tags.COMPONENT.getKey(), "error")
+                    .startActive();
+                try {
                   callback.accept(error);
+                } finally {
+                    child.close();
+                    child.span().finish();
                 }
-              context.getPhaser().arriveAndAwaitAdvance(); // trace reported
+                context.getPhaser().arriveAndAwaitAdvance(); // trace reported
             }
           });
     }
