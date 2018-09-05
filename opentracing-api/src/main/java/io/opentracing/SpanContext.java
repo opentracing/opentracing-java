@@ -31,7 +31,8 @@ public interface SpanContext {
      *
      * Globally unique. Every span in a trace shares this ID.
      *
-     * The empty string is a valid return value, while null is not.
+     * An empty String will be returned if there is no method implementation
+     * or there is no trace ID present. null is an invalid return value.
      *
      * @return the trace ID for this context.
      */
@@ -42,7 +43,8 @@ public interface SpanContext {
      *
      * Unique within a trace. Each span within a trace contains a different ID.
      *
-     * The empty string is a valid return value, while null is not.
+     * An empty String will be returned if there is no method implementation
+     * or there is no span ID present. null is an invalid value return value.
      *
      * @return the Span ID for this context.
      */
