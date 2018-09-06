@@ -80,5 +80,6 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
         return NoopSpanImpl.INSTANCE;
     }
 
+    @Override
     public String toString() { return NoopSpanBuilder.class.getSimpleName(); }
 }
