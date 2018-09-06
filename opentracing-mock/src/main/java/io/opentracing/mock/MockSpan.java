@@ -207,7 +207,6 @@ public final class MockSpan implements Span {
         public long traceId() { return traceId; }
         public long spanId() { return spanId; }
 
-
         /**
          * Create and return a new (immutable) MockContext with the added baggage item.
          */
