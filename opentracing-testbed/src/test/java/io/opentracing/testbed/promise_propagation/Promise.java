@@ -15,6 +15,7 @@ package io.opentracing.testbed.promise_propagation;
 
 import io.opentracing.References;
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
 import java.util.Collection;
@@ -24,7 +25,7 @@ import java.util.LinkedList;
 public class Promise<T> {
   private final PromiseContext context;
   private final MockTracer tracer;
-  private final Scope parentScope;
+  private final Span parentSpan;
 
   private final Collection<SuccessCallback<T>> successCallbacks = new LinkedList<>();
   private final Collection<ErrorCallback> errorCallbacks = new LinkedList<>();
@@ -34,7 +35,7 @@ public class Promise<T> {
 
     // Passed along here for testing. Normally should be referenced via GlobalTracer.get().
     this.tracer = tracer;
-    parentScope = tracer.scopeManager().active();
+    parentSpan = tracer.scopeManager().activeSpan();
   }
 
   public void onSuccess(SuccessCallback<T> successCallback) {
@@ -51,16 +52,15 @@ public class Promise<T> {
           new Runnable() {
             @Override
             public void run() {
-              Scope child = tracer
+              Span childSpan = tracer
                   .buildSpan("success")
-                  .addReference(References.FOLLOWS_FROM, parentScope.span().context())
+                  .addReference(References.FOLLOWS_FROM, parentSpan.context())
                   .withTag(Tags.COMPONENT.getKey(), "success")
-                  .startActive();
-              try {
+                  .start();
+              try (Scope childScope = tracer.activateSpan(childSpan)) {
                 callback.accept(result);
               } finally {
-                child.close();
-                child.span().finish();
+                childSpan.finish();
               }
               context.getPhaser().arriveAndAwaitAdvance(); // trace reported
             }
@@ -74,16 +74,15 @@ public class Promise<T> {
           new Runnable() {
             @Override
             public void run() {
-                Scope child = tracer
+                Span childSpan = tracer
                     .buildSpan("error")
-                    .addReference(References.FOLLOWS_FROM, parentScope.span().context())
+                    .addReference(References.FOLLOWS_FROM, parentSpan.context())
                     .withTag(Tags.COMPONENT.getKey(), "error")
-                    .startActive();
-                try {
+                    .start();
+                try (Scope childScope = tracer.activateSpan(childSpan)) {
                   callback.accept(error);
                 } finally {
-                    child.close();
-                    child.span().finish();
+                    childSpan.finish();
                 }
                 context.getPhaser().arriveAndAwaitAdvance(); // trace reported
             }

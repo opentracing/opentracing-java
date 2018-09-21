@@ -37,6 +37,7 @@ public interface Scope extends Closeable {
     void close();
 
     /**
+     * @deprecated
      * @return the {@link Span} that's been scoped by this {@link Scope}
      */
     Span span();

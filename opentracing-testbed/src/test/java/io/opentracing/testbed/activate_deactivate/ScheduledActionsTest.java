@@ -14,6 +14,7 @@
 package io.opentracing.testbed.activate_deactivate;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.util.AutoFinishScope;
 import io.opentracing.util.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
@@ -89,7 +90,8 @@ public class ScheduledActionsTest {
             @Override
             public void run() {
                 logger.info("Entry thread started");
-                try (Scope scope = tracer.buildSpan("parent").startActive()) {
+                Span span = tracer.buildSpan("parent").start();
+                try (Scope scope = tracer.activateSpan(span)) {
                     Runnable action = new RunnableAction((AutoFinishScope)scope);
 
                     // Action is executed at some time and we are not able to check status
@@ -108,7 +110,8 @@ public class ScheduledActionsTest {
             @Override
             public void run() {
                 logger.info("Entry thread 2x started");
-                try (Scope scope = tracer.buildSpan("parent").startActive()) {
+                Span span = tracer.buildSpan("parent").start();
+                try (Scope scope = tracer.activateSpan(span)) {
                     Runnable action = new RunnableAction((AutoFinishScope)scope);
                     Runnable action2 = new RunnableAction((AutoFinishScope)scope);
 

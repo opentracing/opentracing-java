@@ -12,16 +12,15 @@ A top-level `Span` is created for the main work, and later passed to the `Promis
           new Runnable() {
             @Override
             public void run() {
-              Scope child = tracer
+              Span childSpan = tracer
                   .buildSpan("success")
-                  .addReference(References.FOLLOWS_FROM, parentScope.span().context())
+                  .addReference(References.FOLLOWS_FROM, parentSpan.context())
                   .withTag(Tags.COMPONENT.getKey(), "success")
-                  .startActive();
-              try {
+                  .start();
+              try (Scope childScope = tracer.activateSpan(childSpan)) {
                 callback.accept(result);
               } finally {
-                child.close();
-                child.span().finish();
+                childSpan.finish();
               }
               ...
             }

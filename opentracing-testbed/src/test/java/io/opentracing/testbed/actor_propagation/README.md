@@ -6,22 +6,20 @@ This example shows `Span` usage with `Scala` frameworks using the `Actor` paradi
 
 ```java
   public void tell(final String message) {
-    final Span parent = tracer.scopeManager().active().span();
-    phaser.register();
+    final Span parent = tracer.scopeManager().activeSpan();
     executor.submit(
         new Runnable() {
           @Override
           public void run() {
-            Scope child = tracer
+            Span child = tracer
                 .buildSpan("received")
                 .addReference(References.FOLLOWS_FROM, parent.context())
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                .startActive();
-            try {
-              ...
+                .start();
+            try (Scope scope = tracer.activateSpan(child)) {
+              child.log("received " + message);
             } finally {
-              child.close();
-              child.span().finish();
+              child.finish();
             }
           }
         });

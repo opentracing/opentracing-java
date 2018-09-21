@@ -26,10 +26,17 @@ public interface Tracer {
     ScopeManager scopeManager();
 
     /**
-     * @return the active {@link Span}. This is a shorthand for Tracer.scopeManager().active().span(),
-     * and null will be returned if {@link Scope#active()} is null.
+     * @return the active {@link Span}. This is a shorthand for Tracer.scopeManager().activeSpan().
      */
     Span activeSpan();
+
+    /**
+     * Make a {@link Span} instance active. This is a shorthand for Tracer.scopeManager().activate().
+     *
+     * @return a {@link Scope} instance to control the end of the active period for the {@link Span}. It is a
+     * programming error to neglect to call {@link Scope#close()} on the returned instance.
+     */
+    Scope activateSpan(Span span);
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.
@@ -183,6 +190,7 @@ public interface Tracer {
         Scope startActive(boolean finishSpanOnClose);
 
         /**
+         * @deprecated
          * Returns a newly started and activated {@link Scope}.
          *
          * The span will not be automatically finished when {@link Scope#close()} is called.

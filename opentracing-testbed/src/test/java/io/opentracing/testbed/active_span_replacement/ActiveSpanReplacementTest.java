@@ -44,9 +44,10 @@ public class ActiveSpanReplacementTest {
     @Test
     public void test() throws Exception {
         // Start an isolated task and query for its result in another task/thread
-        try (Scope scope = tracer.buildSpan("initial").startActive()) {
+        Span span = tracer.buildSpan("initial").start();
+        try (Scope scope = tracer.scopeManager().activate(span)) {
             // Explicitly pass a Span to be finished once a late calculation is done.
-            submitAnotherTask(scope.span());
+            submitAnotherTask(span);
         }
 
         await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(3));

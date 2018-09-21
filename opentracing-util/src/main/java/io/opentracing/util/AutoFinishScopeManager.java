@@ -36,4 +36,9 @@ public class AutoFinishScopeManager implements ScopeManager {
         return tlsScope.get();
     }
 
+    @Override
+    public Span activeSpan() {
+        AutoFinishScope scope = tlsScope.get();
+        return scope == null ? null : scope.span();
+    }
 }

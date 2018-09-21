@@ -44,24 +44,23 @@ public class Actor implements AutoCloseable {
   }
 
   public void tell(final String message) {
-    final Span parent = tracer.scopeManager().active().span();
+    final Span parent = tracer.scopeManager().activeSpan();
     phaser.register();
     executor.submit(
         new Runnable() {
           @Override
           public void run() {
-            Scope child = tracer
+            Span child = tracer
                 .buildSpan("received")
                 .addReference(References.FOLLOWS_FROM, parent.context())
                 .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                .startActive();
-            try {
+                .start();
+            try (Scope scope = tracer.activateSpan(child)) {
               phaser.arriveAndAwaitAdvance(); // child tracer started
-              child.span().log("received " + message);
+              child.log("received " + message);
               phaser.arriveAndAwaitAdvance(); // assert size
             } finally {
-              child.close();
-              child.span().finish();
+              child.finish();
             }
 
             phaser.arriveAndAwaitAdvance(); // child tracer finished
@@ -71,25 +70,24 @@ public class Actor implements AutoCloseable {
   }
 
   public Future<String> ask(final String message) {
-    final Span parent = tracer.scopeManager().active().span();
+    final Span parent = tracer.scopeManager().activeSpan();
     phaser.register();
     Future<String> future =
         executor.submit(
             new Callable<String>() {
               @Override
               public String call() throws Exception {
-                Scope child = tracer
+                Span span = tracer
                     .buildSpan("received")
                     .addReference(References.FOLLOWS_FROM, parent.context())
                     .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CONSUMER)
-                    .startActive();
+                    .start();
                 try {
                   phaser.arriveAndAwaitAdvance(); // child tracer started
                   phaser.arriveAndAwaitAdvance(); // assert size
                   return "received " + message;
                 } finally {
-                  child.close();
-                  child.span().finish();
+                  span.finish();
 
                   phaser.arriveAndAwaitAdvance(); // child tracer finished
                   phaser.arriveAndAwaitAdvance(); // assert size

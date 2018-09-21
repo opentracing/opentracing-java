@@ -210,7 +210,7 @@ public class MockTracerTest {
         Scope scope = null;
         try {
             scope = mockTracer.buildSpan("foo").startActive();
-            Assert.assertEquals(mockTracer.scopeManager().active().span(), mockTracer.activeSpan());
+            Assert.assertEquals(mockTracer.scopeManager().activeSpan(), mockTracer.activeSpan());
         } finally {
             scope.close();
         }
@@ -227,7 +227,7 @@ public class MockTracerTest {
         Scope scope = null;
         try {
             scope = mockTracer.buildSpan("foo").startActive(true);
-            Assert.assertEquals(mockTracer.scopeManager().active().span(), mockTracer.activeSpan());
+            Assert.assertEquals(mockTracer.scopeManager().activeSpan(), mockTracer.activeSpan());
         } finally {
             scope.close();
         }
@@ -322,8 +322,10 @@ public class MockTracerTest {
     @Test
     public void testDefaultConstructor() {
         MockTracer mockTracer = new MockTracer();
-        Scope scope = mockTracer.buildSpan("foo").startActive();
+        Span span = mockTracer.buildSpan("foo").start();
+        Scope scope = mockTracer.activateSpan(span);
         assertEquals(scope, mockTracer.scopeManager().active());
+        assertEquals(span, mockTracer.scopeManager().activeSpan());
 
         Map<String, String> propag = new HashMap<>();
         mockTracer.inject(scope.span().context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));

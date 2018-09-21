@@ -31,18 +31,18 @@ public class SuspendResume {
     // Passed along here for testing. Normally should be referenced via GlobalTracer.get().
     this.tracer = tracer;
 
-    try (Scope scope =
-        tracer
-            .buildSpan("job " + id)
-            .withTag(Tags.COMPONENT.getKey(), "suspend-resume")
-            .startActive()) {
-      span = scope.span();
+    Span span = tracer
+        .buildSpan("job " + id)
+        .withTag(Tags.COMPONENT.getKey(), "suspend-resume")
+        .start();
+    try (Scope scope = tracer.scopeManager().activate(span)) {
+        this.span = span;
     }
   }
 
   public void doPart(String name) {
     try (Scope scope = tracer.scopeManager().activate(span)) {
-      scope.span().log("part: " + name);
+      span.log("part: " + name);
     }
   }
 

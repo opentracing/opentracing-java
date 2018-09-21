@@ -13,6 +13,7 @@
  */
 package io.opentracing.util;
 
+import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -176,6 +177,11 @@ public final class GlobalTracer implements Tracer {
     @Override
     public Span activeSpan() {
         return tracer.activeSpan();
+    }
+
+    @Override
+    public Scope activateSpan(Span span) {
+        return tracer.activateSpan(span);
     }
 
     @Override

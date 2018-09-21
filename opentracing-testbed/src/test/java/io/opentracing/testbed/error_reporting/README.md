@@ -7,7 +7,7 @@ Span span = tracer.buildSpan("one").start();
 executor.submit(new Runnable() {
     @Override
     public void run() {
-	try (Scope scope = tracer.scopeManager().activate(span)) {
+	try (Scope scope = tracer.activateSpan(span)) {
 	    throw new RuntimeException("Invalid state");
 	} catch (Exception exc) {
 	    Tags.ERROR.set(span, true);

@@ -43,17 +43,17 @@ public class ErrorReportingTest {
     /* Very simple error handling **/
     @Test
     public void testSimpleError() {
-        Scope scope = tracer.buildSpan("one").startActive();
-        try {
+        Span span = tracer.buildSpan("one").start();
+        try (Scope scope = tracer.activateSpan(span)) {
             throw new RuntimeException("Invalid state");
         } catch (Exception e) {
-            Tags.ERROR.set(scope.span(), true);
+            Tags.ERROR.set(span, true);
         } finally {
-            scope.close();
-            scope.span().finish();
+            span.finish();
         }
 
         assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
 
         List<MockSpan> spans = tracer.finishedSpans();
         assertEquals(spans.size(), 1);
@@ -67,7 +67,7 @@ public class ErrorReportingTest {
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                try (Scope scope = tracer.scopeManager().activate(span)) {
+                try (Scope scope = tracer.activateSpan(span)) {
                     throw new RuntimeException("Invalid state");
                 } catch (Exception exc) {
                     Tags.ERROR.set(span, true);
@@ -92,25 +92,28 @@ public class ErrorReportingTest {
         int retries = 0;
         Object res = null;
 
-        Scope scope = tracer.buildSpan("one").startActive();
-        while (res == null && retries++ < maxRetries) {
-            try {
-                throw new RuntimeException("No url could be fetched");
-            } catch (Exception exc) {
-                scope.span().log(new TreeMap<String, Object>() {{
-                    put(Fields.EVENT, Tags.ERROR);
-                    put(Fields.ERROR_OBJECT, exc);
-                }});
+        Span span = tracer.buildSpan("one").start();
+        try (Scope scope = tracer.activateSpan(span)) {
+
+            while (res == null && retries++ < maxRetries) {
+                try {
+                    throw new RuntimeException("No url could be fetched");
+                } catch (Exception exc) {
+                    span.log(new TreeMap<String, Object>() {{
+                        put(Fields.EVENT, Tags.ERROR);
+                        put(Fields.ERROR_OBJECT, exc);
+                    }});
+                }
             }
         }
 
         if (res == null) {
-            Tags.ERROR.set(scope.span(), true); // Could not fetch anything.
+            Tags.ERROR.set(span, true); // Could not fetch anything.
         }
-        scope.close();
-        scope.span().finish();
+        span.finish();
 
         assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
 
         List<MockSpan> spans = tracer.finishedSpans();
         assertEquals(spans.size(), 1);
@@ -126,7 +129,8 @@ public class ErrorReportingTest {
      * the Span for a submitted Runnable. */
     @Test
     public void testInstrumentationLayer() {
-        try (Scope scope = tracer.buildSpan("one").startActive()) {
+        Span span = tracer.buildSpan("one").start();
+        try (Scope scope = tracer.activateSpan(span)) {
 
             // ScopedRunnable captures the active Span at this time.
             executor.submit(new ScopedRunnable(new Runnable() {
@@ -163,7 +167,7 @@ public class ErrorReportingTest {
 
         public void run() {
             // No error reporting is done, as we are a simple wrapper.
-            try (Scope scope = tracer.scopeManager().activate(span)) {
+            try (Scope scope = tracer.activateSpan(span)) {
                 runnable.run();
             }
         }

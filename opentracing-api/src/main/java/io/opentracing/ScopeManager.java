@@ -49,8 +49,8 @@ public interface ScopeManager {
     Scope activate(Span span);
 
     /**
-     * Return the currently active {@link Scope} which can be used to access the currently active
-     * {@link Scope#span()}.
+     * Return the currently active {@link Scope} which can be used to deactivate the currently active
+     * {@link Span}.
      *
      * <p>
      * If there is an {@link Scope non-null scope}, its wrapped {@link Span} becomes an implicit parent
@@ -61,4 +61,17 @@ public interface ScopeManager {
      * @return the {@link Scope active scope}, or null if none could be found.
      */
     Scope active();
+
+    /**
+     * Return the currently active {@link Span}.
+     *
+     * <p>
+     * If there is an {@link Span non-null active span}, it becomes an implicit parent
+     * (as {@link References#CHILD_OF} reference) of any
+     * newly-created {@link Span} at {@link Tracer.SpanBuilder#startActive(boolean)} or {@link SpanBuilder#start()}
+     * time rather than at {@link Tracer#buildSpan(String)} time.
+     *
+     * @return the {@link Span active span}, or null if none could be found.
+     */
+    Span activeSpan();
 }

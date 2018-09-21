@@ -57,7 +57,7 @@ public class RequestHandler {
             spanBuilder.asChildOf(parentContext);
         }
 
-        context.put("span", spanBuilder.startManual());
+        context.put("span", spanBuilder.start());
     }
 
     public void afterResponse(Object response, Context context) {

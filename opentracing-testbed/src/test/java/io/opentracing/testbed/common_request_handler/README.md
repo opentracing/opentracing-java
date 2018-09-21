@@ -16,7 +16,7 @@ Since its methods are not guaranteed to be run in the same thread, activation of
             spanBuilder.asChildOf(parentContext);
         }
 
-        context.put("span", spanBuilder.startManual());
+        context.put("span", spanBuilder.start());
     }
 
     public void afterResponse(Object response, Context context) {

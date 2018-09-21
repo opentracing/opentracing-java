@@ -39,4 +39,10 @@ public class ThreadLocalScopeManager implements ScopeManager {
     public Scope active() {
         return tlsScope.get();
     }
+
+    @Override
+    public Span activeSpan() {
+        Scope scope = tlsScope.get();
+        return scope == null ? null : scope.span();
+    }
 }

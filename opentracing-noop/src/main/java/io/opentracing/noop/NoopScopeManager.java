@@ -44,6 +44,11 @@ class NoopScopeManagerImpl implements NoopScopeManager {
         return NoopScope.INSTANCE;
     }
 
+    @Override
+    public Span activeSpan() {
+        return NoopSpan.INSTANCE;
+    }
+
     static class NoopScopeImpl implements NoopScopeManager.NoopScope {
         @Override
         public void close() {}

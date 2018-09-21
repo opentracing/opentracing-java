@@ -8,16 +8,15 @@ This example shows a `Span` created by a `Client`, which will send a `Message`/`
     public void send() throws InterruptedException {
         Message message = new Message();
 
-        Scope scope = tracer.buildSpan("send")
-              .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-              .withTag(Tags.COMPONENT.getKey(), "example-client")
-              .startActive();
-        try {
-            tracer.inject(scope.span().context(), Builtin.TEXT_MAP, new TextMapInjectAdapter(message));
+        Span span = tracer.buildSpan("send")
+            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+            .withTag(Tags.COMPONENT.getKey(), "example-client")
+            .start();
+        try (Scope scope = tracer.activateSpan(span)) {
+            tracer.inject(span.context(), Builtin.TEXT_MAP, new TextMapInjectAdapter(message));
             queue.put(message);
         } finally {
-            scope.close();
-            scope.span().finish();
+            span.finish();
         }
     }
 ```

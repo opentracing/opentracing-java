@@ -40,7 +40,7 @@ public class LateSpanFinishTest {
     @Test
     public void test() throws Exception {
         // Create a Span manually and use it as parent of a pair of subtasks
-        Span parentSpan = tracer.buildSpan("parent").startManual();
+        Span parentSpan = tracer.buildSpan("parent").start();
         submitTasks(parentSpan);
 
         // Wait for the threadpool to be done first, instead of polling/waiting
