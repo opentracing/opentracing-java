@@ -207,12 +207,9 @@ public class MockTracerTest {
         MockTracer mockTracer = new MockTracer();
         Assert.assertNull(mockTracer.activeSpan());
 
-        Scope scope = null;
-        try {
-            scope = mockTracer.buildSpan("foo").startActive();
+        Span span = mockTracer.buildSpan("foo").start();
+        try (Scope scope = mockTracer.activateSpan(span)) {
             Assert.assertEquals(mockTracer.scopeManager().activeSpan(), mockTracer.activeSpan());
-        } finally {
-            scope.close();
         }
 
         Assert.assertNull(mockTracer.activeSpan());

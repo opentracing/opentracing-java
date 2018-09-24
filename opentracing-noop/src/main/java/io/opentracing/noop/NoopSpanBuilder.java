@@ -71,11 +71,6 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
     }
 
     @Override
-    public Scope startActive() {
-        return NoopScopeManager.NoopScope.INSTANCE;
-    }
-
-    @Override
     public Span start() {
         return startManual();
     }
