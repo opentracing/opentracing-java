@@ -26,8 +26,9 @@ import java.io.Closeable;
  */
 public interface Scope extends Closeable {
     /**
-     * Mark the end of the active period for the current thread and {@link Scope},
-     * updating the {@link ScopeManager#active()} in the process.
+     * Mark the end of the active period for the current context (usually a thread)
+     * and {@link Scope}, updating {@link ScopeManager#active()} and {@link ScopeManager#activeSpan()}
+     * in the process.
      *
      * <p>
      * NOTE: Calling {@link #close} more than once on a single {@link Scope} instance leads to undefined
@@ -37,8 +38,11 @@ public interface Scope extends Closeable {
     void close();
 
     /**
-     * @deprecated
+     * @deprecated use {@link Span} directly or access it through {@link ScopeManager#activeSpan()}
+     * Return the corresponding active {@link Span} for this instance.
+     *
      * @return the {@link Span} that's been scoped by this {@link Scope}
      */
+    @Deprecated
     Span span();
 }
