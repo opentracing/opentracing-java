@@ -35,7 +35,8 @@ public interface Tracer {
      * This is a shorthand for {@code Tracer.scopeManager().activate(span)}.
      *
      * @return a {@link Scope} instance to control the end of the active period for the {@link Span}. It is a
-     * programming error to neglect to call {@link Scope#close()} on the returned instance.
+     * programming error to neglect to call {@link Scope#close()} on the returned instance,
+     * and it may lead to memory leaks as the {@link Scope} may remain in the thread-local stack.
      */
     Scope activateSpan(Span span);
 
@@ -49,7 +50,8 @@ public interface Tracer {
      *   Tracer tracer = ...
      *
      *   // Note: if there is a `tracer.activeSpan()` instance, it will be used as the target
-     *   // of an implicit CHILD_OF Reference when `start()` is invoked.
+     *   // of an implicit CHILD_OF Reference when `start()` is invoked,
+     *   // unless another Span reference is explicitly provided to the builder.
      *   Span span = tracer.buildSpan("HandleHTTPRequest")
      *                     .asChildOf(rpcSpanContext)  // an explicit parent
      *                     .withTag("user_agent", req.UserAgent)

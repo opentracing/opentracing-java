@@ -52,7 +52,9 @@ public interface ScopeManager {
      *     } catch (Exception e) {
      *         span.log(...);
      *     } finally {
-     *         span.finish(); // Optionally finish the Span.
+     *         // Optionally finish the Span if the operation it represents
+     *         // is logically completed at this point.
+     *         span.finish();
      *     }
      * </code></pre>
      *
@@ -72,7 +74,7 @@ public interface ScopeManager {
      *
      * <p>
      * Because both {@link #active()} and {@link #activeSpan()} reference the current
-     * the active state, they both will be either null or non-null.
+     * active state, they both will be either null or non-null.
      *
      * @return the {@link Scope active scope}, or null if none could be found.
      */
@@ -82,14 +84,8 @@ public interface ScopeManager {
      * Return the currently active {@link Span}.
      *
      * <p>
-     * If there is an {@link Span non-null active span}, it becomes an implicit parent
-     * (as {@link References#CHILD_OF} reference) of any
-     * newly-created {@link Span} at {@link SpanBuilder#start()} or {@link Tracer.SpanBuilder#startActive(boolean)}
-     * time rather than at {@link Tracer#buildSpan(String)} time.
-     *
-     * <p>
      * Because both {@link #active()} and {@link #activeSpan()} reference the current
-     * the active state, they both will be either null or non-null.
+     * active state, they both will be either null or non-null.
      *
      * @return the {@link Span active span}, or null if none could be found.
      */
