@@ -34,6 +34,10 @@ public interface SpanContext {
      * An empty String will be returned if the tracer does not support this functionality
      * (this is the case for no-op tracers, for example). null is an invalid return value.
      *
+     * Observe there is no restriction regarding the format of the returned value, as this
+     * should simply be the equivalent of calling toString() on the native ID object
+     * used by the tracer.
+     *
      * @return the trace ID for this context.
      */
     String toTraceId();
@@ -45,6 +49,10 @@ public interface SpanContext {
      *
      * An empty String will be returned if the tracer does not support this functionality
      * (this is the case for no-op tracers, for example). null is an invalid return value.
+     *
+     * Observe there is no restriction regarding the format of the returned value, as this
+     * should simply be the equivalent of calling toString() on the native ID object
+     * used by the tracer.
      *
      * @return the Span ID for this context.
      */
