@@ -13,6 +13,7 @@
  */
 package io.opentracing;
 
+import io.opentracing.tag.AbstractTag;
 import java.util.Map;
 
 /**
@@ -43,6 +44,9 @@ public interface Span {
 
     /** Same as {@link #setTag(String, String)}, but for numeric values. */
     Span setTag(String key, Number value);
+
+    /** Same as {@link #setTag(String, String)}, but with typed value. */
+    <T> Span setTag(AbstractTag<T> key, T value);
 
     /**
      * Log key:value pairs to the Span with the current walltime timestamp.

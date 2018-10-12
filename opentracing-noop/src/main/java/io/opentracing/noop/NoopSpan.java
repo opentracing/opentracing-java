@@ -15,6 +15,7 @@ package io.opentracing.noop;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.tag.AbstractTag;
 
 import java.util.Map;
 
@@ -41,6 +42,11 @@ final class NoopSpanImpl implements NoopSpan {
 
     @Override
     public NoopSpan setTag(String key, Number value) { return this; }
+
+    @Override
+    public <T> Span setTag(AbstractTag<T> key, T value) {
+        return this;
+    }
 
     @Override
     public NoopSpan log(Map<String, ?> fields) { return this; }

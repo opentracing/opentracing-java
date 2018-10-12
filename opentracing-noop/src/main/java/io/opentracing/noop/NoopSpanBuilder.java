@@ -17,9 +17,7 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-
-import java.util.Collections;
-import java.util.Map;
+import io.opentracing.tag.AbstractTag;
 
 public interface NoopSpanBuilder extends Tracer.SpanBuilder {
     NoopSpanBuilder INSTANCE = new NoopSpanBuilderImpl();
@@ -57,6 +55,11 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
 
     @Override
     public Tracer.SpanBuilder withTag(String key, Number value) {
+        return this;
+    }
+
+    @Override
+    public <T> Tracer.SpanBuilder withTag(AbstractTag<T> key, T value) {
         return this;
     }
 

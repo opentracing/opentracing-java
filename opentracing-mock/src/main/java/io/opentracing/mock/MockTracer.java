@@ -13,6 +13,7 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.tag.AbstractTag;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -255,6 +256,12 @@ public class MockTracer implements Tracer {
         @Override
         public SpanBuilder withTag(String key, Number value) {
             this.initialTags.put(key, value);
+            return this;
+        }
+
+        @Override
+        public <T> Tracer.SpanBuilder withTag(AbstractTag<T> tag, T value) {
+            this.initialTags.put(tag.getKey(), value);
             return this;
         }
 
