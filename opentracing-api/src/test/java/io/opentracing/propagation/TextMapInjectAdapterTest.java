@@ -26,7 +26,7 @@ public class TextMapInjectAdapterTest {
 
     @Test
     public void testPut() {
-        Map<String, String> headers = new LinkedHashMap<String, String>();
+        Map<String, Object> headers = new LinkedHashMap<String, Object>();
         TextMapInjectAdapter injectAdapter = new TextMapInjectAdapter(headers);
         injectAdapter.put("foo", "bar");
 
