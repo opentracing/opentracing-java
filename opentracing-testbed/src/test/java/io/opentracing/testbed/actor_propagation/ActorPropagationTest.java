@@ -14,6 +14,7 @@
 package io.opentracing.testbed.actor_propagation;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
@@ -55,14 +56,16 @@ public class ActorPropagationTest {
   public void testActorTell() {
     try (Actor actor = new Actor(tracer, phaser)) {
       phaser.register();
-      try (Scope parent =
-          tracer
-              .buildSpan("actorTell")
-              .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
-              .withTag(Tags.COMPONENT.getKey(), "example-actor")
-              .startActive(true)) {
+      Span parent = tracer
+          .buildSpan("actorTell")
+          .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
+          .withTag(Tags.COMPONENT.getKey(), "example-actor")
+          .start();
+      try (Scope scope = tracer.activateSpan(parent)) {
         actor.tell("my message 1");
         actor.tell("my message 2");
+      } finally {
+        parent.finish();
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
       assertThat(tracer.finishedSpans().size()).isEqualTo(1); // Parent should be reported
@@ -91,14 +94,16 @@ public class ActorPropagationTest {
       phaser.register();
       Future<String> future1;
       Future<String> future2;
-      try (Scope parent =
-          tracer
-              .buildSpan("actorAsk")
-              .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
-              .withTag(Tags.COMPONENT.getKey(), "example-actor")
-              .startActive(true)) {
+      Span span = tracer
+          .buildSpan("actorAsk")
+          .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_PRODUCER)
+          .withTag(Tags.COMPONENT.getKey(), "example-actor")
+          .start();
+      try (Scope scope = tracer.activateSpan(span)) {
         future1 = actor.ask("my message 1");
         future2 = actor.ask("my message 2");
+      } finally {
+        span.finish();
       }
       phaser.arriveAndAwaitAdvance(); // child tracer started
       assertThat(tracer.finishedSpans().size()).isEqualTo(1);

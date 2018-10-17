@@ -7,7 +7,7 @@ This example shows `Span` usage with the suspend-resume model found in asynchron
 ```java
   // SuspendResume
   public void doPart(String name) {
-    try (Scope scope = tracer.scopeManager().activate(span, false)) {
+    try (Scope scope = tracer.scopeManager().activate(span)) {
       scope.span().log("part: " + name);
     }
   }

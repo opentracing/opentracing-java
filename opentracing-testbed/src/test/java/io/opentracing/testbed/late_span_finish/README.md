@@ -7,17 +7,8 @@ This example shows a `Span` for a top-level operation, with independent, unknown
 executor.submit(new Runnable() {
     @Override
     public void run() {
-	try (Scope scope = tracer.scopeManager().activate(parentSpan, false)) {
-            ...
-	}
-    }
-});
-executor.submit(new Runnable() {
-    @Override
-    public void run() {
-	try (Scope span = tracer.scopeManager().activate(parentSpan, false)) {
-            ...
-	}
+        try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
+        }
     }
 });
 ```

@@ -35,8 +35,18 @@ class NoopScopeManagerImpl implements NoopScopeManager {
     }
 
     @Override
+    public Scope activate(Span span) {
+        return NoopScope.INSTANCE;
+    }
+
+    @Override
     public Scope active() {
         return NoopScope.INSTANCE;
+    }
+
+    @Override
+    public Span activeSpan() {
+        return NoopSpan.INSTANCE;
     }
 
     static class NoopScopeImpl implements NoopScopeManager.NoopScope {

@@ -13,6 +13,7 @@ It shows continuation as a solution to finish span when last action is completed
 - [actor_propagation](src/test/java/io/opentracing/testbed/actor_propagation) - tracing for blocking and non-blocking actor based tracing
 - [client_server](src/test/java/io/opentracing/testbed/client_server) - typical client-server example
 - [common_request_handler](src/test/java/io/opentracing/testbed/common_request_handler) - one request handler for all requests
+- [error_reporting](src/test/java/io/opentracing/testbed/error_reporting) - a few common cases of error reporting
 - [late_span_finish](src/test/java/io/opentracing/testbed/late_span_finish) - late parent span finish
 - [listener_per_request](src/test/java/io/opentracing/testbed/listener_per_request) - one listener per request
 - [multiple_callbacks](src/test/java/io/opentracing/testbed/multiple_callbacks) - many callbacks spawned at the same time

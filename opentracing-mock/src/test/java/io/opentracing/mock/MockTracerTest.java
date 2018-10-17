@@ -207,15 +207,30 @@ public class MockTracerTest {
         MockTracer mockTracer = new MockTracer();
         Assert.assertNull(mockTracer.activeSpan());
 
+        Span span = mockTracer.buildSpan("foo").start();
+        try (Scope scope = mockTracer.activateSpan(span)) {
+            Assert.assertEquals(mockTracer.scopeManager().activeSpan(), mockTracer.activeSpan());
+        }
+
+        Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertTrue(mockTracer.finishedSpans().isEmpty());
+    }
+
+    @Test
+    public void testActiveSpanFinish() {
+        MockTracer mockTracer = new MockTracer();
+        Assert.assertNull(mockTracer.activeSpan());
+
         Scope scope = null;
         try {
             scope = mockTracer.buildSpan("foo").startActive(true);
-            Assert.assertEquals(mockTracer.scopeManager().active().span(), mockTracer.activeSpan());
+            Assert.assertEquals(mockTracer.scopeManager().activeSpan(), mockTracer.activeSpan());
         } finally {
             scope.close();
         }
 
         Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertFalse(mockTracer.finishedSpans().isEmpty());
     }
 
     @Test
@@ -319,8 +334,10 @@ public class MockTracerTest {
     @Test
     public void testDefaultConstructor() {
         MockTracer mockTracer = new MockTracer();
-        Scope scope = mockTracer.buildSpan("foo").startActive(true);
+        Span span = mockTracer.buildSpan("foo").start();
+        Scope scope = mockTracer.activateSpan(span);
         assertEquals(scope, mockTracer.scopeManager().active());
+        assertEquals(span, mockTracer.scopeManager().activeSpan());
 
         Map<String, String> propag = new HashMap<>();
         mockTracer.inject(scope.span().context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));

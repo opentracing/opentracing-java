@@ -14,6 +14,7 @@
 package io.opentracing.testbed.multiple_callbacks;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.AutoFinishScope;
 import io.opentracing.util.AutoFinishScope.Continuation;
@@ -48,7 +49,9 @@ public class Client {
                 logger.info("Child thread with message '{}' started", message);
 
                 try (Scope parentScope = cont.activate()) {
-                    try (Scope subtaskScope = tracer.buildSpan("subtask").startActive(false)) {
+
+                    Span span = tracer.buildSpan("subtask").start();
+                    try (Scope subtaskScope = tracer.activateSpan(span)) {
                         // Simulate work.
                         sleep(milliseconds);
                     }

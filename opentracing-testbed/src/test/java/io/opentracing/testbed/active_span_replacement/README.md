@@ -4,11 +4,18 @@ This example shows a `Span` being created and then passed to an asynchronous tas
 
 ```java
 // Create a new Span for this task
-try (Scope taskScope = tracer.buildSpan("task").startActive(true)) {
+Span taskSpan = tracer.buildSpan("task").start();
+try (Scope scope = tracer.scopeManager().activate(taskSpan)) {
 
     // Simulate work strictly related to the initial Span
     // and finish it.
-    try (Scope initialScope = tracer.scopeManager().activate(initialSpan, true)) {
+    try (Scope initialScope = tracer.scopeManager().activate(initialSpan)) {
+    } finally {
+      initialSpan.finish();
     }
+
+    // Continue doing tasks under taskSpan
+} finally {
+  taskSpan.finish();
 }
 ```
