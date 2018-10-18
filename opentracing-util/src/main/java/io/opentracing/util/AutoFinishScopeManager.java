@@ -44,6 +44,8 @@ public class AutoFinishScopeManager implements ScopeManager {
 
     @Override
     public void clear() {
+        // Set a null value instead of calling remove(),
+        // to prevent unnecessary allocation of new ThreadLocal-related objects.
         tlsScope.set(null);
     }
 }
