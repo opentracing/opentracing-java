@@ -114,4 +114,18 @@ public class ThreadLocalScopeManagerTest {
         assertNull(source.active());
         assertNull(source.activeSpan());
     }
+
+    @Test
+    public void clear() throws Exception {
+        Span span = mock(Span.class);
+
+        Scope scope = source.activate(span);
+        assertNotNull(scope);
+        assertNotNull(source.active());
+        assertNotNull(source.activeSpan());
+
+        source.clear();
+        assertNull(source.active());
+        assertNull(source.activeSpan());
+    }
 }
