@@ -14,6 +14,7 @@
 package io.opentracing.testbed.client_server;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format.Builtin;
@@ -34,11 +35,15 @@ public class Server extends Thread {
 
     private void process(Message message) {
         SpanContext context = tracer.extract(Builtin.TEXT_MAP, new TextMapExtractAdapter(message));
-        try (Scope scope = tracer.buildSpan("receive")
-              .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
-              .withTag(Tags.COMPONENT.getKey(), "example-server")
-              .asChildOf(context)
-              .startActive(true)) {
+        Span span = tracer.buildSpan("receive")
+          .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
+          .withTag(Tags.COMPONENT.getKey(), "example-server")
+          .asChildOf(context)
+          .start();
+
+        try (Scope scope = tracer.activateSpan(span)) {
+        } finally {
+            span.finish();
         }
     }
 

@@ -50,7 +50,7 @@ public class Client {
     public Future<Object> send(final Object message) {
         Span span = tracer.buildSpan("send").
                 withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                .startManual();
+                .start();
         return execute(message, new ResponseListener(span));
     }
 }

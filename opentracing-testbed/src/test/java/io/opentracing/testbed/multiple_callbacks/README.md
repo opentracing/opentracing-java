@@ -12,8 +12,12 @@ final Continuation cont = ((AutoFinishScope)scope).capture();
 return executor.submit(new Callable<Object>() {
     @Override
     public Object call() throws Exception {
+	logger.info("Child thread with message '{}' started", message);
+
 	try (Scope parentScope = cont.activate()) {
-	    try (Scope subtaskScope = tracer.buildSpan("subtask").startActive(false)) {
-                ...
+
+	    Span span = tracer.buildSpan("subtask").start();
+	    try (Scope subtaskScope = tracer.activateSpan(span)) {
+		...
 
 ```

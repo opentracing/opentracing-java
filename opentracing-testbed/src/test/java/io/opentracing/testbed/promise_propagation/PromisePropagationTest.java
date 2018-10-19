@@ -14,6 +14,7 @@
 package io.opentracing.testbed.promise_propagation;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
@@ -56,19 +57,18 @@ public class PromisePropagationTest {
     final AtomicReference<String> successResult2 = new AtomicReference<>();
     final AtomicReference<Throwable> errorResult = new AtomicReference<>();
     try (PromiseContext context = new PromiseContext(phaser, 3)) {
-      try (Scope parent =
-          tracer
-              .buildSpan("promises")
-              .withTag(Tags.COMPONENT.getKey(), "example-promises")
-              .startActive(true)) {
-
+      Span parentSpan = tracer
+          .buildSpan("promises")
+          .withTag(Tags.COMPONENT.getKey(), "example-promises")
+          .start();
+      try (Scope parentScope = tracer.activateSpan(parentSpan)) {
         Promise<String> successPromise = new Promise<>(context, tracer);
 
         successPromise.onSuccess(
             new Promise.SuccessCallback<String>() {
               @Override
               public void accept(String s) {
-                tracer.scopeManager().active().span().log("Promised 1 " + s);
+                tracer.activeSpan().log("Promised 1 " + s);
                 successResult1.set(s);
                 phaser.arriveAndAwaitAdvance(); // result set
               }
@@ -77,7 +77,7 @@ public class PromisePropagationTest {
                 new Promise.SuccessCallback<String>() {
                   @Override
                   public void accept(String s) {
-                    tracer.scopeManager().active().span().log("Promised 2 " + s);
+                    tracer.activeSpan().log("Promised 2 " + s);
                     successResult2.set(s);
                     phaser.arriveAndAwaitAdvance(); // result set
                   }
@@ -96,6 +96,8 @@ public class PromisePropagationTest {
         assertThat(tracer.finishedSpans().size()).isEqualTo(0);
         successPromise.success("success!");
         errorPromise.error(new Exception("some error."));
+      } finally {
+        parentSpan.finish();
       }
 
       phaser.arriveAndAwaitAdvance(); // wait for results to be set

@@ -14,6 +14,7 @@
 package io.opentracing.testbed.common_request_handler;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
@@ -75,9 +76,12 @@ public class HandlerTest {
      */
     @Test
     public void parent_not_picked_up() throws Exception {
-        try (Scope parent = tracer.buildSpan("parent").startActive(true)) {
+        Span parentSpan = tracer.buildSpan("parent").start();
+        try (Scope parentScope = tracer.activateSpan(parentSpan)) {
             String response = client.send("no_parent").get(15, TimeUnit.SECONDS);
             assertEquals("no_parent:response", response);
+        } finally {
+            parentSpan.finish();
         }
 
         List<MockSpan> finished = tracer.finishedSpans();
@@ -102,10 +106,13 @@ public class HandlerTest {
     @Test
     public void bad_solution_to_set_parent() throws Exception {
         Client client;
-        try (Scope parent = tracer.buildSpan("parent").startActive(true)) {
-            client = new Client(new RequestHandler(tracer, parent.span().context()));
+        Span parentSpan = tracer.buildSpan("parent").start();
+        try (Scope parentScope = tracer.activateSpan(parentSpan)) {
+            client = new Client(new RequestHandler(tracer, parentSpan.context()));
             String response = client.send("correct_parent").get(15, TimeUnit.SECONDS);
             assertEquals("correct_parent:response", response);
+        } finally {
+            parentSpan.finish();
         }
 
         // Send second request, now there is no active parent, but it will be set, ups

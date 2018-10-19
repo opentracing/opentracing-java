@@ -14,6 +14,7 @@
 package io.opentracing.testbed.multiple_callbacks;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.util.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
@@ -37,7 +38,8 @@ public class MultipleCallbacksTest {
     @Test
     public void test() throws Exception {
         Client client = new Client(tracer);
-        try (Scope scope = tracer.buildSpan("parent").startActive(false)) {
+        Span span = tracer.buildSpan("parent").start();
+        try (Scope scope = tracer.activateSpan(span)) {
             client.send("task1", 300);
             client.send("task2", 200);
             client.send("task3", 100);
