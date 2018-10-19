@@ -28,9 +28,9 @@ import java.util.Map;
  * @see Tracer#inject(SpanContext, Format, Object)
  */
 public final class TextMapInjectAdapter implements TextMap {
-    private final Map<String,String> map;
+    private final Map<String, ? super String> map;
 
-    public TextMapInjectAdapter(final Map<String,String> map) {
+    public TextMapInjectAdapter(final Map<String, ? super String> map) {
         this.map = map;
     }
 
