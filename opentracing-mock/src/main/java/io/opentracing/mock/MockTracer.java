@@ -34,6 +34,7 @@ import io.opentracing.noop.NoopScopeManager;
 import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
+import io.opentracing.tag.AbstractTag;
 import io.opentracing.util.ThreadLocalScopeManager;
 
 /**
@@ -343,6 +344,12 @@ public class MockTracer implements Tracer {
         @Override
         public SpanBuilder withTag(String key, Number value) {
             this.initialTags.put(key, value);
+            return this;
+        }
+
+        @Override
+        public <T> Tracer.SpanBuilder withTag(AbstractTag<T> tag, T value) {
+            this.initialTags.put(tag.getKey(), value);
             return this;
         }
 

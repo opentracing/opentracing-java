@@ -14,6 +14,7 @@
 package io.opentracing;
 
 import io.opentracing.propagation.Format;
+import io.opentracing.tag.AbstractTag;
 
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
@@ -172,6 +173,9 @@ public interface Tracer {
 
         /** Same as {@link Span#setTag(String, Number)}, but for the span being built. */
         SpanBuilder withTag(String key, Number value);
+
+        /** Same as {@link AbstractTag#set(Span, T)}, but for the span being built. */
+        <T> SpanBuilder withTag(AbstractTag<T> tag, T value);
 
         /** Specify a timestamp of when the Span was started, represented in microseconds since epoch. */
         SpanBuilder withStartTimestamp(long microseconds);
