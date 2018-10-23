@@ -13,6 +13,10 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.propagation.BinaryExtract;
+import io.opentracing.propagation.BinaryInject;
+import io.opentracing.propagation.TextMapExtract;
+import io.opentracing.propagation.TextMapInject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -125,11 +129,11 @@ public class MockTracer implements Tracer {
 
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
-                if (!(carrier instanceof Binary)) {
-                    throw new IllegalArgumentException("Expected Binary, received " + carrier.getClass());
+                if (!(carrier instanceof BinaryInject)) {
+                    throw new IllegalArgumentException("Expected BinaryInject, received " + carrier.getClass());
                 }
 
-                Binary binary = (Binary) carrier;
+                BinaryInject binary = (BinaryInject) carrier;
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 ObjectOutputStream objStream = null;
                 try {
@@ -157,15 +161,15 @@ public class MockTracer implements Tracer {
 
             @Override
             public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
-                if (!(carrier instanceof Binary)) {
-                    throw new IllegalArgumentException("Expected Binary, received " + carrier.getClass());
+                if (!(carrier instanceof BinaryExtract)) {
+                    throw new IllegalArgumentException("Expected BinaryExtract, received " + carrier.getClass());
                 }
 
                 Long traceId = null;
                 Long spanId = null;
                 Map<String, String> baggage = new HashMap<>();
 
-                Binary binary = (Binary) carrier;
+                BinaryExtract binary = (BinaryExtract) carrier;
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 ObjectInputStream objStream = null;
                 try {
@@ -203,8 +207,8 @@ public class MockTracer implements Tracer {
 
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
-                if (carrier instanceof TextMap) {
-                    TextMap textMap = (TextMap) carrier;
+                if (carrier instanceof TextMapInject) {
+                    TextMapInject textMap = (TextMapInject) carrier;
                     for (Map.Entry<String, String> entry : ctx.baggageItems()) {
                         textMap.put(BAGGAGE_KEY_PREFIX + entry.getKey(), entry.getValue());
                     }
@@ -221,8 +225,8 @@ public class MockTracer implements Tracer {
                 Long spanId = null;
                 Map<String, String> baggage = new HashMap<>();
 
-                if (carrier instanceof TextMap) {
-                    TextMap textMap = (TextMap) carrier;
+                if (carrier instanceof TextMapExtract) {
+                    TextMapExtract textMap = (TextMapExtract) carrier;
                     for (Map.Entry<String, String> entry : textMap) {
                         if (TRACE_ID_KEY.equals(entry.getKey())) {
                             traceId = Long.valueOf(entry.getValue());

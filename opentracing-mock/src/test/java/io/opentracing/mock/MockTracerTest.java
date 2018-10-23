@@ -17,6 +17,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
+import io.opentracing.propagation.BinaryExtract;
+import io.opentracing.propagation.BinaryInject;
+import io.opentracing.propagation.TextMapAdapter;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
@@ -156,10 +159,10 @@ public class MockTracerTest {
             parentSpan.setBaggageItem("foobag", "fooitem");
             parentSpan.finish();
 
-            tracer.inject(parentSpan.context(), Format.Builtin.TEXT_MAP,
+            tracer.inject(parentSpan.context(), Format.Builtin.TEXT_MAP_INJECT,
                     new TextMapInjectAdapter(injectMap));
 
-            SpanContext extract = tracer.extract(Format.Builtin.TEXT_MAP, new TextMapExtractAdapter(injectMap));
+            SpanContext extract = tracer.extract(Format.Builtin.TEXT_MAP_EXTRACT, new TextMapExtractAdapter(injectMap));
 
             Span childSpan = tracer.buildSpan("bar")
                     .asChildOf(extract)
@@ -189,9 +192,9 @@ public class MockTracerTest {
 
             HashMap<String, String> injectMap = new HashMap<>();
             tracer.inject(parentSpan.context(), Format.Builtin.HTTP_HEADERS,
-                    new TextMapInjectAdapter(injectMap));
+                    new TextMapAdapter(injectMap));
 
-            SpanContext extract = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(injectMap));
+            SpanContext extract = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(injectMap));
 
             tracer.buildSpan("bar")
                     .asChildOf(extract)
@@ -215,11 +218,11 @@ public class MockTracerTest {
             parentSpan.finish();
 
             ByteBuffer buffer = ByteBuffer.allocate(128);
-            Binary binary = BinaryAdapters.injectionCarrier(buffer);
-            tracer.inject(parentSpan.context(), Format.Builtin.BINARY, binary);
+            BinaryInject binary = BinaryAdapters.injectionCarrier(buffer);
+            tracer.inject(parentSpan.context(), Format.Builtin.BINARY_INJECT, binary);
 
             buffer.rewind();
-            SpanContext extract = tracer.extract(Format.Builtin.BINARY, BinaryAdapters.extractionCarrier(buffer));
+            SpanContext extract = tracer.extract(Format.Builtin.BINARY_EXTRACT, BinaryAdapters.extractionCarrier(buffer));
 
             Span childSpan = tracer.buildSpan("bar")
                     .asChildOf(extract)
@@ -242,8 +245,8 @@ public class MockTracerTest {
     public void testBinaryPropagatorExtractError() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.BINARY);
         {
-            Binary binary = BinaryAdapters.extractionCarrier(ByteBuffer.allocate(4));
-            tracer.extract(Format.Builtin.BINARY, binary);
+            BinaryExtract binary = BinaryAdapters.extractionCarrier(ByteBuffer.allocate(4));
+            tracer.extract(Format.Builtin.BINARY_EXTRACT, binary);
         }
     }
 
@@ -385,7 +388,7 @@ public class MockTracerTest {
         assertEquals(span, mockTracer.scopeManager().activeSpan());
 
         Map<String, String> propag = new HashMap<>();
-        mockTracer.inject(scope.span().context(), Format.Builtin.TEXT_MAP, new TextMapInjectAdapter(propag));
+        mockTracer.inject(scope.span().context(), Format.Builtin.TEXT_MAP, new TextMapAdapter(propag));
         assertFalse(propag.isEmpty());
     }
 

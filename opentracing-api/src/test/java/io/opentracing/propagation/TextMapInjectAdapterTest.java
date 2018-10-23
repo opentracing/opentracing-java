@@ -32,11 +32,4 @@ public class TextMapInjectAdapterTest {
 
         assertEquals("bar", headers.get("foo"));
     }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testIterator() {
-        Map<String, String> headers = new LinkedHashMap<String, String>();
-        TextMapInjectAdapter injectAdapter = new TextMapInjectAdapter(headers);
-        injectAdapter.iterator();
-    }
 }

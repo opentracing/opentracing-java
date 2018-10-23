@@ -53,6 +53,22 @@ public interface Format<C> {
         public final static Format<TextMap> TEXT_MAP = new Builtin<TextMap>("TEXT_MAP");
 
         /**
+         * Like {@link Builtin#TEXT_MAP} but specific for calling {@link Tracer#inject} with.
+         *
+         * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
+         * @see Format
+         */
+        public final static Format<TextMapInject> TEXT_MAP_INJECT = new Builtin<TextMapInject>("TEXT_MAP_INJECT");
+
+        /**
+         * Like {@link Builtin#TEXT_MAP} but specific for calling {@link Tracer#extract} with.
+         *
+         * @see io.opentracing.Tracer#extract(Format, Object)
+         * @see Format
+         */
+        public final static Format<TextMapExtract> TEXT_MAP_EXTRACT = new Builtin<TextMapExtract>("TEXT_MAP_EXTRACT");
+
+        /**
          * The HTTP_HEADERS format allows for HTTP-header-compatible String-&gt;String map encoding of SpanContext state
          * for Tracer.inject and Tracer.extract.
          *
@@ -75,6 +91,22 @@ public interface Format<C> {
          * @see Format
          */
         public final static Format<Binary> BINARY = new Builtin<Binary>("BINARY");
+
+        /**
+         * Like {@link Builtin#BINARY} but specific for calling {@link Tracer#inject} with.
+         *
+         * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
+         * @see Format
+         */
+        public final static Format<BinaryInject> BINARY_INJECT = new Builtin<BinaryInject>("BINARY_INJECT");
+
+        /**
+         * Like {@link Builtin#BINARY} but specific for calling {@link Tracer#extract} with.
+         *
+         * @see io.opentracing.Tracer#extract(Format, Object)
+         * @see Format
+         */
+        public final static Format<BinaryExtract> BINARY_EXTRACT = new Builtin<BinaryExtract>("BINARY_EXTRACT");
 
         /**
          * @return Short name for built-in formats as they tend to show up in exception messages.

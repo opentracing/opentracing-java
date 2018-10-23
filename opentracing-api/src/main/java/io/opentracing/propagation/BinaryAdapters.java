@@ -27,7 +27,7 @@ public final class BinaryAdapters {
      *
      * @return The new {@link Binary} carrier used for extraction.
      */
-    public static Binary extractionCarrier(ByteBuffer buffer) {
+    public static BinaryExtract extractionCarrier(ByteBuffer buffer) {
         if (buffer == null) {
             throw new NullPointerException();
         }
@@ -38,7 +38,7 @@ public final class BinaryAdapters {
     /**
      * Creates an outbound {@link Binary} instance used for injection with the
      * specified ByteBuffer as output. ByteBuffer.limit() will be set to the value
-     * of the requested length at {@link Binary#injectionBuffer()} time, and
+     * of the requested length at {@link BinaryInject#injectionBuffer} time, and
      * AssertionError will be thrown if the requested length is larger than
      * the remaining length of ByteBuffer.
      *
@@ -46,20 +46,15 @@ public final class BinaryAdapters {
      *
      * @return The new Binary carrier used for injection.
      */
-    public static Binary injectionCarrier(ByteBuffer buffer) {
+    public static BinaryInject injectionCarrier(ByteBuffer buffer) {
         return new BinaryInjectAdapter(buffer);
     }
 
-    static class BinaryExtractAdapter implements Binary {
+    static class BinaryExtractAdapter implements BinaryExtract {
         ByteBuffer buffer;
 
         public BinaryExtractAdapter(ByteBuffer buffer) {
             this.buffer = buffer;
-        }
-
-        @Override
-        public ByteBuffer injectionBuffer(int length) {
-            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -68,7 +63,7 @@ public final class BinaryAdapters {
         }
     }
 
-    static class BinaryInjectAdapter implements Binary {
+    static class BinaryInjectAdapter implements BinaryInject {
         ByteBuffer buffer;
 
         public BinaryInjectAdapter(ByteBuffer buffer) {
@@ -86,11 +81,6 @@ public final class BinaryAdapters {
 
             buffer.limit(buffer.position() + length);
             return buffer;
-        }
-
-        @Override
-        public ByteBuffer extractionBuffer() {
-            throw new UnsupportedOperationException();
         }
     }
 }

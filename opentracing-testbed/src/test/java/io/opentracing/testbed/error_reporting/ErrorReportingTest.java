@@ -63,7 +63,7 @@ public class ErrorReportingTest {
     /* Error handling in a callback capturing/activating the Span */
     @Test
     public void testCallbackError() {
-        Span span = tracer.buildSpan("one").start();
+        final Span span = tracer.buildSpan("one").start();
         executor.submit(new Runnable() {
             @Override
             public void run() {
@@ -98,7 +98,7 @@ public class ErrorReportingTest {
             while (res == null && retries++ < maxRetries) {
                 try {
                     throw new RuntimeException("No url could be fetched");
-                } catch (Exception exc) {
+                } catch (final Exception exc) {
                     span.log(new TreeMap<String, Object>() {{
                         put(Fields.EVENT, Tags.ERROR);
                         put(Fields.ERROR_OBJECT, exc);
