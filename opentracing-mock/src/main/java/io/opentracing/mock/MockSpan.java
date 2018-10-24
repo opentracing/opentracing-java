@@ -16,7 +16,9 @@ package io.opentracing.mock;
 import io.opentracing.References;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
-import io.opentracing.tag.AbstractTag;
+import io.opentracing.tag.BooleanTag;
+import io.opentracing.tag.IntTag;
+import io.opentracing.tag.StringTag;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -137,8 +139,18 @@ public final class MockSpan implements Span {
     }
 
     @Override
-    public <T> Span setTag(AbstractTag<T> key, T value) {
-        return setObjectTag(key.getKey(), value);
+    public Span setTag(BooleanTag tag, Boolean value) {
+        return setObjectTag(tag.getKey(), value);
+    }
+
+    @Override
+    public Span setTag(IntTag tag, Integer value) {
+        return setObjectTag(tag.getKey(), value);
+    }
+
+    @Override
+    public Span setTag(StringTag tag, String value) {
+        return setObjectTag(tag.getKey(), value);
     }
 
     private synchronized MockSpan setObjectTag(String key, Object value) {
