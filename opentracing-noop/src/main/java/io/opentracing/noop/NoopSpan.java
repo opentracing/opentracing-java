@@ -15,9 +15,7 @@ package io.opentracing.noop;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
-import io.opentracing.tag.BooleanTag;
-import io.opentracing.tag.IntTag;
-import io.opentracing.tag.StringTag;
+import io.opentracing.tag.Tag;
 
 import java.util.Map;
 
@@ -46,13 +44,7 @@ final class NoopSpanImpl implements NoopSpan {
     public NoopSpan setTag(String key, Number value) { return this; }
 
     @Override
-    public Span setTag(BooleanTag tag, Boolean value) { return this; }
-
-    @Override
-    public Span setTag(IntTag tag, Integer value) { return this; }
-
-    @Override
-    public Span setTag(StringTag tag, String value) { return this; }
+    public <T> NoopSpan setTag(Tag<T> tag, T value) { return this; }
 
     @Override
     public NoopSpan log(Map<String, ?> fields) { return this; }

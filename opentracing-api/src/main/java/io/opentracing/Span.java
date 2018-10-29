@@ -13,9 +13,7 @@
  */
 package io.opentracing;
 
-import io.opentracing.tag.BooleanTag;
-import io.opentracing.tag.IntTag;
-import io.opentracing.tag.StringTag;
+import io.opentracing.tag.Tag;
 import java.util.Map;
 
 /**
@@ -47,14 +45,8 @@ public interface Span {
     /** Same as {@link #setTag(String, String)}, but for numeric values. */
     Span setTag(String key, Number value);
 
-    /** Same as {@link #setTag(String, String)}, but using BooleanTag.*/
-    Span setTag(BooleanTag tag, Boolean value);
-
-    /** Same as {@link #setTag(String, String)}, but using IntTag. */
-    Span setTag(IntTag tag, Integer value);
-
-    /** Same as {@link #setTag(String, String)}, but using StringTag. */
-    Span setTag(StringTag tag, String value);
+    /** Same as {@link #setTag(String, String)}, but with using Tag<T>. */
+    <T> Span setTag(Tag<T> tag, T value);
 
     /**
      * Log key:value pairs to the Span with the current walltime timestamp.
