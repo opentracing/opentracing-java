@@ -40,7 +40,8 @@ public interface ScopeManager {
      * This {@link Scope} instance can be accessed at any time through {@link #active()},
      * in case it is not possible for the user to store it (when used through middleware
      * or start/finish event hooks, for example). The corresponding {@link Span} can be
-     * accessed through {@link #activeSpan()} likewise.
+     * accessed through {@link #activeSpan()} likewise. You can also get ahold of the
+     * active {@link Span}'s {@link SpanContext} via {@link #activeSpanContext()}.
      *
      * <p>
      * Usage:
@@ -58,11 +59,42 @@ public interface ScopeManager {
      *     }
      * </code></pre>
      *
+     * <p>
+     * Note: You may only activate spans when you own its life cycle.
+     * That means you must make sure that no other thread calls {@link Span#finish()}
+     * while the scope is still active.
+     * If you can't guarantee that, use {@link #activate(SpanContext)} instead.
+     *
      * @param span the {@link Span} that should become the {@link #activeSpan()}
      * @return a {@link Scope} instance to control the end of the active period for the {@link Span}. It is a
      * programming error to neglect to call {@link Scope#close()} on the returned instance.
      */
     Scope activate(Span span);
+
+    /**
+     * Similar to {@link #activate(Span)} but used in cases where the thread in which the
+     * activation is performed does not have control over the life cycle of the span.
+     *
+     * <p>
+     * One example of that is when performing an activation in the {@link Runnable#run()}
+     * method of a traced {@link Runnable} wrapper which is executed by an
+     * {@link java.util.concurrent.ExecutorService}.
+     *
+     * <p>
+     * This {@link Scope} instance can be accessed at any time through {@link #active()},
+     * in case it is not possible for the user to store it (when used through middleware
+     * or start/finish event hooks, for example). The corresponding {@link SpanContext} can be
+     * accessed through {@link #activeSpanContext()} likewise.
+     * In contrast to {@link #activate(Span)}, {@link #activeSpan()} will return {@code null}.
+     * This prevents users of the {@link #activeSpan()} API to accidentally interacting with
+     * already {@linkplain Span#finish() finished} spans.
+     *
+     * @param spanContext the {@link SpanContext} that should become the {@link #activeSpanContext()}
+     * @see #activate(Span)
+     * @return a {@link Scope} instance to control the end of the active period for the {@link Span}. It is a
+     * programming error to neglect to call {@link Scope#close()} on the returned instance.
+     */
+    Scope activate(SpanContext spanContext);
 
     /**
      * Return the currently active {@link Scope} which can be used to deactivate the currently active
@@ -84,12 +116,24 @@ public interface ScopeManager {
      * Return the currently active {@link Span}.
      *
      * <p>
-     * Because both {@link #active()} and {@link #activeSpan()} reference the current
-     * active state, they both will be either null or non-null.
+     * Note that {@link #activeSpan()} can return {@code null} while {@link #active()} is non-null
+     * in case of a {@linkplain #activate(SpanContext) span context activation}.
      *
      * @return the {@link Span active span}, or null if none could be found.
      */
     Span activeSpan();
+
+    /**
+     * Return the currently active {@link SpanContext}, which was activated by activating either
+     * a {@link #activate(Span) Span} or a {@link #activate(SpanContext) SpanContext}.
+     *
+     * <p>
+     * Because both {@link #active()} and {@link #activeSpanContext()} reference the current
+     * active state, they both will be either null or non-null.
+     *
+     * @return the {@link SpanContext active span context}, or null if none could be found.
+     */
+    SpanContext activeSpanContext();
 
     /**
      * @deprecated use {@link #activate(Span)} instead.

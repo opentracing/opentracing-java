@@ -37,7 +37,17 @@ final class NoopTracerImpl implements NoopTracer {
     }
 
     @Override
+    public SpanContext activeSpanContext() {
+        return NoopSpanContextImpl.INSTANCE;
+    }
+
+    @Override
     public Scope activateSpan(Span span) {
+        return NoopScopeManager.NoopScope.INSTANCE;
+    }
+
+    @Override
+    public Scope activateSpanContext(SpanContext spanContext) {
         return NoopScopeManager.NoopScope.INSTANCE;
     }
 

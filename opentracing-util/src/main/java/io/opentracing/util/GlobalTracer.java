@@ -180,8 +180,18 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
+    public SpanContext activeSpanContext() {
+        return tracer.activeSpanContext();
+    }
+
+    @Override
     public Scope activateSpan(Span span) {
         return tracer.activateSpan(span);
+    }
+
+    @Override
+    public Scope activateSpanContext(SpanContext spanContext) {
+        return tracer.activateSpanContext(spanContext);
     }
 
     @Override

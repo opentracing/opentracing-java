@@ -30,7 +30,6 @@ import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopScopeManager;
 import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
@@ -277,18 +276,19 @@ public class MockTracer implements Tracer {
         return this.scopeManager.activate(span);
     }
 
+    @Override
+    public Scope activateSpanContext(SpanContext spanContext) {
+        return this.scopeManager.activate(spanContext);
+    }
+
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
         this.finishedSpans.add(mockSpan);
         this.onSpanFinished(mockSpan);
     }
 
-    private SpanContext activeSpanContext() {
-        Span span = activeSpan();
-        if (span == null) {
-            return null;
-        }
-
-        return span.context();
+    @Override
+    public SpanContext activeSpanContext() {
+        return scopeManager.activeSpanContext();
     }
 
     public final class SpanBuilder implements Tracer.SpanBuilder {
