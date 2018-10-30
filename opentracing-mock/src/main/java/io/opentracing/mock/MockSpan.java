@@ -138,7 +138,8 @@ public final class MockSpan implements Span {
 
     @Override
     public <T> MockSpan setTag(Tag<T> tag, T value) {
-        return setObjectTag(tag.getKey(), value);
+        tag.set(this, value);
+        return this;
     }
 
     private synchronized MockSpan setObjectTag(String key, Object value) {
