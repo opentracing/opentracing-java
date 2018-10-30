@@ -27,5 +27,6 @@ public abstract class AbstractTag<T> implements Tag<T> {
         return key;
     }
 
-    protected abstract void set(Span span, T tagValue);
+    @Override
+    public abstract void set(Span span, T tagValue);
 }
