@@ -135,8 +135,8 @@ public final class GlobalTracer implements Tracer {
      * Register a {@link Tracer} to back the behaviour of the {@link #get()}.
      * <p>
      * Registration is a one-time operation. Once a tracer has been registered, all attempts at re-registering
-     * will return {@code false}. Use {@link #registerIfAbsent(Callable)} for use cases when the tracer
-     * can be instantiated multiple times.
+     * will return {@code false}. Use {@link #registerIfAbsent(Callable)} for lazy initiation to avoid multiple
+     * instantiations of tracer.
      * <p>
      * Every application intending to use the global tracer is responsible for registering it once
      * during its initialization.
