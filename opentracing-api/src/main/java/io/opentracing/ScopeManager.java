@@ -81,6 +81,13 @@ public interface ScopeManager {
      * {@link java.util.concurrent.ExecutorService}.
      *
      * <p>
+     * The returned {@link Scope} represents the active state for the span.
+     * Once its active period is due, {@link Scope#close()} ought to be called.
+     * To ease this operation, {@link Scope} supports try-with-resources.
+     * Observe the span will not be automatically finished when {@link Scope#close()}
+     * is called.
+     *
+     * <p>
      * This {@link Scope} instance can be accessed at any time through {@link #active()},
      * in case it is not possible for the user to store it (when used through middleware
      * or start/finish event hooks, for example). The corresponding {@link SpanContext} can be
@@ -88,6 +95,21 @@ public interface ScopeManager {
      * In contrast to {@link #activate(Span)}, {@link #activeSpan()} will return {@code null}.
      * This prevents users of the {@link #activeSpan()} API to accidentally interacting with
      * already {@linkplain Span#finish() finished} spans.
+     *
+     * Usage:
+     * <pre><code>
+     *     Span span = tracer.buildSpan("...").start();
+     *     try (Scope scope = tracer.scopeManager().activate(span.context())) {
+     *         span.setTag("...", "...");
+     *         ...
+     *     } catch (Exception e) {
+     *         span.log(...);
+     *     } finally {
+     *         // Optionally finish the Span if the operation it represents
+     *         // is logically completed at this point.
+     *         span.finish();
+     *     }
+     * </code></pre>
      *
      * @param spanContext the {@link SpanContext} that should become the {@link #activeSpanContext()}
      * @see #activate(Span)
