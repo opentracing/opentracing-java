@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
+import io.opentracing.noop.NoopScope;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,7 +65,7 @@ public class ThreadLocalScopeTest {
 
         // And now nothing is active.
         Scope missingSpan = scopeManager.active();
-        assertNull(missingSpan);
+        assertEquals(NoopScope.INSTANCE, missingSpan);
     }
 
     @Test

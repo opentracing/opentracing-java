@@ -15,6 +15,8 @@ package io.opentracing.util;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
+import io.opentracing.noop.NoopScope;
+import io.opentracing.noop.NoopSpan;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,13 +37,13 @@ public class ThreadLocalScopeManagerTest {
     @Test
     public void missingActiveScope() throws Exception {
         Scope missingScope = source.active();
-        assertNull(missingScope);
+        assertEquals(NoopScope.INSTANCE, missingScope);
     }
 
     @Test
     public void missingActiveSpan() throws Exception {
         Span missingSpan = source.activeSpan();
-        assertNull(missingSpan);
+        assertEquals(NoopSpan.INSTANCE, missingSpan);
     }
 
     @Test
@@ -65,10 +67,10 @@ public class ThreadLocalScopeManagerTest {
 
         // And now Scope/Span are gone:
         Scope missingScope = source.active();
-        assertNull(missingScope);
+        assertEquals(NoopScope.INSTANCE, missingScope);
 
         Span missingSpan = source.activeSpan();
-        assertNull(missingSpan);
+        assertEquals(NoopSpan.INSTANCE, missingSpan);
     }
 
     @Test
@@ -89,8 +91,8 @@ public class ThreadLocalScopeManagerTest {
         verify(span, times(1)).finish();
 
         // Verify Scope/Span are gone.
-        assertNull(source.active());
-        assertNull(source.activeSpan());
+        assertEquals(NoopScope.INSTANCE, source.active());
+        assertEquals(NoopSpan.INSTANCE, source.activeSpan());
     }
 
     @Test
@@ -111,7 +113,7 @@ public class ThreadLocalScopeManagerTest {
         verify(span, never()).finish();
 
         // Verify Scope/Span are gone.
-        assertNull(source.active());
-        assertNull(source.activeSpan());
+        assertEquals(NoopScope.INSTANCE, source.active());
+        assertEquals(NoopSpan.INSTANCE, source.activeSpan());
     }
 }

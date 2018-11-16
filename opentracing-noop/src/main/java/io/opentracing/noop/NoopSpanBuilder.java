@@ -70,7 +70,7 @@ final class NoopSpanBuilderImpl implements NoopSpanBuilder {
 
     @Override
     public Scope startActive(boolean finishOnClose) {
-        return NoopScopeManager.NoopScope.INSTANCE;
+        return NoopScope.INSTANCE;
     }
 
     @Override

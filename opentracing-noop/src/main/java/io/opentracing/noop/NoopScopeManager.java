@@ -19,10 +19,6 @@ import io.opentracing.Span;
 
 public interface NoopScopeManager extends ScopeManager {
     NoopScopeManager INSTANCE = new NoopScopeManagerImpl();
-
-    interface NoopScope extends Scope {
-        NoopScope INSTANCE = new NoopScopeManagerImpl.NoopScopeImpl();
-    }
 }
 
 /**
@@ -47,15 +43,5 @@ class NoopScopeManagerImpl implements NoopScopeManager {
     @Override
     public Span activeSpan() {
         return NoopSpan.INSTANCE;
-    }
-
-    static class NoopScopeImpl implements NoopScopeManager.NoopScope {
-        @Override
-        public void close() {}
-
-        @Override
-        public Span span() {
-            return NoopSpan.INSTANCE;
-        }
     }
 }

@@ -30,6 +30,7 @@ import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.noop.NoopSpan;
 import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.BinaryAdapters;
 import io.opentracing.propagation.Format;
@@ -250,21 +251,21 @@ public class MockTracerTest {
     @Test
     public void testActiveSpan() {
         MockTracer mockTracer = new MockTracer();
-        Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertEquals(NoopSpan.INSTANCE, mockTracer.activeSpan());
 
         Span span = mockTracer.buildSpan("foo").start();
         try (Scope scope = mockTracer.activateSpan(span)) {
             Assert.assertEquals(mockTracer.scopeManager().activeSpan(), mockTracer.activeSpan());
         }
 
-        Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertEquals(NoopSpan.INSTANCE, mockTracer.activeSpan());
         Assert.assertTrue(mockTracer.finishedSpans().isEmpty());
     }
 
     @Test
     public void testActiveSpanFinish() {
         MockTracer mockTracer = new MockTracer();
-        Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertEquals(NoopSpan.INSTANCE, mockTracer.activeSpan());
 
         Scope scope = null;
         try {
@@ -274,7 +275,7 @@ public class MockTracerTest {
             scope.close();
         }
 
-        Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertEquals(NoopSpan.INSTANCE, mockTracer.activeSpan());
         Assert.assertFalse(mockTracer.finishedSpans().isEmpty());
     }
 

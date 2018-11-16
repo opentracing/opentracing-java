@@ -30,7 +30,7 @@ import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopScopeManager;
+import io.opentracing.noop.NoopSpanContext;
 import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
@@ -268,8 +268,7 @@ public class MockTracer implements Tracer {
 
     @Override
     public Span activeSpan() {
-        Scope scope = this.scopeManager.active();
-        return scope == null ? null : scope.span();
+        return this.scopeManager.active().span();
     }
 
     @Override
@@ -304,6 +303,9 @@ public class MockTracer implements Tracer {
 
         @Override
         public SpanBuilder asChildOf(SpanContext parent) {
+            if (parent == NoopSpanContext.INSTANCE) {
+                return  this;
+            }
             return addReference(References.CHILD_OF, parent);
         }
 
@@ -375,7 +377,7 @@ public class MockTracer implements Tracer {
                 this.startMicros = MockSpan.nowMicros();
             }
             SpanContext activeSpanContext = activeSpanContext();
-            if(references.isEmpty() && !ignoringActiveSpan && activeSpanContext != null) {
+            if(references.isEmpty() && !ignoringActiveSpan && activeSpanContext != NoopSpanContext.INSTANCE) {
                 references.add(new MockSpan.Reference((MockSpan.MockContext) activeSpanContext, References.CHILD_OF));
             }
             return new MockSpan(MockTracer.this, operationName, startMicros, initialTags, references);

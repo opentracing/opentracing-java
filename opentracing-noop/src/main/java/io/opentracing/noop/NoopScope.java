@@ -13,34 +13,19 @@
  */
 package io.opentracing.noop;
 
-import io.opentracing.SpanContext;
+import io.opentracing.Scope;
+import io.opentracing.Span;
 
-import java.util.Collections;
-import java.util.Map;
-
-
-public interface NoopSpanContext extends SpanContext {
-    static final NoopSpanContextImpl INSTANCE = new NoopSpanContextImpl();
+public interface NoopScope extends Scope {
+    NoopScope INSTANCE = new NoopScopeImpl();
 }
 
-final class NoopSpanContextImpl implements NoopSpanContext {
+class NoopScopeImpl implements NoopScope {
+    @Override
+    public void close() {}
 
     @Override
-    public String toTraceId() {
-        return "";
+    public Span span() {
+        return NoopSpan.INSTANCE;
     }
-
-    @Override
-    public String toSpanId() {
-        return "";
-    }
-
-    @Override
-    public Iterable<Map.Entry<String, String>> baggageItems() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String toString() { return NoopSpanContext.class.getSimpleName(); }
-
 }

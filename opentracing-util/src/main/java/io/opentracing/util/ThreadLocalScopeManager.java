@@ -16,6 +16,8 @@ package io.opentracing.util;
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
+import io.opentracing.noop.NoopScope;
+import io.opentracing.noop.NoopSpan;
 
 /**
  * A simple {@link ScopeManager} implementation built on top of Java's thread-local storage primitive.
@@ -37,12 +39,12 @@ public class ThreadLocalScopeManager implements ScopeManager {
 
     @Override
     public Scope active() {
-        return tlsScope.get();
+        Scope scope = tlsScope.get();
+        return scope == null ? NoopScope.INSTANCE : scope;
     }
 
     @Override
     public Span activeSpan() {
-        Scope scope = tlsScope.get();
-        return scope == null ? null : scope.span();
+        return active().span();
     }
 }
