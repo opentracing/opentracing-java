@@ -97,17 +97,6 @@ public final class GlobalTracer implements Tracer {
     public static synchronized boolean isRegistered() { return isRegistered; }
 
     /**
-     * Resets the registered {@link Tracer} to an instance of {@link NoopTracer}.
-     * <p>
-     * This is intended for internal use only.
-     */
-    static synchronized void resetTracer()
-    {
-        GlobalTracer.tracer = NoopTracerFactory.create();
-        isRegistered = false;
-    }
-
-    /**
      * Register a {@link Tracer} to back the behaviour of the {@link #get() global tracer}.
      * <p>
      * The tracer is provided through a {@linkplain Callable} that will only be called if the global tracer is absent.

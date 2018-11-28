@@ -48,7 +48,7 @@ public class GlobalTracerTest {
     @Before
     @After
     public void clearGlobalTracer() {
-        GlobalTracer.resetTracer();
+        GlobalTracerTestUtil.resetGlobalTracer();
     }
 
     @Test
