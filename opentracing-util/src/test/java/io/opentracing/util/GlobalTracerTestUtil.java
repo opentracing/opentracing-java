@@ -71,7 +71,7 @@ public class GlobalTracerTestUtil {
 
             Field isRegisteredField = GlobalTracer.class.getDeclaredField("isRegistered");
             isRegisteredField.setAccessible(true);
-            isRegisteredField.set(null, false);
+            isRegisteredField.set(null, true);
             isRegisteredField.setAccessible(false);
         } catch (Exception e) {
             throw new IllegalStateException("Error reflecting GlobalTracer.tracer: " + e.getMessage(), e);
