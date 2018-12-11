@@ -16,6 +16,7 @@ package io.opentracing.util;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopSpanBuilder;
+import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.propagation.Format;
 import java.util.Arrays;
 import java.util.Collection;
@@ -179,6 +180,14 @@ public class GlobalTracerTest {
     public void testNoopTracerByDefault() {
         Tracer.SpanBuilder spanBuilder = GlobalTracer.get().buildSpan("my-operation");
         assertThat(spanBuilder, is(instanceOf(NoopSpanBuilder.class)));
+    }
+
+    @Test
+    public void Registering_NoopTracer_indicates_tracer_has_been_registered()
+    {
+        assertThat(GlobalTracer.isRegistered(), is(false));
+        GlobalTracer.registerIfAbsent(provide(NoopTracerFactory.create()));
+        assertThat(GlobalTracer.isRegistered(), is(true));
     }
 
     @Test

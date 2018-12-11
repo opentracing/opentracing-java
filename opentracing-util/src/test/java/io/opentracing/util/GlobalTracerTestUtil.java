@@ -46,6 +46,15 @@ public class GlobalTracerTestUtil {
      */
     public static void resetGlobalTracer() {
         setGlobalTracerUnconditionally(NoopTracerFactory.create());
+
+        try {
+            Field isRegisteredField = GlobalTracer.class.getDeclaredField("isRegistered");
+            isRegisteredField.setAccessible(true);
+            isRegisteredField.set(null, false);
+            isRegisteredField.setAccessible(false);
+        } catch (Exception e) {
+            throw new IllegalStateException("Error reflecting GlobalTracer.tracer: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -59,6 +68,11 @@ public class GlobalTracerTestUtil {
             globalTracerField.setAccessible(true);
             globalTracerField.set(null, tracer);
             globalTracerField.setAccessible(false);
+
+            Field isRegisteredField = GlobalTracer.class.getDeclaredField("isRegistered");
+            isRegisteredField.setAccessible(true);
+            isRegisteredField.set(null, true);
+            isRegisteredField.setAccessible(false);
         } catch (Exception e) {
             throw new IllegalStateException("Error reflecting GlobalTracer.tracer: " + e.getMessage(), e);
         }

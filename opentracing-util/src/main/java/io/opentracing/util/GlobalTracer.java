@@ -66,6 +66,8 @@ public final class GlobalTracer implements Tracer {
      */
     private static volatile Tracer tracer = NoopTracerFactory.create();
 
+    private static volatile boolean isRegistered = false;
+
     private GlobalTracer() {
     }
 
@@ -93,9 +95,7 @@ public final class GlobalTracer implements Tracer {
      *
      * @return Whether a tracer has been registered
      */
-    public static synchronized boolean isRegistered() {
-        return !(GlobalTracer.tracer instanceof NoopTracer);
-    }
+    public static synchronized boolean isRegistered() { return isRegistered; }
 
     /**
      * Register a {@link Tracer} to back the behaviour of the {@link #get()}.
@@ -121,6 +121,7 @@ public final class GlobalTracer implements Tracer {
                 final Tracer suppliedTracer = requireNonNull(provider.call(), "Cannot register GlobalTracer <null>.");
                 if (!(suppliedTracer instanceof GlobalTracer)) {
                     GlobalTracer.tracer = suppliedTracer;
+                    isRegistered = true;
                     return true;
                 }
             } catch (RuntimeException rte) {
