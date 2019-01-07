@@ -25,7 +25,7 @@ public class BinaryAdaptersTest {
     @Test
     public void testExtractBinary() {
         ByteBuffer buff = ByteBuffer.wrap(new byte[0]);
-        Binary binary = BinaryAdapters.extractionCarrier(buff);
+        BinaryExtract binary = BinaryAdapters.extractionCarrier(buff);
         assertEquals(buff, binary.extractionBuffer());
     }
 
@@ -34,35 +34,23 @@ public class BinaryAdaptersTest {
         BinaryAdapters.extractionCarrier(null);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testExtractBinaryInjectBuffer() {
-        Binary binary = BinaryAdapters.extractionCarrier(ByteBuffer.allocate(1));
-        binary.injectionBuffer(1);
-    }
-
     @Test
     public void testInjectBinary() {
         ByteBuffer buffer = ByteBuffer.allocate(1);
-        Binary binary = BinaryAdapters.injectionCarrier(buffer);
+        BinaryInject binary = BinaryAdapters.injectionCarrier(buffer);
         assertEquals(buffer, binary.injectionBuffer(1));
         assertEquals(0, buffer.position());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInjectBinaryInvalidLength() {
-        Binary binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
+        BinaryInject binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
         binary.injectionBuffer(0);
     }
 
     @Test(expected = AssertionError.class)
     public void testInjectBinaryLargerLength() {
-        Binary binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
+        BinaryInject binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
         binary.injectionBuffer(2);
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testInjectBinaryExtractBuffer() {
-        Binary binary = BinaryAdapters.injectionCarrier(ByteBuffer.allocate(1));
-        binary.extractionBuffer();
     }
 }

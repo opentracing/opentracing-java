@@ -14,23 +14,28 @@
 package io.opentracing.propagation;
 
 import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
 import java.nio.ByteBuffer;
 
 /**
- * Binary is an interface defining the required operations for a binary carrier for
- * Tracer.inject() and Tracer.extract(). Binary can be defined either as inbound (extraction)
- * or outbound (injection).
+ * {@link BinaryExtract} is an interface defining the required operations for a binary carrier for
+ * {@link Tracer#extract} only. {@link BinaryExtract} is defined as inbound (extraction).
  *
- * When Binary is defined as inbound, extractionBuffer() will be called to retrieve the ByteBuffer
- * containing the data used for SpanContext extraction.
- *
- * When Binary is defined as outbound, setInjectBufferLength() will be called in order to hint
- * the required buffer length to inject the SpanContext, and injectionBuffer() will be called
- * afterwards to retrieve the actual ByteBuffer used for the SpanContext injection.
+ * When called with {@link Tracer#extract}, {@link #extractionBuffer} will be called to retrieve the {@link ByteBuffer}
+ * containing the data used for {@link SpanContext} extraction.
  *
  * @see Format.Builtin#BINARY
- * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
  * @see io.opentracing.Tracer#extract(Format, Object)
  */
-public interface Binary extends BinaryInject, BinaryExtract {
+public interface BinaryExtract {
+
+    /**
+     * Gets the buffer containing the data used for {@link SpanContext} extraction.
+     *
+     * It is an error to call this method when Binary is used
+     * for {@link SpanContext} injection.
+     *
+     * @return The buffer used for {@link SpanContext} extraction.
+     */
+    ByteBuffer extractionBuffer();
 }

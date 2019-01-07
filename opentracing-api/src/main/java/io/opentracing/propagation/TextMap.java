@@ -25,28 +25,5 @@ import java.util.Map;
  * @see io.opentracing.Tracer#inject(SpanContext, Format, Object)
  * @see io.opentracing.Tracer#extract(Format, Object)
  */
-public interface TextMap extends Iterable<Map.Entry<String, String>> {
-    /**
-     * Gets an iterator over arbitrary key:value pairs from the TextMapReader.
-     *
-     * @return entries in the TextMap backing store; note that for some Formats, the iterator may include entries that
-     * were never injected by a Tracer implementation (e.g., unrelated HTTP headers)
-     *
-     * @see io.opentracing.Tracer#extract(Format, Object)
-     * @see Format.Builtin#TEXT_MAP
-     * @see Format.Builtin#HTTP_HEADERS
-     */
-    Iterator<Map.Entry<String,String>> iterator();
-
-    /**
-     * Puts a key:value pair into the TextMapWriter's backing store.
-     *
-     * @param key a String, possibly with constraints dictated by the particular Format this TextMap is paired with
-     * @param value a String, possibly with constraints dictated by the particular Format this TextMap is paired with
-     *
-     * @see io.opentracing.Tracer#inject(io.opentracing.SpanContext, Format, Object)
-     * @see Format.Builtin#TEXT_MAP
-     * @see Format.Builtin#HTTP_HEADERS
-     */
-    void put(String key, String value);
+public interface TextMap extends TextMapInject, TextMapExtract {
 }

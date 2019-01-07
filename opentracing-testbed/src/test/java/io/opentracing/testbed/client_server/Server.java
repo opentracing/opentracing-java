@@ -34,7 +34,7 @@ public class Server extends Thread {
     }
 
     private void process(Message message) {
-        SpanContext context = tracer.extract(Builtin.TEXT_MAP, new TextMapExtractAdapter(message));
+        SpanContext context = tracer.extract(Builtin.TEXT_MAP_EXTRACT, new TextMapExtractAdapter(message));
         Span span = tracer.buildSpan("receive")
           .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_SERVER)
           .withTag(Tags.COMPONENT.getKey(), "example-server")

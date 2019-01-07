@@ -13,28 +13,23 @@
  */
 package io.opentracing.propagation;
 
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import java.util.Iterator;
-
 import java.util.Map;
 
 /**
- * A TextMap carrier for use with Tracer.extract() ONLY (it has no mutating methods).
+ * A {@link TextMap} carrier for use with {@link Tracer#inject} and {@link Tracer#extract}.
  *
- * Note that the TextMap interface can be made to wrap around arbitrary data types (not just Map&lt;String, String&gt;
- * as illustrated here).
- *
+ * @see Tracer#inject(SpanContext, Format, Object)
  * @see Tracer#extract(Format, Object)
  */
-public class TextMapExtractAdapter implements TextMapExtract {
-    protected final Map<String,String> map;
-
-    public TextMapExtractAdapter(final Map<String,String> map) {
-        this.map = map;
+public class TextMapAdapter extends TextMapExtractAdapter implements TextMap {
+    public TextMapAdapter(Map<String, String> map) {
+        super(map);
     }
 
     @Override
-    public Iterator<Map.Entry<String, String>> iterator() {
-        return map.entrySet().iterator();
+    public void put(String key, String value) {
+        map.put(key, value);
     }
 }

@@ -40,7 +40,7 @@ public class Client {
             .withTag(Tags.COMPONENT.getKey(), "example-client")
             .start();
         try (Scope scope = tracer.activateSpan(span)) {
-            tracer.inject(span.context(), Builtin.TEXT_MAP, new TextMapInjectAdapter(message));
+            tracer.inject(span.context(), Builtin.TEXT_MAP_INJECT, new TextMapInjectAdapter(message));
             queue.put(message);
         } finally {
             span.finish();
