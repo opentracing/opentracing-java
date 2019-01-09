@@ -44,6 +44,6 @@ public class ListenerTest {
         List<MockSpan> finished = tracer.finishedSpans();
         assertEquals(1, finished.size());
         assertNotNull(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CLIENT));
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 }

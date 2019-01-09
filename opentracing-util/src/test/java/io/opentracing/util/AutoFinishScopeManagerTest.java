@@ -37,6 +37,12 @@ public class AutoFinishScopeManagerTest {
     }
 
     @Test
+    public void missingCapturedScope() throws Exception {
+        AutoFinishScope.Continuation missingContinuation = source.captureScope();
+        assertNull(missingContinuation);
+    }
+
+    @Test
     public void activateSpan() throws Exception {
         Span span = mock(Span.class);
 
@@ -56,5 +62,37 @@ public class AutoFinishScopeManagerTest {
         // And now it's gone:
         Scope missingSpan = source.active();
         assertNull(missingSpan);
+    }
+
+    @Test
+    public void captureScope() throws Exception {
+        Span span = mock(Span.class);
+
+        // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
+        Scope active = source.activate(span);
+        AutoFinishScope.Continuation cont = source.captureScope();
+        try {
+            assertNotNull(active);
+            assertNotNull(cont);
+        } finally {
+            active.close();
+        }
+
+        verify(span, never()).finish();
+        assertNull(source.activeSpan());
+        assertNull(source.captureScope());
+
+        active = cont.activate();
+        try {
+            assertNotNull(active);
+            assertNotNull(source.activeSpan());
+        } finally {
+            active.close();
+        }
+
+        // Finally finished.
+        verify(span).finish();
+        assertNull(source.activeSpan());
+        assertNull(source.captureScope());
     }
 }

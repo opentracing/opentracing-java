@@ -68,7 +68,7 @@ public class HandlerTest {
         assertEquals(0, finished.get(0).parentId());
         assertEquals(0, finished.get(1).parentId());
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 
     /**

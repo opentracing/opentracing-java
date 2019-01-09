@@ -143,12 +143,12 @@ public interface Tracer {
          * <p>
          * If
          * <ul>
-         * <li>the {@link Tracer}'s {@link ScopeManager#active()} is not null, and
+         * <li>the {@link Tracer}'s {@link ScopeManager#activeSpan()} is not null, and
          * <li>no <b>explicit</b> references are added via {@link SpanBuilder#addReference}, and
          * <li>{@link SpanBuilder#ignoreActiveSpan()} is not invoked,
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
-         * {@link ScopeManager#active()} {@link SpanContext} when either {@link SpanBuilder#startActive(boolean)} or
+         * {@link ScopeManager#activeSpan()} {@link SpanContext} when either {@link SpanBuilder#startActive(boolean)} or
          * {@link SpanBuilder#start} is invoked.
          *
          * @param referenceType the reference type, typically one of the constants defined in References
@@ -161,7 +161,7 @@ public interface Tracer {
         SpanBuilder addReference(String referenceType, SpanContext referencedContext);
 
         /**
-         * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#active()}).
+         * Do not create an implicit {@link References#CHILD_OF} reference to the {@link ScopeManager#activeSpan()}).
          */
         SpanBuilder ignoreActiveSpan();
 

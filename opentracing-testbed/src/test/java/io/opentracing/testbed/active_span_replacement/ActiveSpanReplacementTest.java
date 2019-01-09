@@ -66,7 +66,7 @@ public class ActiveSpanReplacementTest {
         assertNotEquals(spans.get(0).context().traceId(), spans.get(1).context().traceId());
         assertEquals(0, spans.get(0).parentId());
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 
     private void submitAnotherTask(final Span initialSpan) {

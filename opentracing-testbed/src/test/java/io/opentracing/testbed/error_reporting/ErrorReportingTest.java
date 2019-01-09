@@ -52,7 +52,6 @@ public class ErrorReportingTest {
             span.finish();
         }
 
-        assertNull(tracer.scopeManager().active());
         assertNull(tracer.scopeManager().activeSpan());
 
         List<MockSpan> spans = tracer.finishedSpans();
@@ -112,7 +111,6 @@ public class ErrorReportingTest {
         }
         span.finish();
 
-        assertNull(tracer.scopeManager().active());
         assertNull(tracer.scopeManager().activeSpan());
 
         List<MockSpan> spans = tracer.finishedSpans();

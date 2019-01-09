@@ -58,6 +58,6 @@ public class MultipleCallbacksTest {
             assertEquals(parentSpan.context().spanId(), spans.get(i).parentId());
         }
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 }

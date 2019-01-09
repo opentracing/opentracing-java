@@ -35,9 +35,9 @@ Access to the active span is straightforward:
 ```java
 io.opentracing.Tracer tracer = ...;
 ...
-Scope scope = tracer.scopeManager().active();
-if (scope != null) {
-    scope.span().log("...");
+Span span = tracer.scopeManager().activeSpan();
+if (span != null) {
+    span.log("...");
 }
 ```
 

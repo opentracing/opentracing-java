@@ -6,8 +6,7 @@ This example shows a `Span` created for a top-level operation, covering a set of
 
 ```java
 // Client.send()
-Scope scope = tracer.scopeManager().active();
-final Continuation cont = ((AutoFinishScope)scope).capture();
+final Continuation cont = ((AutoFinishScopeManager)tracer.scopeManager()).captureScope();
 
 return executor.submit(new Callable<Object>() {
     @Override

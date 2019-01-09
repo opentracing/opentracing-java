@@ -84,7 +84,7 @@ public class ActorPropagationTest {
           .isEqualTo(finished.get(1).context().traceId());
       assertThat(getByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).hasSize(2);
       assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_PRODUCER)).isNotNull();
-      assertThat(tracer.scopeManager().active()).isNull();
+      assertThat(tracer.scopeManager().activeSpan()).isNull();
     }
   }
 
@@ -126,7 +126,7 @@ public class ActorPropagationTest {
           .isEqualTo(finished.get(1).context().traceId());
       assertThat(getByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CONSUMER)).hasSize(2);
       assertThat(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_PRODUCER)).isNotNull();
-      assertThat(tracer.scopeManager().active()).isNull();
+      assertThat(tracer.scopeManager().activeSpan()).isNull();
     }
   }
 }
