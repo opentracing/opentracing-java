@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.testbed.common_request_handler;
+package io.opentracing.testbed.concurrent_common_request_handler;
 
 import io.opentracing.testbed.TestUtils;
 import org.slf4j.Logger;
