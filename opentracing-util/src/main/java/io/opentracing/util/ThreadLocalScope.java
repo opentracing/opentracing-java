@@ -16,6 +16,7 @@ package io.opentracing.util;
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 
 /**
  * {@link ThreadLocalScope} is a simple {@link Scope} implementation that relies on Java's
@@ -28,16 +29,26 @@ public class ThreadLocalScope implements Scope {
     private final Span wrapped;
     private final boolean finishOnClose;
     private final ThreadLocalScope toRestore;
+    private final SpanContext spanContext;
 
     ThreadLocalScope(ThreadLocalScopeManager scopeManager, Span wrapped) {
-        this(scopeManager, wrapped, false);
+        this(scopeManager, wrapped, null, false);
+    }
+
+    ThreadLocalScope(ThreadLocalScopeManager scopeManager, SpanContext spanContext) {
+        this(scopeManager, null, spanContext, false);
     }
 
     ThreadLocalScope(ThreadLocalScopeManager scopeManager, Span wrapped, boolean finishOnClose) {
+        this(scopeManager, wrapped, null, finishOnClose);
+    }
+
+    private ThreadLocalScope(ThreadLocalScopeManager scopeManager, Span wrapped, SpanContext spanContext, boolean finishOnClose) {
         this.scopeManager = scopeManager;
         this.wrapped = wrapped;
         this.finishOnClose = finishOnClose;
         this.toRestore = scopeManager.tlsScope.get();
+        this.spanContext = spanContext;
         scopeManager.tlsScope.set(this);
     }
 
@@ -58,5 +69,9 @@ public class ThreadLocalScope implements Scope {
     @Override
     public Span span() {
         return wrapped;
+    }
+
+    SpanContext spanContext() {
+        return wrapped != null ? wrapped.context() : spanContext;
     }
 }

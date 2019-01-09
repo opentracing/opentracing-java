@@ -26,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestUtils {
 
@@ -90,9 +91,8 @@ public class TestUtils {
 
     public static void assertSameTrace(List<MockSpan> spans) {
         for (int i = 0; i < spans.size() - 1; i++) {
-            assertEquals(true, spans.get(spans.size() - 1).finishMicros() >= spans.get(i).finishMicros());
+            assertTrue(spans.get(spans.size() - 1).finishMicros() >= spans.get(i).finishMicros());
             assertEquals(spans.get(spans.size() - 1).context().traceId(), spans.get(i).context().traceId());
-            assertEquals(spans.get(spans.size() - 1).context().spanId(), spans.get(i).parentId());
         }
     }
 }

@@ -28,6 +28,7 @@
     <description>OpenTracing Testbed</description>
 
     <properties>
+        <main.java.version>1.8</main.java.version>
         <main.basedir>${project.basedir}/..</main.basedir>
     </properties>
 

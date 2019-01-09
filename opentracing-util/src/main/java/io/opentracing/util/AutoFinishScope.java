@@ -16,6 +16,7 @@ package io.opentracing.util;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,12 +25,22 @@ public class AutoFinishScope implements Scope {
     final AtomicInteger refCount;
     private final Span wrapped;
     private final AutoFinishScope toRestore;
+    private final SpanContext spanContext;
 
     AutoFinishScope(AutoFinishScopeManager manager, AtomicInteger refCount, Span wrapped) {
+        this(manager, refCount, wrapped, null);
+    }
+
+    AutoFinishScope(AutoFinishScopeManager manager, SpanContext spanContext) {
+        this(manager, new AtomicInteger(), null, spanContext);
+    }
+
+    private AutoFinishScope(AutoFinishScopeManager manager, AtomicInteger refCount, Span wrapped, SpanContext spanContext) {
         this.manager = manager;
         this.refCount = refCount;
         this.wrapped = wrapped;
         this.toRestore = manager.tlsScope.get();
+        this.spanContext = spanContext;
         manager.tlsScope.set(this);
     }
 
@@ -53,7 +64,7 @@ public class AutoFinishScope implements Scope {
             return;
         }
 
-        if (refCount.decrementAndGet() == 0) {
+        if (refCount.decrementAndGet() == 0 && wrapped != null) {
             wrapped.finish();
         }
 
@@ -63,5 +74,9 @@ public class AutoFinishScope implements Scope {
     @Override
     public Span span() {
         return wrapped;
+    }
+
+    SpanContext spanContext() {
+        return wrapped != null ? wrapped.context() : spanContext;
     }
 }

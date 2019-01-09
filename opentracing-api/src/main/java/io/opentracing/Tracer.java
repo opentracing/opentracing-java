@@ -32,6 +32,11 @@ public interface Tracer {
     Span activeSpan();
 
     /**
+     * @return the active {@link SpanContext}. This is a shorthand for {@code Tracer.scopeManager().activeSpanContext()}.
+     */
+    SpanContext activeSpanContext();
+
+    /**
      * Make a {@link Span} instance active for the current context (usually a thread).
      * This is a shorthand for {@code Tracer.scopeManager().activate(span)}.
      *
@@ -40,6 +45,18 @@ public interface Tracer {
      * and it may lead to memory leaks as the {@link Scope} may remain in the thread-local stack.
      */
     Scope activateSpan(Span span);
+
+
+    /**
+     * Make a {@link SpanContext} instance active for the current context (usually a thread).
+     * This is a shorthand for {@code Tracer.scopeManager().activate(spanContext)}.
+     *
+     * @see {@link ScopeManager#activate(SpanContext)}
+     * @return a {@link Scope} instance to control the end of the active period for the {@link SpanContext}. It is a
+     * programming error to neglect to call {@link Scope#close()} on the returned instance,
+     * and it may lead to memory leaks as the {@link Scope} may remain in the thread-local stack.
+     */
+    Scope activateSpanContext(SpanContext spanContext);
 
     /**
      * Return a new SpanBuilder for a Span with the given `operationName`.

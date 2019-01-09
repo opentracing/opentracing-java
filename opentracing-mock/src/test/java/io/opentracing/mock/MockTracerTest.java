@@ -265,6 +265,23 @@ public class MockTracerTest {
     }
 
     @Test
+    public void testActiveSpanContext() {
+        MockTracer mockTracer = new MockTracer();
+        Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertNull(mockTracer.activeSpanContext());
+
+        Span span = mockTracer.buildSpan("foo").start();
+        try (Scope scope = mockTracer.activateSpanContext(span.context())) {
+            Assert.assertNull(mockTracer.activeSpan());
+            Assert.assertEquals(mockTracer.scopeManager().activeSpanContext(), mockTracer.activeSpanContext());
+        }
+
+        Assert.assertNull(mockTracer.activeSpan());
+        Assert.assertNull(mockTracer.activeSpanContext());
+        Assert.assertTrue(mockTracer.finishedSpans().isEmpty());
+    }
+
+    @Test
     public void testActiveSpanFinish() {
         MockTracer mockTracer = new MockTracer();
         Assert.assertNull(mockTracer.activeSpan());

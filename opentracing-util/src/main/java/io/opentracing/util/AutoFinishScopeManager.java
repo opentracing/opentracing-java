@@ -13,8 +13,10 @@
  */
 package io.opentracing.util;
 
+import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,6 +34,11 @@ public class AutoFinishScopeManager implements ScopeManager {
     }
 
     @Override
+    public Scope activate(SpanContext spanContext) {
+        return new AutoFinishScope(this, spanContext);
+    }
+
+    @Override
     public AutoFinishScope active() {
         return tlsScope.get();
     }
@@ -40,5 +47,11 @@ public class AutoFinishScopeManager implements ScopeManager {
     public Span activeSpan() {
         AutoFinishScope scope = tlsScope.get();
         return scope == null ? null : scope.span();
+    }
+
+    @Override
+    public SpanContext activeSpanContext() {
+        AutoFinishScope scope = tlsScope.get();
+        return scope == null ? null : scope.spanContext();
     }
 }
