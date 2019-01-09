@@ -45,4 +45,11 @@ public class ThreadLocalScopeManager implements ScopeManager {
         Scope scope = tlsScope.get();
         return scope == null ? null : scope.span();
     }
+
+    @Override
+    public void clear() {
+        // Set a null value instead of calling remove(),
+        // to prevent unnecessary allocation of new ThreadLocal-related objects.
+        tlsScope.set(null);
+    }
 }

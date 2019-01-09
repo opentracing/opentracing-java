@@ -92,6 +92,16 @@ public interface ScopeManager {
     Span activeSpan();
 
     /**
+     * Clear the current active state, setting both {@link #active()} and
+     * {@link #activeSpan()} to null for the current context (usually a thread).
+     *
+     * <p>
+     * This method can be called to discard any previously leaked {@link Scope} objects
+     * that were unintentionally left active.
+     */
+    void clear();
+
+    /**
      * @deprecated use {@link #activate(Span)} instead.
      * Set the specified {@link Span} as the active instance for the current
      * context (usually a thread).
