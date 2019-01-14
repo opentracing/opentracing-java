@@ -20,3 +20,4 @@ It shows continuation as a solution to finish span when last action is completed
 - [nested_callbacks](src/test/java/io/opentracing/testbed/nested_callbacks) - one callback at the time, defined in a pipeline fashion
 - [promise_propagation](src/test/java/io/opentracing/testbed/promise_propagation) - tracing patterns for promises with callbacks
 - [suspend_resume_propagation](src/test/java/io/opentracing/testbed/suspend_resume_propagation) - tracing pattern for interleaving of spans
+- [stateless_common_request_handler](src/test/java/io/opentracing/testbed/stateless_common_request_handler) - one stateless request handler for requests
