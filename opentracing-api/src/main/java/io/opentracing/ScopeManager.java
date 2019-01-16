@@ -17,8 +17,8 @@ import io.opentracing.Tracer.SpanBuilder;
 
 /**
  * The {@link ScopeManager} interface abstracts both the activation of {@link Span} instances via
- * {@link ScopeManager#activate(Span, boolean)} and access to an active {@link Span}/{@link Scope}
- * via {@link ScopeManager#active()}.
+ * {@link ScopeManager#activate(Span)} and access to an active {@link Span}
+ * via {@link ScopeManager#activeSpan()}.
  *
  * @see Scope
  * @see Tracer#scopeManager()
@@ -37,10 +37,7 @@ public interface ScopeManager {
      * is called.
      *
      * <p>
-     * This {@link Scope} instance can be accessed at any time through {@link #active()},
-     * in case it is not possible for the user to store it (when used through middleware
-     * or start/finish event hooks, for example). The corresponding {@link Span} can be
-     * accessed through {@link #activeSpan()} likewise.
+     * The corresponding {@link Span} can be accessed at any time through {@link #activeSpan()}.
      *
      * <p>
      * Usage:
@@ -65,6 +62,7 @@ public interface ScopeManager {
     Scope activate(Span span);
 
     /**
+     * @deprecated use {@link #activeSpan()} instead.
      * Return the currently active {@link Scope} which can be used to deactivate the currently active
      * {@link Span}.
      *
@@ -78,6 +76,7 @@ public interface ScopeManager {
      *
      * @return the {@link Scope active scope}, or null if none could be found.
      */
+    @Deprecated
     Scope active();
 
     /**

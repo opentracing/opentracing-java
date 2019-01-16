@@ -58,7 +58,7 @@ public class LateSpanFinishTest {
 
         assertSameTrace(spans);
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 
 

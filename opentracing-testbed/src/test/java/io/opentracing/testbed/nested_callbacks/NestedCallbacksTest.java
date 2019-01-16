@@ -57,7 +57,7 @@ public class NestedCallbacksTest {
             assertEquals(Integer.toString(i), tags.get("key" + i));
         }
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 
     private void submitCallbacks(final Span span) {

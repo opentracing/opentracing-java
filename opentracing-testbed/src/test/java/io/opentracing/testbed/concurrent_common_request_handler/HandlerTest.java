@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.testbed.common_request_handler;
+package io.opentracing.testbed.concurrent_common_request_handler;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
@@ -68,7 +68,7 @@ public class HandlerTest {
         assertEquals(0, finished.get(0).parentId());
         assertEquals(0, finished.get(1).parentId());
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 
     /**

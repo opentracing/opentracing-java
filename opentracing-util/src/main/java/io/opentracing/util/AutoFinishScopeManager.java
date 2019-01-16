@@ -41,4 +41,9 @@ public class AutoFinishScopeManager implements ScopeManager {
         AutoFinishScope scope = tlsScope.get();
         return scope == null ? null : scope.span();
     }
+
+    public AutoFinishScope.Continuation captureScope() {
+        AutoFinishScope scope = tlsScope.get();
+        return scope == null ? null : scope.capture();
+    }
 }

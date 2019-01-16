@@ -272,8 +272,7 @@ public class MockTracer implements Tracer {
 
     @Override
     public Span activeSpan() {
-        Scope scope = this.scopeManager.active();
-        return scope == null ? null : scope.span();
+        return this.scopeManager.activeSpan();
     }
 
     @Override
