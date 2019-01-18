@@ -285,27 +285,43 @@ public final class MockSpan implements Span {
             this.references = new ArrayList<>(refs);
         }
         MockContext parent = findPreferredParentRef(this.references);
+        MockContext self = findFirstReference(this.references, References.SELF);
         if (parent == null) {
             // We're a root Span.
-            this.context = new MockContext(nextId(), nextId(), new HashMap<String, String>());
+            this.context = new MockContext(self != null ? self.traceId : nextId(), self != null ? self.spanId : nextId(),
+                    self != null ? self.baggage : new HashMap<String, String>());
             this.parentId = 0;
         } else {
             // We're a child Span.
-            this.context = new MockContext(parent.traceId, nextId(), mergeBaggages(this.references));
+            this.context = new MockContext(self != null ? self.traceId : parent.traceId,  self != null ? self.spanId : nextId(),
+                    mergeBaggages(this.references));
             this.parentId = parent.spanId;
         }
     }
 
     private static MockContext findPreferredParentRef(List<Reference> references) {
-        if(references.isEmpty()) {
-            return null;
+        MockContext firstChildOf = findFirstReference(references, References.CHILD_OF);
+        if (firstChildOf == null) {
+            // return first non self reference
+            // self references can never be a parent reference
+            for (Reference reference : references) {
+                if (!References.SELF.equals(reference.getReferenceType())) {
+                    return reference.getContext();
+                }
+            }
+        } else {
+            return firstChildOf;
         }
+        return null;
+    }
+
+    private static MockContext findFirstReference(List<Reference> references, String referenceToFind) {
         for (Reference reference : references) {
-            if (References.CHILD_OF.equals(reference.getReferenceType())) {
+            if (referenceToFind.equals(reference.getReferenceType())) {
                 return reference.getContext();
             }
         }
-        return references.get(0).getContext();
+        return null;
     }
 
     private static Map<String, String> mergeBaggages(List<Reference> references) {

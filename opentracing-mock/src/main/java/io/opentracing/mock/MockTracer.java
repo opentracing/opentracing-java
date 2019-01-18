@@ -112,10 +112,12 @@ public class MockTracer implements Tracer {
             }
         };
 
-        Propagator TEXT_MAP = new Propagator() {
-            public static final String SPAN_ID_KEY = "spanid";
-            public static final String TRACE_ID_KEY = "traceid";
-            public static final String BAGGAGE_KEY_PREFIX = "baggage-";
+        Propagator TEXT_MAP = new TextMapPropagator();
+
+        class TextMapPropagator implements Propagator {
+            static final String SPAN_ID_KEY = "spanid";
+            static final String TRACE_ID_KEY = "traceid";
+            static final String BAGGAGE_KEY_PREFIX = "baggage-";
 
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
@@ -159,7 +161,7 @@ public class MockTracer implements Tracer {
 
                 return null;
             }
-        };
+        }
     }
 
     @Override
