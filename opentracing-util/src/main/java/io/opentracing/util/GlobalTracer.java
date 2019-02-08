@@ -22,6 +22,7 @@ import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.propagation.Format;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 /**
@@ -212,6 +213,11 @@ public final class GlobalTracer implements Tracer {
     @Override
     public Scope activateSpan(Span span) {
         return tracer.activateSpan(span);
+    }
+
+    @Override
+    public void close() {
+        tracer.close();
     }
 
     @Override

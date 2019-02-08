@@ -13,13 +13,15 @@
  */
 package io.opentracing;
 
+import java.io.Closeable;
+
 import io.opentracing.propagation.Format;
 import io.opentracing.tag.Tag;
 
 /**
  * Tracer is a simple, thin interface for Span creation and propagation across arbitrary transports.
  */
-public interface Tracer {
+public interface Tracer extends Closeable {
 
     /**
      * @return the current {@link ScopeManager}, which may be a noop but may not be null.
@@ -117,6 +119,17 @@ public interface Tracer {
      */
     <C> SpanContext extract(Format<C> format, C carrier);
 
+    /**
+     * Closes the Tracer, and flushes the in-memory collection to the configured persistance store.
+     *
+     * <p>
+     * The close method should be considered idempotent; closing an already closed Tracer should not raise an error.
+     * Spans that are created or finished after a Tracer has been closed may or may not be flushed.
+     * Calling the close method should be considered a synchronous operation.
+     * <p>
+     * For stateless tracers, this can be a no-op.
+     */
+    void close();
 
     interface SpanBuilder {
 

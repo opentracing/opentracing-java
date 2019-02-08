@@ -24,6 +24,7 @@ import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ public class MockTracer implements Tracer {
     private final List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
     private final ScopeManager scopeManager;
+    private boolean isClosed;
 
     public MockTracer() {
         this(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
@@ -280,7 +282,16 @@ public class MockTracer implements Tracer {
         return this.scopeManager.activate(span);
     }
 
+    @Override
+    public synchronized void close() {
+        this.isClosed = true;
+        this.finishedSpans.clear();
+    }
+
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
+        if (isClosed)
+            return;
+
         this.finishedSpans.add(mockSpan);
         this.onSpanFinished(mockSpan);
     }

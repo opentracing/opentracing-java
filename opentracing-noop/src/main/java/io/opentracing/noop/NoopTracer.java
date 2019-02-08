@@ -51,6 +51,9 @@ final class NoopTracerImpl implements NoopTracer {
     public <C> SpanContext extract(Format<C> format, C carrier) { return NoopSpanContextImpl.INSTANCE; }
 
     @Override
+    public void close() {}
+
+    @Override
     public String toString() { return NoopTracer.class.getSimpleName(); }
 }
 
