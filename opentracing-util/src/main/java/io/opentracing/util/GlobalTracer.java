@@ -22,7 +22,6 @@ import io.opentracing.noop.NoopTracer;
 import io.opentracing.noop.NoopTracerFactory;
 import io.opentracing.propagation.Format;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 
 /**
