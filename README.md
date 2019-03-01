@@ -28,7 +28,7 @@ For any thread, at most one `Span` may be "active". Of course there may be many 
  
 It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing requires that every `Tracer` contains a `ScopeManager` that grants access to the active `Span` through a `Scope`. Any `Span` may be transferred to another callback or thread, but not `Scope`; more on this below.
 
-#### Accessing the active Span through `Scope`
+#### Accessing the active Span
 
 Access to the active span is straightforward:
 
@@ -43,19 +43,13 @@ if (span != null) {
 
 ### Starting a new Span
 
-The common case starts a `Scope` that's automatically registered for intra-process propagation via `ScopeManager`.
-
-Note that `startActive(true)` finishes the span on `Scope.close()`.
-Use it carefully because the `try-with-resources` construct finishes the span before
-the `catch` or `finally` blocks are executed, which makes logging exceptions and 
-setting tags impossible. It is recommended to start the span and activate it later in `try-with-resources`.
-This makes the span available in catch and finally blocks.
+The common case starts a `Span` and then sets it as the active instance via `ScopeManager`:
 
 ```java
 io.opentracing.Tracer tracer = ...;
 ...
 Span span = tracer.buildSpan("someWork").start();
-try (Scope scope = tracer.scopeManager().activate(span, false)) {
+try (Scope scope = tracer.scopeManager().activate(span)) {
     // Do things.
 } catch(Exception ex) {
     Tags.ERROR.set(span, true);
@@ -65,27 +59,13 @@ try (Scope scope = tracer.scopeManager().activate(span, false)) {
 }
 ```
 
-The following code uses `try-with-resources` to finish the span.
-
-```java
-io.opentracing.Tracer tracer = ...;
-...
-try (Scope scope = tracer.buildSpan("someWork").startActive(true)) {
-    // Do things.
-    //
-    // `scope.span()` allows us to pass the `Span` to newly created threads.
-} catch(Exception ex) {
-    // cannot record the exception in the span since scope is not accessible and span is finished
-}
-```
-
 **If there is a `Scope`, it will act as the parent to any newly started `Span`** unless 
 the programmer invokes `ignoreActiveSpan()` at `buildSpan()` time or specified parent context explicitly:
 
 ```java
 io.opentracing.Tracer tracer = ...;
 ...
-Scope scope = tracer.buildSpan("someWork").ignoreActiveSpan().startActive();
+Span span = tracer.buildSpan("someWork").ignoreActiveSpan().start();
 ```
 
 ### Deferring asynchronous work
@@ -101,29 +81,40 @@ Consider the case where a `Span`'s lifetime logically starts in one thread and e
 
 The `"ServiceHandlerSpan"` is _active_ while it's running FunctionA and FunctionB, and inactive while it's waiting on an RPC (presumably modelled as its own Span, though that's not the concern here).
 
-**The `ScopeManager` API makes it possible to fetch the `span()` in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` contains a `ScopeManager`. These are the steps:
+**The `ScopeManager` API makes it possible to fetch the `span` in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` contains a `ScopeManager`. These are the steps:
 
-1. Start a `Span` via either `startManual` or `startActive(false)` to prevent the `Span` from being finished upon `Scope` deactivation.
-2. In the closure/`Runnable`/`Future`/etc itself, invoke `tracer.scopeManager().activate(span, false)` to re-activate the `Span` and get a new `Scope`, then `deactivate()` it when the `Span` is no longer active (or use try-with-resources for less typing).
-3. In the closure/`Runnable`/`Future`/etc where the end of the task is reached, invoke `tracer.scopeManager().activate(span, true)` to re-activate the `Span` and have the new `Scope` close the `Span` automatically.
+1. Start a `Span` via `start`.
+2. In the closure/`Runnable`/`Future`/etc itself, invoke `tracer.scopeManager().activate(span)` to re-activate the `Span` and get a new `Scope`, then `deactivate()` it when the `Span` is no longer active (or use try-with-resources for less typing).
+3. In the closure/`Runnable`/`Future`/etc where the end of the task is reached, invoke `tracer.scopeManager().activate(span)` to re-activate the `Span` and invoke `span.finish()` when the work is done.
 
 For example:
 
 ```java
 io.opentracing.Tracer tracer = ...;
 ...
-// STEP 1 ABOVE: start the Scope/Span
-try (Scope scope = tracer.buildSpan("ServiceHandlerSpan").startActive(false)) {
+// STEP 1 ABOVE: start the Span.
+final Span span = tracer.buildSpan("ServiceHandlerSpan").start();
+try (Scope scope = tracer.scopeManager().activate(span)) {
     ...
-    final Span span = scope.span();
     doAsyncWork(new Runnable() {
         @Override
         public void run() {
 
-            // STEP 2 ABOVE: reactivate the Span in the callback, passing true to
-            // startActive() if/when the Span must be finished.
-            try (Scope scope = tracer.scopeManager().activate(span, false)) {
+            // STEP 2 ABOVE: reactivate the Span in the callback.
+            try (Scope scope = tracer.scopeManager().activate(span)) {
                 ...
+                doMoreAsyncWork(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        // STEP 3 ABOVE: reactivate the Span and finish it.
+                        try (Scope scope = tracer.scopeManager().activate(span)) {
+                            ...
+                        } finally {
+                            span.finish();
+                        }
+                    }
+                });
             }
         }
     });
@@ -134,17 +125,13 @@ Observe that passing `Scope` to another thread or callback is not supported. Onl
 
 In practice, all of this is most fluently accomplished through the use of an OpenTracing-aware `ExecutorService` and/or `Runnable`/`Callable` adapter; they factor out most of the typing.
 
-## Compatibility with Opentracing 0.30
+## Deprecated members since 0.31
 
-For users supporting instrumentation code using Opentracing 0.30, there is a [0.30 compatibility package](https://github.com/opentracing/opentracing-java-v030) that can be used to wrap a 0.31 `Tracer` and expose it as a 0.30 `Tracer`:
+`ScopeManager.active(Span, boolean)` and `SpanBuilder.startActive()` have been deprecated as part of removing automatic `Span` finish upon `Scope` closing, as doing it through try-with statements would make it hard to properly handle errors (`Span` objects would get finished before a catch block would be reached).
+This improves API safety, and makes it more difficult to do the wrong thing and end up with unexpected errors.
 
-```java
-io.opentracing.Tracer upstreamTracer = ...;
-io.opentracing.v_030.Tracer tracer = new TracerShim(upstreamTracer);
-try (ActiveSpan span = tracer.buildSpan("ServiceHandlerSpan").startActive()) {
-   ...
-}
-```
+`Scope.span()` and `ScopeManager.scope()` have been deprecated, in order to prevent passing of `Scope` objects between threads (`Scope` objects are not guaranteed to be thread-safe).
+Now `Scope` will be responsible for `Span` deactivation only, instead of being a `Span` container.
 
 ## Instrumentation Tests
 
