@@ -127,7 +127,7 @@ In practice, all of this is most fluently accomplished through the use of an Ope
 
 ## Deprecated members since 0.31
 
-`ScopeManager.active(Span, boolean)` and `SpanBuilder.startActive()` have been deprecated as part of removing automatic `Span` finish upon `Scope` closing, as doing it through try-with statements would make it hard to properly handle errors (`Span` objects would get finished before a catch block would be reached).
+`ScopeManager.active(Span, boolean)` and `SpanBuilder.startActive()` have been deprecated as part of removing automatic `Span` finish upon `Scope` close, as doing it through try-with statements would make it hard to properly handle errors (`Span` objects would get finished before a catch block would be reached).
 This improves API safety, and makes it more difficult to do the wrong thing and end up with unexpected errors.
 
 `Scope.span()` and `ScopeManager.scope()` have been deprecated, in order to prevent passing of `Scope` objects between threads (`Scope` objects are not guaranteed to be thread-safe).
