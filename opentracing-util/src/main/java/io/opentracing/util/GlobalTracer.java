@@ -215,6 +215,11 @@ public final class GlobalTracer implements Tracer {
     }
 
     @Override
+    public void close() {
+        tracer.close();
+    }
+
+    @Override
     public String toString() {
         return GlobalTracer.class.getSimpleName() + '{' + tracer + '}';
     }

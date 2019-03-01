@@ -399,4 +399,16 @@ public class MockTracerTest {
         Span span = tracer.buildSpan("foo").asChildOf(parent).start();
         span.finish();
     }
+
+    @Test
+    public void testClose() {
+        MockTracer mockTracer = new MockTracer();
+        mockTracer.buildSpan("foo").start().finish();
+
+        mockTracer.close();
+        assertEquals(0, mockTracer.finishedSpans().size());
+
+        mockTracer.buildSpan("foo").start().finish();
+        assertEquals(0, mockTracer.finishedSpans().size());
+    }
 }
