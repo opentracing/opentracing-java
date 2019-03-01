@@ -26,7 +26,7 @@ That said, instrumentation for packages that are themselves statically configure
 
 For any thread, at most one `Span` may be "active". Of course there may be many other `Spans` involved with the thread which are (a) started, (b) not finished, and yet (c) not "active": perhaps they are waiting for I/O, blocked on a child Span, or otherwise off of the critical path.
  
-It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing requires that every `Tracer` contains a `ScopeManager` that grants access to the active `Span` through a `Scope`. Any `Span` may be transferred to another callback or thread, but not `Scope`; more on this below.
+It's inconvenient to pass an active `Span` from function to function manually, so OpenTracing requires that every `Tracer` contains a `ScopeManager` that grants access to the active `Span` along with a `Scope` to signal deactivation. Any `Span` may be transferred to another callback or thread, but not `Scope`; more on this below.
 
 #### Accessing the active Span
 
