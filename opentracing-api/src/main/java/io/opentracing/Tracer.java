@@ -130,6 +130,7 @@ public interface Tracer extends Closeable {
      * <p>
      * For stateless tracers, this can be a no-op.
      */
+    @Override
     void close();
 
     interface SpanBuilder {
