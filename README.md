@@ -106,6 +106,7 @@ try (Scope scope = tracer.scopeManager().activate(span)) {
         }
     }).thenRun(() -> {
         // STEP 3 ABOVE: finish the Span when the work is done.
+        span.finish();
     });
 }
 ```
