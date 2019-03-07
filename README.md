@@ -59,7 +59,7 @@ try (Scope scope = tracer.scopeManager().activate(span)) {
 }
 ```
 
-**If there is a `Scope`, it will act as the parent to any newly started `Span`** unless 
+**If there is already an active `Span`, it will act as the parent to any newly started `Span`** unless
 the programmer invokes `ignoreActiveSpan()` at `buildSpan()` time or specified parent context explicitly:
 
 ```java
@@ -84,10 +84,10 @@ The `"ServiceHandlerSpan"` is _active_ while it's running FunctionA and Function
 **The `ScopeManager` API makes it possible to fetch the `span` in `FunctionA` and re-activate it in `FunctionB`.** Note that every `Tracer` contains a `ScopeManager`. These are the steps:
 
 1. Start a `Span` via `start`.
-2. In the closure/`Runnable`/`Future`/etc itself, invoke `tracer.scopeManager().activate(span)` to re-activate the `Span` and get a new `Scope`, then `deactivate()` it when the `Span` is no longer active (or use try-with-resources for less typing).
-3. In the closure/`Runnable`/`Future`/etc where the end of the task is reached, invoke `tracer.scopeManager().activate(span)` to re-activate the `Span` and invoke `span.finish()` when the work is done.
+2. At the beginning of the closure/`Runnable`/`Future`/etc itself, invoke `tracer.scopeManager().activate(span)` to re-activate the `Span` and get a new `Scope`, then `close()` it when the `Span` is no longer active (or use try-with-resources for less typing).
+3. Invoke `span.finish()` when the work is done.
 
-For example:
+Here is an example using `CompletableFuture`:
 
 ```java
 io.opentracing.Tracer tracer = ...;
@@ -95,28 +95,17 @@ io.opentracing.Tracer tracer = ...;
 // STEP 1 ABOVE: start the Span.
 final Span span = tracer.buildSpan("ServiceHandlerSpan").start();
 try (Scope scope = tracer.scopeManager().activate(span)) {
+    // Do work.
     ...
-    doAsyncWork(new Runnable() {
-        @Override
-        public void run() {
 
-            // STEP 2 ABOVE: reactivate the Span in the callback.
-            try (Scope scope = tracer.scopeManager().activate(span)) {
-                ...
-                doMoreAsyncWork(new Runnable() {
-                    @Override
-                    public void run() {
+    future = CompletableFuture.supplyAsync(() -> {
 
-                        // STEP 3 ABOVE: reactivate the Span and finish it.
-                        try (Scope scope = tracer.scopeManager().activate(span)) {
-                            ...
-                        } finally {
-                            span.finish();
-                        }
-                    }
-                });
-            }
+        // STEP 2 ABOVE: reactivate the Span in the callback.
+        try (Scope scope = tracer.scopeManager().activate(span)) {
+            ...
         }
+    }).thenRun(() -> {
+        // STEP 3 ABOVE: finish the Span when the work is done.
     });
 }
 ```
