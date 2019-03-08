@@ -35,6 +35,7 @@ public class ThreadLocalScope implements Scope {
         this.finishOnClose = finishOnClose;
         this.toRestore = scopeManager.tlsScope.get();
         scopeManager.tlsScope.set(this);
+        scopeManager.listener.onActivate(wrapped);
     }
 
     @Override
@@ -48,7 +49,13 @@ public class ThreadLocalScope implements Scope {
             wrapped.finish();
         }
 
-        scopeManager.tlsScope.set(toRestore);
+        if (toRestore != null) {
+            scopeManager.tlsScope.set(toRestore);
+            scopeManager.listener.onActivate(toRestore.wrapped);
+        } else {
+            scopeManager.tlsScope.remove();
+            scopeManager.listener.onClose();
+        }
     }
 
     @Override

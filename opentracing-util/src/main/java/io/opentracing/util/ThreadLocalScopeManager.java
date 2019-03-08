@@ -23,7 +23,17 @@ import io.opentracing.Span;
  * @see ThreadLocalScope
  */
 public class ThreadLocalScopeManager implements ScopeManager {
+
     final ThreadLocal<ThreadLocalScope> tlsScope = new ThreadLocal<ThreadLocalScope>();
+    final ScopeListener listener;
+
+    public ThreadLocalScopeManager() {
+        this(null);
+    }
+
+    public ThreadLocalScopeManager(ScopeListener listener) {
+        this.listener = listener != null ? listener : NoopScopeListener.INSTANCE;
+    }
 
     @Override
     public Scope activate(Span span, boolean finishOnClose) {
