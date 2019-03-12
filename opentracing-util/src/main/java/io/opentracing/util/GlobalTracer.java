@@ -95,7 +95,7 @@ public final class GlobalTracer implements Tracer {
      *
      * @return Whether a tracer has been registered
      */
-    public static synchronized boolean isRegistered() { return isRegistered; }
+    public static boolean isRegistered() { return isRegistered; }
 
     /**
      * Register a {@link Tracer} to back the behaviour of the {@link #get()}.
