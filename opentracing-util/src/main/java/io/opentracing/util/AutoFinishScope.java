@@ -19,6 +19,13 @@ import io.opentracing.Span;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * {@link AutoFinishScope} is a {@link Scope} implementation that uses ref-counting
+ * to automatically finish the wrapped {@link Span}.
+ *
+ * @see AutoFinishScopeManager
+ */
+@Deprecated
 public class AutoFinishScope implements Scope {
     final AutoFinishScopeManager manager;
     final AtomicInteger refCount;

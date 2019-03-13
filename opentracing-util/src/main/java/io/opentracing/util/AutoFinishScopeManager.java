@@ -18,6 +18,13 @@ import io.opentracing.Span;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @deprecated use {@link ThreadLocalScopeManager} instead.
+ * A {@link ScopeManager} implementation that uses ref-counting to automatically finish {@link Span}s.
+ *
+ * @see AutoFinishScope
+ */
+@Deprecated
 public class AutoFinishScopeManager implements ScopeManager {
     final ThreadLocal<AutoFinishScope> tlsScope = new ThreadLocal<AutoFinishScope>();
 
