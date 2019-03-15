@@ -66,9 +66,9 @@ public class ThreadLocalScopeTest {
         verify(foregroundSpan, times(1)).finish();
 
         // Verify listener calls
-        verify(scopeListener, times(2)).onActivate(backgroundSpan);
-        verify(scopeListener, times(1)).onActivate(foregroundSpan);
-        verify(scopeListener, times(1)).onClose();
+        verify(scopeListener, times(2)).onActivated(backgroundSpan);
+        verify(scopeListener, times(1)).onActivated(foregroundSpan);
+        verify(scopeListener, times(1)).onClosed();
 
         // And now nothing is active.
         Scope missingSpan = scopeManager.active();
@@ -86,8 +86,8 @@ public class ThreadLocalScopeTest {
 
         verify(span, times(0)).finish();
 
-        verify(scopeListener, times(1)).onActivate(span);
-        verify(scopeListener, times(1)).onActivate(nestedSpan);
-        verify(scopeListener, times(0)).onClose();
+        verify(scopeListener, times(1)).onActivated(span);
+        verify(scopeListener, times(1)).onActivated(nestedSpan);
+        verify(scopeListener, times(0)).onClosed();
     }
 }

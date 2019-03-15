@@ -25,10 +25,10 @@ public interface NoopScopeListener extends ScopeListener {
 class NoopScopeListenerImpl implements NoopScopeListener {
 
     @Override
-    public void onActivate(Span span) {
+    public void onActivated(Span span) {
     }
 
     @Override
-    public void onClose() {
+    public void onClosed() {
     }
 }

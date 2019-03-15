@@ -20,11 +20,11 @@ import io.opentracing.Span;
 /**
  * Listener that can react on changes of currently active {@link Span}.
  * <p>
- * The {@link #onActivate(Span)} method will be called, whenever scope changes - that can be both
+ * The {@link #onActivated} method will be called, whenever scope changes - that can be both
  * as result of a {@link ScopeManager#activate(Span, boolean)} call or when {@link Scope#close()}
  * is closed on a nested scope.
  * <p>
- * {@link #onClose()} is called when closing outermost scope - meaning no scope is currently active.
+ * {@link #onClosed} is called when closing outermost scope - meaning no scope is currently active.
  *
  * @see ThreadLocalScopeManager
  */
@@ -35,10 +35,10 @@ public interface ScopeListener {
      *
      * @param span Activated span. Never null.
      */
-    void onActivate(Span span);
+    void onActivated(Span span);
 
     /**
      * Called when outermost scope was deactivated.
      */
-    void onClose();
+    void onClosed();
 }
