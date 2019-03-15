@@ -27,10 +27,12 @@ import org.junit.Test;
 
 public class ThreadLocalScopeTest {
     private ThreadLocalScopeManager scopeManager;
+    private ScopeListener scopeListener;
 
     @Before
     public void before() throws Exception {
-        scopeManager = new ThreadLocalScopeManager();
+        scopeListener = mock(ScopeListener.class);
+        scopeManager = new ThreadLocalScopeManager(scopeListener);
     }
 
     @Test
@@ -63,6 +65,11 @@ public class ThreadLocalScopeTest {
         verify(backgroundSpan, times(1)).finish();
         verify(foregroundSpan, times(1)).finish();
 
+        // Verify listener calls
+        verify(scopeListener, times(2)).onActivate(backgroundSpan);
+        verify(scopeListener, times(1)).onActivate(foregroundSpan);
+        verify(scopeListener, times(1)).onClose();
+
         // And now nothing is active.
         Scope missingSpan = scopeManager.active();
         assertNull(missingSpan);
@@ -71,11 +78,16 @@ public class ThreadLocalScopeTest {
     @Test
     public void testDeactivateWhenDifferentSpanIsActive() {
         Span span = mock(Span.class);
+        Span nestedSpan = mock(Span.class);
 
         Scope active = scopeManager.activate(span, false);
-        scopeManager.activate(mock(Span.class), false);
+        scopeManager.activate(nestedSpan, false);
         active.close();
 
         verify(span, times(0)).finish();
+
+        verify(scopeListener, times(1)).onActivate(span);
+        verify(scopeListener, times(1)).onActivate(nestedSpan);
+        verify(scopeListener, times(0)).onClose();
     }
 }

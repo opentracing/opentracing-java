@@ -19,6 +19,9 @@ public interface NoopScopeListener extends ScopeListener {
     NoopScopeListener INSTANCE = new NoopScopeListenerImpl();
 }
 
+/**
+ * A noop (i.e., cheap-as-possible) implementation of a ScopeListener.
+ */
 class NoopScopeListenerImpl implements NoopScopeListener {
 
     @Override
