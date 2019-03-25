@@ -44,9 +44,10 @@ public class ActiveSpanReplacementTest {
     @Test
     public void test() throws Exception {
         // Start an isolated task and query for its result in another task/thread
-        try (Scope scope = tracer.buildSpan("initial").startActive(false)) {
+        Span span = tracer.buildSpan("initial").start();
+        try (Scope scope = tracer.scopeManager().activate(span)) {
             // Explicitly pass a Span to be finished once a late calculation is done.
-            submitAnotherTask(scope.span());
+            submitAnotherTask(span);
         }
 
         await().atMost(15, TimeUnit.SECONDS).until(finishedSpansSize(tracer), equalTo(3));
@@ -65,7 +66,7 @@ public class ActiveSpanReplacementTest {
         assertNotEquals(spans.get(0).context().traceId(), spans.get(1).context().traceId());
         assertEquals(0, spans.get(0).parentId());
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 
     private void submitAnotherTask(final Span initialSpan) {
@@ -74,17 +75,25 @@ public class ActiveSpanReplacementTest {
             @Override
             public void run() {
                 // Create a new Span for this task
-                try (Scope taskScope = tracer.buildSpan("task").startActive(true)) {
+                Span taskSpan = tracer.buildSpan("task").start();
+                try (Scope scope = tracer.scopeManager().activate(taskSpan)) {
 
                     // Simulate work strictly related to the initial Span
                     // and finish it.
-                    try (Scope initialScope = tracer.scopeManager().activate(initialSpan, true)) {
+                    try (Scope initialScope = tracer.scopeManager().activate(initialSpan)) {
                         sleep(50);
+                    } finally {
+                        initialSpan.finish();
                     }
 
                     // Restore the span for this task and create a subspan
-                    try (Scope subTaskScope = tracer.buildSpan("subtask").startActive(true)) {
+                    Span subTaskSpan = tracer.buildSpan("subtask").start();
+                    try (Scope subTaskScope = tracer.scopeManager().activate(subTaskSpan)) {
+                    } finally {
+                        subTaskSpan.finish();
                     }
+                } finally {
+                    taskSpan.finish();
                 }
             }
         });

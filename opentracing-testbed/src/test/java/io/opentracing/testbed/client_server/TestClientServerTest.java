@@ -65,6 +65,6 @@ public class TestClientServerTest {
         assertEquals(finished.get(0).context().traceId(), finished.get(1).context().traceId());
         assertNotNull(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_CLIENT));
         assertNotNull(getOneByTag(finished, Tags.SPAN_KIND, Tags.SPAN_KIND_SERVER));
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 }

@@ -28,13 +28,6 @@ import org.junit.Test;
  */
 public class TextMapExtractAdapterTest {
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testPut() {
-        Map<String, String> headers = new LinkedHashMap<String, String>();
-        TextMapExtractAdapter injectAdapter = new TextMapExtractAdapter(headers);
-        injectAdapter.put("foo", "bar");
-    }
-
     @Test
     public void testIterator() {
         Map<String, String> headers = new LinkedHashMap<String, String>();

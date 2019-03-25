@@ -1,6 +1,6 @@
-# Common Request Handler example.
+# Concurrent common Request Handler example.
 
-This example shows a `Span` used with `RequestHandler`, which is used as a middleware (as in web frameworks) to manage a new `Span` per operation through its `beforeRequest()`/`afterResponse()` methods.
+This example shows a `Span` used with `RequestHandler`, which is used as a middleware (as in web frameworks) to concurrently manage a new `Span` per operation through its `beforeRequest()`/`afterResponse()` methods.
 
 Since its methods are not guaranteed to be run in the same thread, activation of such `Span`s is not done.
 
@@ -16,7 +16,7 @@ Since its methods are not guaranteed to be run in the same thread, activation of
             spanBuilder.asChildOf(parentContext);
         }
 
-        context.put("span", spanBuilder.startManual());
+        context.put("span", spanBuilder.start());
     }
 
     public void afterResponse(Object response, Context context) {

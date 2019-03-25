@@ -13,6 +13,16 @@
  */
 package io.opentracing.mock;
 
+import io.opentracing.propagation.BinaryExtract;
+import io.opentracing.propagation.BinaryInject;
+import io.opentracing.propagation.TextMapExtract;
+import io.opentracing.propagation.TextMapInject;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +35,10 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.noop.NoopScopeManager;
+import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
+import io.opentracing.tag.Tag;
 import io.opentracing.util.ThreadLocalScopeManager;
 
 /**
@@ -41,6 +53,7 @@ public class MockTracer implements Tracer {
     private final List<MockSpan> finishedSpans = new ArrayList<>();
     private final Propagator propagator;
     private final ScopeManager scopeManager;
+    private boolean isClosed;
 
     public MockTracer() {
         this(new ThreadLocalScopeManager(), Propagator.TEXT_MAP);
@@ -112,6 +125,82 @@ public class MockTracer implements Tracer {
             }
         };
 
+        Propagator BINARY = new Propagator() {
+            static final int BUFFER_SIZE = 128;
+
+            @Override
+            public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
+                if (!(carrier instanceof BinaryInject)) {
+                    throw new IllegalArgumentException("Expected BinaryInject, received " + carrier.getClass());
+                }
+
+                BinaryInject binary = (BinaryInject) carrier;
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                ObjectOutputStream objStream = null;
+                try {
+                    objStream = new ObjectOutputStream(stream);
+                    objStream.writeLong(ctx.spanId());
+                    objStream.writeLong(ctx.traceId());
+
+                    for (Map.Entry<String, String> entry : ctx.baggageItems()) {
+                        objStream.writeUTF(entry.getKey());
+                        objStream.writeUTF(entry.getValue());
+                    }
+                    objStream.flush(); // *need* to flush ObjectOutputStream.
+
+                    byte[] buff = stream.toByteArray();
+                    binary.injectionBuffer(buff.length).put(buff);
+
+                } catch (IOException e) {
+                    throw new RuntimeException("Corrupted state", e);
+                } finally {
+                    if (objStream != null) {
+                        try { objStream.close(); } catch (Exception e2) {}
+                    }
+                }
+            }
+
+            @Override
+            public <C> MockSpan.MockContext extract(Format<C> format, C carrier) {
+                if (!(carrier instanceof BinaryExtract)) {
+                    throw new IllegalArgumentException("Expected BinaryExtract, received " + carrier.getClass());
+                }
+
+                Long traceId = null;
+                Long spanId = null;
+                Map<String, String> baggage = new HashMap<>();
+
+                BinaryExtract binary = (BinaryExtract) carrier;
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ObjectInputStream objStream = null;
+                try {
+                    ByteBuffer extractBuff = binary.extractionBuffer();
+                    byte[] buff = new byte[extractBuff.remaining()];
+                    extractBuff.get(buff);
+
+                    objStream = new ObjectInputStream(new ByteArrayInputStream(buff));
+                    spanId = objStream.readLong();
+                    traceId = objStream.readLong();
+
+                    while (objStream.available() > 0) {
+                        baggage.put(objStream.readUTF(), objStream.readUTF());
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Corrupted state", e);
+                } finally {
+                    if (objStream != null) {
+                        try { objStream.close(); } catch (Exception e2) {}
+                    }
+                }
+
+                if (traceId != null && spanId != null) {
+                    return new MockSpan.MockContext(traceId, spanId, baggage);
+                }
+
+                return null;
+            }
+        };
+
         Propagator TEXT_MAP = new Propagator() {
             public static final String SPAN_ID_KEY = "spanid";
             public static final String TRACE_ID_KEY = "traceid";
@@ -119,8 +208,8 @@ public class MockTracer implements Tracer {
 
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
-                if (carrier instanceof TextMap) {
-                    TextMap textMap = (TextMap) carrier;
+                if (carrier instanceof TextMapInject) {
+                    TextMapInject textMap = (TextMapInject) carrier;
                     for (Map.Entry<String, String> entry : ctx.baggageItems()) {
                         textMap.put(BAGGAGE_KEY_PREFIX + entry.getKey(), entry.getValue());
                     }
@@ -137,8 +226,8 @@ public class MockTracer implements Tracer {
                 Long spanId = null;
                 Map<String, String> baggage = new HashMap<>();
 
-                if (carrier instanceof TextMap) {
-                    TextMap textMap = (TextMap) carrier;
+                if (carrier instanceof TextMapExtract) {
+                    TextMapExtract textMap = (TextMapExtract) carrier;
                     for (Map.Entry<String, String> entry : textMap) {
                         if (TRACE_ID_KEY.equals(entry.getKey())) {
                             traceId = Long.valueOf(entry.getValue());
@@ -184,11 +273,24 @@ public class MockTracer implements Tracer {
 
     @Override
     public Span activeSpan() {
-        Scope scope = this.scopeManager.active();
-        return scope == null ? null : scope.span();
+        return this.scopeManager.activeSpan();
+    }
+
+    @Override
+    public Scope activateSpan(Span span) {
+        return this.scopeManager.activate(span);
+    }
+
+    @Override
+    public synchronized void close() {
+        this.isClosed = true;
+        this.finishedSpans.clear();
     }
 
     synchronized void appendFinishedSpan(MockSpan mockSpan) {
+        if (isClosed)
+            return;
+
         this.finishedSpans.add(mockSpan);
         this.onSpanFinished(mockSpan);
     }
@@ -255,6 +357,12 @@ public class MockTracer implements Tracer {
         @Override
         public SpanBuilder withTag(String key, Number value) {
             this.initialTags.put(key, value);
+            return this;
+        }
+
+        @Override
+        public <T> Tracer.SpanBuilder withTag(Tag<T> tag, T value) {
+            this.initialTags.put(tag.getKey(), value);
             return this;
         }
 

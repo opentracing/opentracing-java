@@ -11,10 +11,25 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.testbed.common_request_handler;
+package io.opentracing.noop;
 
-import java.util.HashMap;
+import static org.junit.Assert.*;
 
-public class Context extends HashMap<String, Object> {
+import org.junit.Test;
 
+import io.opentracing.SpanContext;
+
+public class NoopSpanContextTest {
+
+    @Test
+    public void traceIdentifierTest() {
+        SpanContext ctx = NoopSpanContextImpl.INSTANCE;
+        assertEquals("", ctx.toTraceId());
+    }
+
+    @Test
+    public void spanIdentifierTest() {
+        SpanContext ctx = NoopSpanContextImpl.INSTANCE;
+        assertEquals("", ctx.toSpanId());
+    }
 }

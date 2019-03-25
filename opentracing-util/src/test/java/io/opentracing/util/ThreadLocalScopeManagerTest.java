@@ -39,15 +39,23 @@ public class ThreadLocalScopeManagerTest {
     }
 
     @Test
+    public void missingActiveSpan() throws Exception {
+        Span missingSpan = source.activeSpan();
+        assertNull(missingSpan);
+    }
+
+    @Test
     public void defaultActivate() throws Exception {
         Span span = mock(Span.class);
 
-        // We can't use 1.7 features like try-with-resources in this repo without meddling with pom details for tests.
-        Scope scope = source.activate(span, false);
+        Scope scope = source.activate(span);
         try {
             assertNotNull(scope);
             Scope otherScope = source.active();
             assertEquals(otherScope, scope);
+
+            Span otherSpan = source.activeSpan();
+            assertEquals(otherSpan, span);
         } finally {
             scope.close();
         }
@@ -55,9 +63,12 @@ public class ThreadLocalScopeManagerTest {
         // Make sure the Span is not finished.
         verify(span, times(0)).finish();
 
-        // And now it's gone:
+        // And now Scope/Span are gone:
         Scope missingScope = source.active();
         assertNull(missingScope);
+
+        Span missingSpan = source.activeSpan();
+        assertNull(missingSpan);
     }
 
     @Test
@@ -69,6 +80,7 @@ public class ThreadLocalScopeManagerTest {
         try {
             assertNotNull(scope);
             assertNotNull(source.active());
+            assertNotNull(source.activeSpan());
         } finally {
             scope.close();
         }
@@ -76,8 +88,9 @@ public class ThreadLocalScopeManagerTest {
         // Make sure the Span got finish()ed.
         verify(span, times(1)).finish();
 
-        // Verify it's gone.
+        // Verify Scope/Span are gone.
         assertNull(source.active());
+        assertNull(source.activeSpan());
     }
 
     @Test
@@ -89,6 +102,7 @@ public class ThreadLocalScopeManagerTest {
         try {
             assertNotNull(scope);
             assertNotNull(source.active());
+            assertNotNull(source.activeSpan());
         } finally {
             scope.close();
         }
@@ -96,7 +110,8 @@ public class ThreadLocalScopeManagerTest {
         // Make sure the Span did *not* get finish()ed.
         verify(span, never()).finish();
 
-        // Verify it's gone.
+        // Verify Scope/Span are gone.
         assertNull(source.active());
+        assertNull(source.activeSpan());
     }
 }

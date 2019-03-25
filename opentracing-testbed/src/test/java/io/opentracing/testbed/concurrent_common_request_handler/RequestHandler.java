@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.testbed.common_request_handler;
+package io.opentracing.testbed.concurrent_common_request_handler;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -57,7 +57,7 @@ public class RequestHandler {
             spanBuilder.asChildOf(parentContext);
         }
 
-        context.put("span", spanBuilder.startManual());
+        context.put("span", spanBuilder.start());
     }
 
     public void afterResponse(Object response, Context context) {

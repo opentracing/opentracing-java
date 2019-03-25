@@ -14,6 +14,9 @@
 package io.opentracing.mock;
 
 import io.opentracing.References;
+import io.opentracing.Span;
+import io.opentracing.SpanContext;
+import io.opentracing.tag.Tag;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,9 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
-
-import io.opentracing.Span;
-import io.opentracing.SpanContext;
 
 /**
  * MockSpans are created via MockTracer.buildSpan(...), but they are also returned via calls to
@@ -136,6 +136,12 @@ public final class MockSpan implements Span {
         return setObjectTag(key, value);
     }
 
+    @Override
+    public <T> MockSpan setTag(Tag<T> tag, T value) {
+        tag.set(this, value);
+        return this;
+    }
+
     private synchronized MockSpan setObjectTag(String key, Object value) {
         finishedCheck("Adding tag {%s:%s} to already finished span", key, value);
         tags.put(key, value);
@@ -202,6 +208,8 @@ public final class MockSpan implements Span {
         }
 
         public String getBaggageItem(String key) { return this.baggage.get(key); }
+        public String toTraceId() { return String.valueOf(traceId); }
+        public String toSpanId() { return String.valueOf(spanId); }
         public long traceId() { return traceId; }
         public long spanId() { return spanId; }
 

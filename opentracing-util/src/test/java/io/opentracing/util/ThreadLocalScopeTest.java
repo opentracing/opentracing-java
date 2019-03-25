@@ -38,13 +38,12 @@ public class ThreadLocalScopeTest {
         Span backgroundSpan = mock(Span.class);
         Span foregroundSpan = mock(Span.class);
 
-        // Quasi try-with-resources (this is 1.6).
-        Scope backgroundActive = scopeManager.activate(backgroundSpan, true);
+        Scope backgroundActive = scopeManager.activate(backgroundSpan);
         try {
             assertNotNull(backgroundActive);
 
             // Activate a new Scope on top of the background one.
-            Scope foregroundActive = scopeManager.activate(foregroundSpan, true);
+            Scope foregroundActive = scopeManager.activate(foregroundSpan);
             try {
                 Scope shouldBeForeground = scopeManager.active();
                 assertEquals(foregroundActive, shouldBeForeground);
@@ -60,8 +59,8 @@ public class ThreadLocalScopeTest {
         }
 
         // The background and foreground Spans should be finished.
-        verify(backgroundSpan, times(1)).finish();
-        verify(foregroundSpan, times(1)).finish();
+        verify(backgroundSpan, times(0)).finish();
+        verify(foregroundSpan, times(0)).finish();
 
         // And now nothing is active.
         Scope missingSpan = scopeManager.active();
@@ -72,8 +71,8 @@ public class ThreadLocalScopeTest {
     public void testDeactivateWhenDifferentSpanIsActive() {
         Span span = mock(Span.class);
 
-        Scope active = scopeManager.activate(span, false);
-        scopeManager.activate(mock(Span.class), false);
+        Scope active = scopeManager.activate(span);
+        scopeManager.activate(mock(Span.class));
         active.close();
 
         verify(span, times(0)).finish();

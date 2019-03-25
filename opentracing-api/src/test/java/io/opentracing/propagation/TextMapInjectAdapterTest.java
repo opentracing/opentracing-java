@@ -26,17 +26,10 @@ public class TextMapInjectAdapterTest {
 
     @Test
     public void testPut() {
-        Map<String, String> headers = new LinkedHashMap<String, String>();
+        Map<String, Object> headers = new LinkedHashMap<String, Object>();
         TextMapInjectAdapter injectAdapter = new TextMapInjectAdapter(headers);
         injectAdapter.put("foo", "bar");
 
         assertEquals("bar", headers.get("foo"));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testIterator() {
-        Map<String, String> headers = new LinkedHashMap<String, String>();
-        TextMapInjectAdapter injectAdapter = new TextMapInjectAdapter(headers);
-        injectAdapter.iterator();
     }
 }

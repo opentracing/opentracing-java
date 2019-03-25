@@ -46,17 +46,6 @@ public final class Tags {
     public static final String SPAN_KIND_CONSUMER = "consumer";
 
     /**
-     * The service name for a span, which overrides any default "service name" property defined
-     * in a tracer's config. This tag is meant to only be used when a tracer is reporting spans
-     * on behalf of another service (for example, a service mesh reporting on behalf of the services
-     * it is proxying). This tag does not need to be used when reporting spans for the service the
-     * tracer is running in.
-     *
-     * @see #PEER_SERVICE
-     */
-    public static final StringTag SERVICE = new StringTag("service");
-
-    /**
      * HTTP_URL records the url of the incoming request.
      */
     public static final StringTag HTTP_URL = new StringTag("http.url");
@@ -82,9 +71,7 @@ public final class Tags {
     public static final StringTag PEER_HOST_IPV6 = new StringTag("peer.ipv6");
 
     /**
-     * PEER_SERVICE records the service name of the peer service.
-     *
-     * @see #SERVICE
+     * PEER_SERVICE records the service name of the peer.
      */
     public static final StringTag PEER_SERVICE = new StringTag("peer.service");
 

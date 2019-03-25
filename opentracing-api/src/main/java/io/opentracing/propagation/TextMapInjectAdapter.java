@@ -27,16 +27,11 @@ import java.util.Map;
  *
  * @see Tracer#inject(SpanContext, Format, Object)
  */
-public final class TextMapInjectAdapter implements TextMap {
-    private final Map<String,String> map;
+public class TextMapInjectAdapter implements TextMapInject {
+    protected final Map<String, ? super String> map;
 
-    public TextMapInjectAdapter(final Map<String,String> map) {
+    public TextMapInjectAdapter(final Map<String, ? super String> map) {
         this.map = map;
-    }
-
-    @Override
-    public Iterator<Map.Entry<String, String>> iterator() {
-        throw new UnsupportedOperationException("TextMapInjectAdapter should only be used with Tracer.inject()");
     }
 
     @Override

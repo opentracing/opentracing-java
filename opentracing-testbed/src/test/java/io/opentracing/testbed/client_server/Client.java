@@ -14,6 +14,7 @@
 package io.opentracing.testbed.client_server;
 
 import io.opentracing.Scope;
+import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format.Builtin;
 import io.opentracing.propagation.TextMapInjectAdapter;
@@ -34,13 +35,15 @@ public class Client {
     public void send() throws InterruptedException {
         Message message = new Message();
 
-        try (Scope scope = tracer.buildSpan("send")
-                .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
-                .withTag(Tags.COMPONENT.getKey(), "example-client")
-                .startActive(true)) {
-            tracer.inject(scope.span().context(), Builtin.TEXT_MAP, new TextMapInjectAdapter(message));
+        Span span = tracer.buildSpan("send")
+            .withTag(Tags.SPAN_KIND.getKey(), Tags.SPAN_KIND_CLIENT)
+            .withTag(Tags.COMPONENT.getKey(), "example-client")
+            .start();
+        try (Scope scope = tracer.activateSpan(span)) {
+            tracer.inject(span.context(), Builtin.TEXT_MAP_INJECT, new TextMapInjectAdapter(message));
             queue.put(message);
+        } finally {
+            span.finish();
         }
     }
-
 }

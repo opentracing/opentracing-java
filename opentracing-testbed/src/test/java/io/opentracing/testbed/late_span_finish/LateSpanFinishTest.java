@@ -40,7 +40,7 @@ public class LateSpanFinishTest {
     @Test
     public void test() throws Exception {
         // Create a Span manually and use it as parent of a pair of subtasks
-        Span parentSpan = tracer.buildSpan("parent").startManual();
+        Span parentSpan = tracer.buildSpan("parent").start();
         submitTasks(parentSpan);
 
         // Wait for the threadpool to be done first, instead of polling/waiting
@@ -58,7 +58,7 @@ public class LateSpanFinishTest {
 
         assertSameTrace(spans);
 
-        assertNull(tracer.scopeManager().active());
+        assertNull(tracer.scopeManager().activeSpan());
     }
 
 
@@ -72,9 +72,12 @@ public class LateSpanFinishTest {
             @Override
             public void run() {
                 /* Alternative to calling activate() is to pass it manually to asChildOf() for each created Span. */
-                try (Scope scope = tracer.scopeManager().activate(parentSpan, false)) {
-                    try (Scope childScope1 = tracer.buildSpan("task1").startActive(true)) {
+                try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
+                    Span childSpan = tracer.buildSpan("task1").start();
+                    try (Scope childScope = tracer.scopeManager().activate(childSpan)) {
                         sleep(55);
+                    } finally {
+                        childSpan.finish();
                     }
                 }
             }
@@ -83,9 +86,12 @@ public class LateSpanFinishTest {
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                try (Scope span = tracer.scopeManager().activate(parentSpan, false)) {
-                    try (Scope childScope2 = tracer.buildSpan("task2").startActive(true)) {
+                try (Scope scope = tracer.scopeManager().activate(parentSpan)) {
+                    Span childSpan = tracer.buildSpan("task2").start();
+                    try (Scope childScope = tracer.scopeManager().activate(childSpan)) {
                         sleep(85);
+                    } finally {
+                        childSpan.finish();
                     }
                 }
             }

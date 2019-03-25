@@ -15,16 +15,18 @@ package io.opentracing.tag;
 
 import io.opentracing.Span;
 
-public abstract class AbstractTag<T> {
+public abstract class AbstractTag<T> implements Tag<T> {
     protected final String key;
 
     public AbstractTag(String tagKey) {
         this.key = tagKey;
     }
 
+    @Override
     public String getKey() {
         return key;
     }
 
-    protected abstract void set(Span span, T tagValue);
+    @Override
+    public abstract void set(Span span, T tagValue);
 }
