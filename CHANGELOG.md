@@ -12,7 +12,6 @@
 * Split Inject and Extract builtin interfaces.
 * `Tracer` implements `Closable`.
 * Added `GlobalTracer.registerIfAbsent()`.
-* Added `GlobalTracer.isRegistered()`.
 
 ## v0.31.0 (2018-01-12) 
 * `BaseSpan` and `ActiveSpan` are simplified into a single `Span` class.
