@@ -12,7 +12,7 @@
  * the License.
  */
 
-package io.opentracing.util;
+package io.opentracing.testbed;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
@@ -20,7 +20,6 @@ import io.opentracing.Span;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @deprecated use {@link ThreadLocalScope} instead.
  * The operation mode of this class contrasts with the 0.32
  * deprecation of auto finishing {@link Span}s upon {@link Scope#close()}.
 
@@ -29,7 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @see AutoFinishScopeManager
  */
-@Deprecated
 public class AutoFinishScope implements Scope {
     final AutoFinishScopeManager manager;
     final AtomicInteger refCount;
@@ -71,7 +69,6 @@ public class AutoFinishScope implements Scope {
         manager.tlsScope.set(toRestore);
     }
 
-    @Override
     public Span span() {
         return wrapped;
     }

@@ -32,15 +32,4 @@ public class StringTagTest {
 
         verify(span).setTag(key, value);
     }
-
-    @Test
-    public void testSetOtherTag() {
-        String key = "expected.key";
-
-        Span span = mock(Span.class);
-        StringTag tag = new StringTag(key);
-        tag.set(span, new StringTag(key));
-
-        verify(span).setTag(key, key);
-    }
 }

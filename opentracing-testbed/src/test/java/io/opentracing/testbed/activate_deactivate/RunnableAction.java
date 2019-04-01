@@ -13,8 +13,8 @@
  */
 package io.opentracing.testbed.activate_deactivate;
 
-import io.opentracing.util.AutoFinishScope;
-import io.opentracing.util.AutoFinishScope.Continuation;
+import io.opentracing.testbed.AutoFinishScope;
+import io.opentracing.testbed.AutoFinishScope.Continuation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

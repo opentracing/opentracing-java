@@ -36,13 +36,4 @@ public interface Scope extends Closeable {
      */
     @Override
     void close();
-
-    /**
-     * @deprecated use {@link Span} directly or access it through {@link ScopeManager#activeSpan()}
-     * Return the corresponding active {@link Span} for this instance.
-     *
-     * @return the {@link Span} that's been scoped by this {@link Scope}
-     */
-    @Deprecated
-    Span span();
 }
