@@ -1,0 +1,27 @@
+version: 2 # cirlcir ci build process for OpenTracing API for Java
+jobs:
+  build:
+    branches:
+      only:
+        - develop
+    docker:
+     - image: circleci/openjdk:8-stretch-browsers-legacy
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+           name: build jar file for api service
+           command: mvn -f opentracing-api/pom.xml clean install
+      - run:
+           name: build jar file for mok service
+           command: mvn -f opentracing-mock/pom.xml clean install
+      - run:
+           name: build jar file for noop service
+           command: mvn -f opentracing-noop/pom.xml clean install
+      - run:
+           name: build jar file for testbed
+           command: mvn -f opentracing-testbed/pom.xml clean install
+      - run:
+           name: build jar file for util
+           command: mvn -f opentracing-util/pom.xml clean install
+           
