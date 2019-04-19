@@ -24,7 +24,7 @@ public class NoopScopeManagerTest {
     @Test
     public void activeValueToleratesUseTest() {
         try{
-            final Scope active = NoopScopeManager.INSTANCE.active();
+            final Scope active = NoopScopeManager.INSTANCE.activate(NoopSpanImpl.INSTANCE);
             assertNotNull(active);
             active.close();
         } catch (final NullPointerException e) {

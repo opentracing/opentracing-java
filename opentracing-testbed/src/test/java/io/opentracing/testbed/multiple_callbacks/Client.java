@@ -16,9 +16,9 @@ package io.opentracing.testbed.multiple_callbacks;
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
-import io.opentracing.util.AutoFinishScope;
-import io.opentracing.util.AutoFinishScope.Continuation;
-import io.opentracing.util.AutoFinishScopeManager;
+import io.opentracing.testbed.AutoFinishScope;
+import io.opentracing.testbed.AutoFinishScope.Continuation;
+import io.opentracing.testbed.AutoFinishScopeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

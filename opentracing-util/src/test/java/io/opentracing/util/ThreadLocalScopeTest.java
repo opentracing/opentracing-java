@@ -41,30 +41,29 @@ public class ThreadLocalScopeTest {
         Scope backgroundActive = scopeManager.activate(backgroundSpan);
         try {
             assertNotNull(backgroundActive);
+            assertEquals(scopeManager.activeSpan(), backgroundSpan);
 
             // Activate a new Scope on top of the background one.
             Scope foregroundActive = scopeManager.activate(foregroundSpan);
             try {
-                Scope shouldBeForeground = scopeManager.active();
-                assertEquals(foregroundActive, shouldBeForeground);
+                assertNotNull(foregroundActive);
+                assertEquals(scopeManager.activeSpan(), foregroundSpan);
             } finally {
-                foregroundActive.close();
+              foregroundActive.close();
             }
 
             // And now the backgroundActive should be reinstated.
-            Scope shouldBeBackground = scopeManager.active();
-            assertEquals(backgroundActive, shouldBeBackground);
+            assertEquals(scopeManager.activeSpan(), backgroundSpan);
         } finally {
             backgroundActive.close();
         }
 
-        // The background and foreground Spans should be finished.
+        // The background and foreground Spans should NOT be finished.
         verify(backgroundSpan, times(0)).finish();
         verify(foregroundSpan, times(0)).finish();
 
         // And now nothing is active.
-        Scope missingSpan = scopeManager.active();
-        assertNull(missingSpan);
+        assertNull(scopeManager.activeSpan());
     }
 
     @Test
