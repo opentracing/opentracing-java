@@ -26,23 +26,13 @@ public class ThreadLocalScopeManager implements ScopeManager {
     final ThreadLocal<ThreadLocalScope> tlsScope = new ThreadLocal<ThreadLocalScope>();
 
     @Override
-    public Scope activate(Span span, boolean finishOnClose) {
-        return new ThreadLocalScope(this, span, finishOnClose);
-    }
-
-    @Override
     public Scope activate(Span span) {
         return new ThreadLocalScope(this, span);
     }
 
     @Override
-    public Scope active() {
-        return tlsScope.get();
-    }
-
-    @Override
     public Span activeSpan() {
-        Scope scope = tlsScope.get();
+        ThreadLocalScope scope = tlsScope.get();
         return scope == null ? null : scope.span();
     }
 }

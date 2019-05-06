@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package io.opentracing.util;
+package io.opentracing.testbed;
 
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
@@ -19,7 +19,6 @@ import io.opentracing.Span;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @deprecated use {@link ThreadLocalScopeManager} instead.
  * The operation mode of this class contrasts with the 0.32
  * deprecation of auto finishing {@link Span}s upon {@link Scope#close()}.
  * See https://github.com/opentracing/opentracing-java/issues/291
@@ -28,14 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @see AutoFinishScope
  */
-@Deprecated
 public class AutoFinishScopeManager implements ScopeManager {
     final ThreadLocal<AutoFinishScope> tlsScope = new ThreadLocal<AutoFinishScope>();
-
-    @Override
-    public AutoFinishScope activate(Span span, boolean finishOnClose) {
-        return new AutoFinishScope(this, new AtomicInteger(1), span);
-    }
 
     @Override
     public AutoFinishScope activate(Span span) {
@@ -43,14 +36,13 @@ public class AutoFinishScopeManager implements ScopeManager {
     }
 
     @Override
-    public AutoFinishScope active() {
-        return tlsScope.get();
-    }
-
-    @Override
     public Span activeSpan() {
         AutoFinishScope scope = tlsScope.get();
         return scope == null ? null : scope.span();
+    }
+
+    public AutoFinishScope active() {
+        return tlsScope.get();
     }
 
     public AutoFinishScope.Continuation captureScope() {

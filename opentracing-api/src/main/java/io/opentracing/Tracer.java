@@ -196,12 +196,6 @@ public interface Tracer extends Closeable {
         SpanBuilder withStartTimestamp(long microseconds);
 
         /**
-         * @deprecated use {@link #start} instead.
-         */
-        @Deprecated
-        Span startManual();
-
-        /**
          * Returns a newly-started {@link Span}.
          *
          * <p>
@@ -219,47 +213,5 @@ public interface Tracer extends Closeable {
          *         via the {@link ScopeManager}
          */
         Span start();
-
-        /**
-         * @deprecated use {@link #start()} and {@link ScopeManager#activate(Span span)} instead.
-         * Returns a newly started and activated {@link Scope}.
-         *
-         * <p>
-         * {@link SpanBuilder#startActive()} is a shorthand for
-         * {@code tracer.scopeManager().activate(spanBuilder.start())}.
-         * The returned {@link Scope} supports try-with-resources, but using this method is
-         * discouraged as the {@link Span} reference could be easily lost, and reporting
-         * errors on {@link Span} through this method becomes impossible:
-         * <pre><code>
-         *     try (Scope scope = tracer.buildSpan("...").startActive(true)) {
-         *         // (Do work)
-         *         scope.span().setTag( ... );  // etc, etc
-         *     } catch (Exception e) {
-         *         // Not possible to report errors, as
-         *         // the span reference has been lost,
-         *         // and span has been already finished too.
-         *     }
-         * </code></pre>
-         *
-         * <p>
-         * It is recommended to use {@link #start()} with a subsequent call to
-         * {@link ScopeManager#activate(Span)}
-         * <pre><code>
-         *     Span span = tracer.buildSpan("...").start();
-         *     try (Scope scope = tracer.activateSpan(span)) {
-         *     } catch (Exception e) {
-         *         span.log(...); // Report any errors properly.
-         *     } finally {
-         *         span.finish(); // Optionally close the Span.
-         *     }
-         * </code></pre>
-         *
-         * @return a {@link Scope}, already registered via the {@link ScopeManager}
-         *
-         * @see ScopeManager
-         * @see Scope
-         */
-        @Deprecated
-        Scope startActive(boolean finishSpanOnClose);
     }
 }

@@ -265,28 +265,11 @@ public class MockTracerTest {
     }
 
     @Test
-    public void testActiveSpanFinish() {
-        MockTracer mockTracer = new MockTracer();
-        Assert.assertNull(mockTracer.activeSpan());
-
-        Scope scope = null;
-        try {
-            scope = mockTracer.buildSpan("foo").startActive(true);
-            Assert.assertEquals(mockTracer.scopeManager().activeSpan(), mockTracer.activeSpan());
-        } finally {
-            scope.close();
-        }
-
-        Assert.assertNull(mockTracer.activeSpan());
-        Assert.assertFalse(mockTracer.finishedSpans().isEmpty());
-    }
-
-    @Test
     public void testReset() {
         MockTracer mockTracer = new MockTracer();
 
         mockTracer.buildSpan("foo")
-            .startManual()
+            .start()
             .finish();
 
         assertEquals(1, mockTracer.finishedSpans().size());
@@ -297,11 +280,11 @@ public class MockTracerTest {
     @Test
     public void testFollowFromReference() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+        final MockSpan precedent = tracer.buildSpan("precedent").start();
 
         final MockSpan followingSpan = tracer.buildSpan("follows")
             .addReference(References.FOLLOWS_FROM, precedent.context())
-            .startManual();
+            .start();
 
         assertEquals(precedent.context().spanId(), followingSpan.parentId());
         assertEquals(1, followingSpan.references().size());
@@ -314,13 +297,13 @@ public class MockTracerTest {
     @Test
     public void testMultiReferences() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan parent = tracer.buildSpan("parent").startManual();
-        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+        final MockSpan parent = tracer.buildSpan("parent").start();
+        final MockSpan precedent = tracer.buildSpan("precedent").start();
 
         final MockSpan followingSpan = tracer.buildSpan("follows")
             .addReference(References.FOLLOWS_FROM, precedent.context())
             .asChildOf(parent.context())
-            .startManual();
+            .start();
 
         assertEquals(parent.context().spanId(), followingSpan.parentId());
         assertEquals(2, followingSpan.references().size());
@@ -335,15 +318,15 @@ public class MockTracerTest {
     @Test
     public void testMultiReferencesBaggage() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan parent = tracer.buildSpan("parent").startManual();
+        final MockSpan parent = tracer.buildSpan("parent").start();
         parent.setBaggageItem("parent", "foo");
-        final MockSpan precedent = tracer.buildSpan("precedent").startManual();
+        final MockSpan precedent = tracer.buildSpan("precedent").start();
         precedent.setBaggageItem("precedent", "bar");
 
         final MockSpan followingSpan = tracer.buildSpan("follows")
             .addReference(References.FOLLOWS_FROM, precedent.context())
             .asChildOf(parent.context())
-            .startManual();
+            .start();
 
         assertEquals("foo", followingSpan.getBaggageItem("parent"));
         assertEquals("bar", followingSpan.getBaggageItem("precedent"));
@@ -352,11 +335,11 @@ public class MockTracerTest {
     @Test
     public void testNonStandardReference() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan parent = tracer.buildSpan("parent").startManual();
+        final MockSpan parent = tracer.buildSpan("parent").start();
 
         final MockSpan nextSpan = tracer.buildSpan("follows")
             .addReference("a_reference", parent.context())
-            .startManual();
+            .start();
 
         assertEquals(parent.context().spanId(), nextSpan.parentId());
         assertEquals(1, nextSpan.references().size());
@@ -384,11 +367,10 @@ public class MockTracerTest {
         MockTracer mockTracer = new MockTracer();
         Span span = mockTracer.buildSpan("foo").start();
         Scope scope = mockTracer.activateSpan(span);
-        assertEquals(scope, mockTracer.scopeManager().active());
         assertEquals(span, mockTracer.scopeManager().activeSpan());
 
         Map<String, String> propag = new HashMap<>();
-        mockTracer.inject(scope.span().context(), Format.Builtin.TEXT_MAP, new TextMapAdapter(propag));
+        mockTracer.inject(span.context(), Format.Builtin.TEXT_MAP, new TextMapAdapter(propag));
         assertFalse(propag.isEmpty());
     }
 

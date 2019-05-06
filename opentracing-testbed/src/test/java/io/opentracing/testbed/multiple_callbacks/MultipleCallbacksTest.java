@@ -15,14 +15,15 @@ package io.opentracing.testbed.multiple_callbacks;
 
 import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.util.AutoFinishScopeManager;
 import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.mock.MockTracer.Propagator;
+import io.opentracing.testbed.AutoFinishScopeManager;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 
 import static io.opentracing.testbed.TestUtils.finishedSpansSize;
 import static org.awaitility.Awaitility.await;
