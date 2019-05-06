@@ -1,5 +1,15 @@
 # Changes by Version
 
+## v0.33.0 (2019-05-06)
+
+* Deprecated members removed:
+  - `ScopeManager.active()`
+  - `ScopeManager.activate(Span, boolean)`
+  - `Scope.span()`
+  - `SpanBuilder.startActive()`
+  - `Tracer.startManual()`
+  - `AutoFinishScopeManager`
+
 ## v0.32.0 (2019-03-20)
 
 * Trace Identifiers added to `SpanContext`.
