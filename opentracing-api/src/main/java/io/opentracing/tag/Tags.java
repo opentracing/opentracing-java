@@ -104,6 +104,11 @@ public final class Tags {
      * ERROR indicates whether a Span ended in an error state.
      */
     public static final BooleanTag ERROR = new BooleanTag("error");
+    
+     /**
+     * ERROR_KIND indicates the kind of error, e.g. NullPointerException.
+     */
+    public static final StringTag ERROR_KIND = new StringTag("error.kind");
 
     /**
      * DB_TYPE indicates the type of Database.
