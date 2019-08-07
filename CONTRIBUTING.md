@@ -2,16 +2,15 @@
 
 If you would like to contribute code you can do so through GitHub by forking the repository and sending a pull request (on a branch other than `master` or `gh-pages`).
 
-
 ## License
 
-By contributing your code, you agree to license your contribution under the terms of the APLv2: https://github.com/opentracing/opentracing-java/blob/master/LICENSE
+By contributing your code, you agree to license your contribution under the terms of the APLv2: <https://github.com/opentracing/opentracing-java/blob/master/LICENSE>
 
 All files are released with the Apache 2.0 license.
 
 If you are adding a new file it should have a header like below. This can be automatically added by running `./mvnw com.mycila:license-maven-plugin:format`.
 
-```
+```java
 /**
  * Copyright 2016-2019 The OpenTracing Authors
  *
