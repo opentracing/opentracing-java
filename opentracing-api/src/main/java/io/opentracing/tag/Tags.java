@@ -18,7 +18,7 @@ package io.opentracing.tag;
  * semantic information about the spans. Tracers may expose additional features based on these
  * standardized data points. Tag names follow a general structure of namespacing.
  *
- * @see <a href="https://github.com/opentracing/specification/blob/master/semantic_conventions.md">https://github.com/opentracing/specification/blob/master/semantic_conventions.md</a>
+ * @see <a href="https://github.com/opentracing/specification/blob/1.1/semantic_conventions.md">OpenTracing Specification Semantic Conventions v1.1</a>
  */
 
 public final class Tags {
@@ -59,6 +59,13 @@ public final class Tags {
      * HTTP_METHOD records the http method. Case-insensitive.
      */
     public static final StringTag HTTP_METHOD = new StringTag("http.method");
+
+    /**
+     * PEER_ADDRESS records remote "address", suitable for use in a networking client library.
+     * This may be a `"ip:port"`, a bare `"hostname"`, a FQDN,
+     * or even a JDBC substring like `"mysql://prod-db:3306"`.
+     */
+    public static final StringTag PEER_ADDRESS = new StringTag("peer.address");
 
     /**
      * PEER_HOST_IPV4 records IPv4 host address of the peer.
