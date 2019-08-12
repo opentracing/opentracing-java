@@ -114,6 +114,30 @@ public class MockTracerTest {
     }
 
     @Test
+    public void testFinishedTraces() {
+        final int TRACE_CNT = 3;
+
+        Map<String, Map<String, Span>> expect = new HashMap<>();
+
+        try(MockTracer tracer = new MockTracer()) {
+            for (int i = 0; i < TRACE_CNT; i++) {
+                Span parent = tracer.buildSpan("parent").withStartTimestamp(1000).start();
+                Span child = tracer.buildSpan("child").withStartTimestamp(1100).asChildOf(parent).start();
+                child.finish(1900);
+                parent.finish(2000);
+
+                Map<String, Span> spans = new HashMap<>();
+                spans.put(parent.context().toSpanId(), parent);
+                spans.put(child.context().toSpanId(), child);
+
+                expect.put(parent.context().toTraceId(), spans);
+            }
+
+            Assert.assertTrue(expect.equals(tracer.finishedTraces()));
+        }
+    }
+
+    @Test
     public void testStartTimestamp() throws InterruptedException {
         MockTracer tracer = new MockTracer();
         long startMicros;

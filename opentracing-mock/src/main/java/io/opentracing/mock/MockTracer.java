@@ -93,6 +93,28 @@ public class MockTracer implements Tracer {
     }
 
     /**
+     * @return a copy of all finish()ed Traces(Spans) started by this MockTracer grouped by traceId and spanId in HashMap format.
+     */
+    public Map<String, Map<String, Span>> finishedTraces() {
+        Map<String, Map<String, Span>> result = new HashMap<>();
+
+        for (MockSpan span: this.finishedSpans()) {
+            String traceId = span.context().toTraceId();
+
+            Map<String, Span> spanId2Span = result.get(traceId);
+            if (null == spanId2Span) {
+                spanId2Span = new HashMap<>();
+                result.put(traceId, spanId2Span);
+            }
+
+            String spanId = span.context().toSpanId();
+            spanId2Span.put(spanId, span);
+        }
+
+        return result;
+    }
+
+    /**
      * Noop method called on {@link Span#finish()}.
      */
     protected void onSpanFinished(MockSpan mockSpan) {
