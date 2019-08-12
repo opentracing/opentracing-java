@@ -34,10 +34,7 @@ import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.noop.NoopScopeManager;
-import io.opentracing.propagation.Binary;
 import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMap;
 import io.opentracing.tag.Tag;
 import io.opentracing.util.ThreadLocalScopeManager;
 
@@ -126,8 +123,6 @@ public class MockTracer implements Tracer {
         };
 
         Propagator BINARY = new Propagator() {
-            static final int BUFFER_SIZE = 128;
-
             @Override
             public <C> void inject(MockSpan.MockContext ctx, Format<C> format, C carrier) {
                 if (!(carrier instanceof BinaryInject)) {
@@ -171,7 +166,6 @@ public class MockTracer implements Tracer {
                 Map<String, String> baggage = new HashMap<>();
 
                 BinaryExtract binary = (BinaryExtract) carrier;
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 ObjectInputStream objStream = null;
                 try {
                     ByteBuffer extractBuff = binary.extractionBuffer();
