@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -96,14 +97,14 @@ public class MockTracer implements Tracer {
      * @return a copy of all finish()ed Traces(Spans) started by this MockTracer grouped by traceId and spanId in HashMap format.
      */
     public Map<String, Map<String, Span>> finishedTraces() {
-        Map<String, Map<String, Span>> result = new HashMap<>();
+        Map<String, Map<String, Span>> result = new LinkedHashMap<>();
 
         for (MockSpan span: this.finishedSpans()) {
             String traceId = span.context().toTraceId();
 
             Map<String, Span> spanId2Span = result.get(traceId);
             if (null == spanId2Span) {
-                spanId2Span = new HashMap<>();
+                spanId2Span = new LinkedHashMap<>();
                 result.put(traceId, spanId2Span);
             }
 
