@@ -84,7 +84,7 @@ public class MockTracer implements Tracer {
     }
 
     /**
-     * @return a copy of all finish()ed MockSpans started by this MockTracer (since construction or the last call to
+     * @return all finish()ed MockSpans started by this MockTracer (since construction or the last call to
      * MockTracer.reset()).
      *
      * @see MockTracer#reset()
@@ -94,15 +94,15 @@ public class MockTracer implements Tracer {
     }
 
     /**
-     * @return a copy of all finish()ed Traces(Spans) started by this MockTracer grouped by traceId and spanId in HashMap format.
+     * @return all finish()ed Traces(Spans) started by this MockTracer grouped by traceId and spanId in HashMap format.
      */
-    public Map<String, Map<String, Span>> finishedTraces() {
-        Map<String, Map<String, Span>> result = new LinkedHashMap<>();
+    public Map<String, Map<String, MockSpan>> finishedTraces() {
+        Map<String, Map<String, MockSpan>> result = new LinkedHashMap<>();
 
         for (MockSpan span: this.finishedSpans()) {
             String traceId = span.context().toTraceId();
 
-            Map<String, Span> spanId2Span = result.get(traceId);
+            Map<String, MockSpan> spanId2Span = result.get(traceId);
             if (null == spanId2Span) {
                 spanId2Span = new LinkedHashMap<>();
                 result.put(traceId, spanId2Span);
