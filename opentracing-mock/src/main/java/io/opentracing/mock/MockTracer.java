@@ -24,7 +24,6 @@ import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -91,7 +90,7 @@ public class MockTracer implements Tracer {
      * @see MockTracer#reset()
      */
     public synchronized List<MockSpan> finishedSpans() {
-        return Collections.unmodifiableList(new ArrayList<>(this.finishedSpans));
+        return new ArrayList<>(this.finishedSpans);
     }
 
     /**
@@ -113,11 +112,7 @@ public class MockTracer implements Tracer {
             spanId2Span.put(spanId, span);
         }
 
-        for (Map.Entry<String, Map<String, MockSpan>> entry : result.entrySet()) {
-            result.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
-        }
-
-        return Collections.unmodifiableMap(result);
+        return result;
     }
 
     /**

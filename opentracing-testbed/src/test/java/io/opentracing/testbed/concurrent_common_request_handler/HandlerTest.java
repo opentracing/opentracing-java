@@ -23,7 +23,6 @@ import io.opentracing.util.ThreadLocalScopeManager;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -123,8 +122,6 @@ public class HandlerTest {
         List<MockSpan> finished = tracer.finishedSpans();
         assertEquals(3, finished.size());
 
-        // Because `MockerTracker.finishedSpans()` is unmodifiable.
-        finished = new ArrayList<>(finished);
         sortByStartMicros(finished);
 
         MockSpan parent = getOneByOperationName(finished, "parent");
