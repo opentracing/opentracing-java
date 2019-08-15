@@ -96,10 +96,10 @@ public class MockTracer implements Tracer {
     /**
      * @return all finish()ed Traces(Spans) started by this MockTracer grouped by traceId and spanId in HashMap format.
      */
-    public Map<String, Map<String, MockSpan>> finishedTraces() {
+    public synchronized Map<String, Map<String, MockSpan>> finishedTraces() {
         Map<String, Map<String, MockSpan>> result = new LinkedHashMap<>();
 
-        for (MockSpan span: this.finishedSpans()) {
+        for (MockSpan span: this.finishedSpans) {
             String traceId = span.context().toTraceId();
 
             Map<String, MockSpan> spanId2Span = result.get(traceId);
