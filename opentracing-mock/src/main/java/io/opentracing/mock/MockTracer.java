@@ -84,7 +84,7 @@ public class MockTracer implements Tracer {
     }
 
     /**
-     * @return all finish()ed MockSpans started by this MockTracer (since construction or the last call to
+     * @return a copy of all finish()ed MockSpans started by this MockTracer (since construction or the last call to
      * MockTracer.reset()).
      *
      * @see MockTracer#reset()
