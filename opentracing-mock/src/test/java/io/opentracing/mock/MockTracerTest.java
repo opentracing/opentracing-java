@@ -22,6 +22,7 @@ import io.opentracing.propagation.BinaryInject;
 import io.opentracing.propagation.TextMapAdapter;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,6 +113,30 @@ public class MockTracerTest {
         assertEquals(parent.context().spanId(), child.parentId());
         assertEquals(parent.context().traceId(), child.context().traceId());
 
+    }
+
+    @Test
+    public void testFinishedTraces() {
+        final int TRACE_CNT = 3;
+
+        Map<String, Map<String, MockSpan>> expect = new LinkedHashMap<>();
+
+        try(MockTracer tracer = new MockTracer()) {
+            for (int i = 0; i < TRACE_CNT; i++) {
+                MockSpan parent = tracer.buildSpan("parent").withStartTimestamp(1000).start();
+                MockSpan child = tracer.buildSpan("child").withStartTimestamp(1100).asChildOf(parent).start();
+                child.finish(1900);
+                parent.finish(2000);
+
+                Map<String, MockSpan> spans = new LinkedHashMap<>();
+                spans.put(parent.context().toSpanId(), parent);
+                spans.put(child.context().toSpanId(), child);
+
+                expect.put(parent.context().toTraceId(), spans);
+            }
+
+            Assert.assertTrue(expect.equals(tracer.finishedTraces()));
+        }
     }
 
     @Test
