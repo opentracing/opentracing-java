@@ -123,8 +123,8 @@ public class MockTracerTest {
 
         try(MockTracer tracer = new MockTracer()) {
             for (int i = 0; i < TRACE_CNT; i++) {
-                MockSpan parent = tracer.buildSpan("parent").withStartTimestamp(1000).start();
-                MockSpan child = tracer.buildSpan("child").withStartTimestamp(1100).asChildOf(parent).start();
+                MockSpan parent = (MockSpan) tracer.buildSpan("parent").withStartTimestamp(1000).start();
+                MockSpan child = (MockSpan) tracer.buildSpan("child").withStartTimestamp(1100).asChildOf(parent).start();
                 child.finish(1900);
                 parent.finish(2000);
 
@@ -305,9 +305,9 @@ public class MockTracerTest {
     @Test
     public void testFollowFromReference() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan precedent = tracer.buildSpan("precedent").start();
+        final MockSpan precedent = (MockSpan) tracer.buildSpan("precedent").start();
 
-        final MockSpan followingSpan = tracer.buildSpan("follows")
+        final MockSpan followingSpan = (MockSpan) tracer.buildSpan("follows")
             .addReference(References.FOLLOWS_FROM, precedent.context())
             .start();
 
@@ -322,10 +322,10 @@ public class MockTracerTest {
     @Test
     public void testMultiReferences() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan parent = tracer.buildSpan("parent").start();
-        final MockSpan precedent = tracer.buildSpan("precedent").start();
+        final MockSpan parent = (MockSpan) tracer.buildSpan("parent").start();
+        final MockSpan precedent = (MockSpan) tracer.buildSpan("precedent").start();
 
-        final MockSpan followingSpan = tracer.buildSpan("follows")
+        final MockSpan followingSpan = (MockSpan) tracer.buildSpan("follows")
             .addReference(References.FOLLOWS_FROM, precedent.context())
             .asChildOf(parent.context())
             .start();
@@ -343,12 +343,12 @@ public class MockTracerTest {
     @Test
     public void testMultiReferencesBaggage() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan parent = tracer.buildSpan("parent").start();
+        final MockSpan parent = (MockSpan) tracer.buildSpan("parent").start();
         parent.setBaggageItem("parent", "foo");
-        final MockSpan precedent = tracer.buildSpan("precedent").start();
+        final MockSpan precedent = (MockSpan) tracer.buildSpan("precedent").start();
         precedent.setBaggageItem("precedent", "bar");
 
-        final MockSpan followingSpan = tracer.buildSpan("follows")
+        final MockSpan followingSpan = (MockSpan) tracer.buildSpan("follows")
             .addReference(References.FOLLOWS_FROM, precedent.context())
             .asChildOf(parent.context())
             .start();
@@ -360,9 +360,9 @@ public class MockTracerTest {
     @Test
     public void testNonStandardReference() {
         MockTracer tracer = new MockTracer(MockTracer.Propagator.TEXT_MAP);
-        final MockSpan parent = tracer.buildSpan("parent").start();
+        final MockSpan parent = (MockSpan) tracer.buildSpan("parent").start();
 
-        final MockSpan nextSpan = tracer.buildSpan("follows")
+        final MockSpan nextSpan = (MockSpan) tracer.buildSpan("follows")
             .addReference("a_reference", parent.context())
             .start();
 
