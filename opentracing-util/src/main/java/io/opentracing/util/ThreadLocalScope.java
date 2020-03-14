@@ -17,6 +17,9 @@ import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * {@link ThreadLocalScope} is a simple {@link Scope} implementation that relies on Java's
  * thread-local storage primitive.
@@ -24,6 +27,8 @@ import io.opentracing.Span;
  * @see ScopeManager
  */
 public class ThreadLocalScope implements Scope {
+    private static final Logger log = Logger.getLogger(ThreadLocalScope.class.getName());
+
     private final ThreadLocalScopeManager scopeManager;
     private final Span wrapped;
     private final ThreadLocalScope toRestore;
@@ -39,6 +44,8 @@ public class ThreadLocalScope implements Scope {
     public void close() {
         if (scopeManager.tlsScope.get() != this) {
             // This shouldn't happen if users call methods in the expected order. Bail out.
+            log.log(Level.SEVERE, "Scope being closed is not the active instance.",
+                new Throwable().fillInStackTrace());
             return;
         }
 
