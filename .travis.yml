@@ -12,7 +12,7 @@ language: java
 
 jdk:
   - oraclejdk8
-
+sudo: false
 addons:
   apt:
     packages:
