@@ -207,7 +207,7 @@ public interface Tracer extends Closeable {
          * </ul>
          * ... then an inferred {@link References#CHILD_OF} reference is created to the
          * {@link ScopeManager#activeSpan()}'s {@link SpanContext} when either
-         * {@link SpanBuilder#start()} or {@link SpanBuilder#startActive} is invoked.
+         * {@link SpanBuilder#start()} is invoked.
 
          * @return the newly-started Span instance, which has *not* been automatically registered
          *         via the {@link ScopeManager}
